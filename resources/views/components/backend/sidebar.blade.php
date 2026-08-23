@@ -1,5 +1,4 @@
-<aside
-    id="sidebar"
+<aside id="sidebar"
     class="
         fixed inset-y-0 left-0 z-50
         flex w-64 flex-col
@@ -8,15 +7,14 @@
         transform -translate-x-full
         transition-transform duration-300 ease-in-out
         lg:translate-x-0
-    "
->
+    ">
 
     {{-- Logo --}}
     <div class="flex h-20 shrink-0 items-center border-b border-slate-100 px-5">
 
         <div class="flex items-center gap-3">
 
-        <img src="{{asset('/assets/images/logo.png')}}" alt="isdb logo" class="w-70">
+            <img src="{{ asset('/assets/images/logo.png') }}" alt="isdb logo" class="w-70">
 
         </div>
 
@@ -24,7 +22,7 @@
 
 
     {{-- Navigation --}}
-    <div class="flex-1 overflow-y-auto px-3 py-5">
+    <div class="sidebar-scroll flex-1 overflow-y-auto px-3 py-5">
 
         <p class="mb-3 px-3 text-[10px] font-semibold uppercase
                   tracking-wider text-slate-400">
@@ -35,19 +33,25 @@
         <nav class="space-y-1">
 
             {{-- Dashboard --}}
-            <a href="#"
-                class="flex items-center gap-3 rounded-lg
-                       bg-primary/10 px-3 py-2.5
-                       text-sm font-medium text-primary
-                       transition hover:bg-primary/15">
+            <x-sidebar.link route="dashboard" icon="bi-speedometer2">
+                Dashboard
+            </x-sidebar.link>
 
-                <i class="bi bi-grid text-base"></i>
+            <x-sidebar.dropdown title="Rounds" route="rounds.*" icon="bi-layers">
 
-                <span>Dashboard</span>
+                <x-sidebar.sub-link route="rounds.index">
+                    All Rounds
+                </x-sidebar.sub-link>
 
-                <span class="ml-auto h-1.5 w-1.5 rounded-full bg-primary"></span>
+                <x-sidebar.sub-link route="rounds.create">
+                    Create Round
+                </x-sidebar.sub-link>
 
-            </a>
+                <x-sidebar.sub-link route="rounds.deleted">
+                    Deleted Rounds
+                </x-sidebar.sub-link>
+
+            </x-sidebar.dropdown>
 
 
             {{-- Students --}}
@@ -237,7 +241,8 @@
         <div class="flex items-center gap-3">
 
             {{-- User Avatar --}}
-            <div class="flex h-9 w-9 shrink-0 items-center
+            <div
+                class="flex h-9 w-9 shrink-0 items-center
                         justify-center rounded-full
                         bg-primary/10 text-xs font-semibold
                         text-primary">
@@ -251,7 +256,7 @@
             <div class="min-w-0 flex-1">
 
                 <p class="truncate text-sm font-semibold text-slate-700">
-                    Amina Rahman
+                    Admin
                 </p>
 
                 <p class="truncate text-xs text-slate-400">
@@ -262,8 +267,7 @@
 
 
             {{-- Logout --}}
-            <button
-                class="text-slate-400 transition
+            <button class="text-slate-400 transition
                        hover:text-primary">
 
                 <i class="bi bi-box-arrow-right"></i>

@@ -1,7 +1,7 @@
 @extends('layouts.backend.app')
 
 @section('content')
-    <div class="min-h-screen bg-[#f7f8fc] px-4 py-6 sm:px-6 lg:px-8">
+    <div class="min-h-screen bg-[#f7f8fc]">
 
         {{-- Page Header --}}
         <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

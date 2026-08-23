@@ -6,9 +6,7 @@
         <div class="flex items-center gap-3">
 
             {{-- Mobile Menu --}}
-            <button
-                id="sidebarToggle"
-                type="button"
+            <button id="sidebarToggle" type="button"
                 class="
                     flex h-10 w-10 items-center justify-center
                     rounded-lg border border-slate-200
@@ -21,8 +19,7 @@
                     focus:ring-2
                     focus:ring-primary/30
                     lg:hidden
-                "
-            >
+                ">
                 <i class="bi bi-list text-xl"></i>
             </button>
 
@@ -42,60 +39,31 @@
         {{-- Right --}}
         <div class="flex items-center gap-2 sm:gap-4">
 
-            {{-- Academic Year --}}
-            <button
-                type="button"
-                class="
-                    hidden items-center gap-2
-                    rounded-lg border border-slate-200
-                    px-3 py-2
-                    text-xs font-medium text-slate-600
-                    transition
-                    hover:border-primary/30
-                    hover:bg-primary/10
-                    hover:text-primary
-                    focus:outline-none
-                    focus:ring-2
-                    focus:ring-primary/30
-                    sm:flex
-                "
-            >
+            {{-- Current Date & Time --}}
+            <div
+                class="hidden items-center gap-2
+        rounded-lg border border-slate-200
+        px-3 py-2
+        text-xs font-medium text-slate-600
+        sm:flex
+    ">
+                <i class="bi bi-calendar3 text-primary"></i>
 
-                <span>Academic year 2024–25</span>
+                <div class="flex items-center gap-2">
+                    <span id="currentDate"></span>
 
-                <i class="bi bi-chevron-down text-[10px]"></i>
+                    <span class="text-slate-300">|</span>
 
-            </button>
-
-
-            {{-- Mobile Year --}}
-            <button
-                type="button"
-                class="
-                    flex h-9 w-9 items-center justify-center
-                    rounded-lg border border-slate-200
-                    text-slate-500
-                    transition
-                    hover:border-primary/30
-                    hover:bg-primary/10
-                    hover:text-primary
-                    focus:outline-none
-                    focus:ring-2
-                    focus:ring-primary/30
-                    sm:hidden
-                "
-            >
-                <i class="bi bi-calendar3"></i>
-            </button>
+                    <span id="currentTime" class="tabular-nums"></span>
+                </div>
+            </div>
 
 
             {{-- Profile --}}
             <div class="relative">
 
                 {{-- Avatar Button --}}
-                <button
-                    id="profileToggle"
-                    type="button"
+                <button id="profileToggle" type="button"
                     class="
                         flex h-9 w-9 shrink-0
                         items-center justify-center
@@ -109,15 +77,13 @@
                         focus:outline-none
                         focus:ring-4
                         focus:ring-primary/10
-                    "
-                >
+                    ">
                     AR
                 </button>
 
 
                 {{-- Profile Popup --}}
-                <div
-                    id="profilePopup"
+                <div id="profilePopup"
                     class="
                         absolute right-0 top-12 z-50
                         hidden w-72
@@ -126,8 +92,7 @@
                         border border-slate-200
                         bg-white
                         shadow-lg
-                    "
-                >
+                    ">
 
                     {{-- Profile Header --}}
                     <div class="border-b border-slate-100 px-4 py-4">
@@ -143,8 +108,7 @@
                                     bg-primary/10
                                     text-sm font-bold
                                     text-primary
-                                "
-                            >
+                                ">
                                 AR
                             </div>
 
@@ -153,11 +117,11 @@
                             <div class="min-w-0">
 
                                 <p class="truncate text-sm font-semibold text-slate-800">
-                                    Amina Rahman
+                                    Admin
                                 </p>
 
                                 <p class="truncate text-xs text-slate-400">
-                                    amina@example.com
+                                    admin@example.com
                                 </p>
 
                             </div>
@@ -180,8 +144,7 @@
                                     rounded-lg
                                     bg-primary/10
                                     text-primary
-                                "
-                            >
+                                ">
                                 <i class="bi bi-shield-check"></i>
                             </div>
 
@@ -211,8 +174,7 @@
                                     rounded-lg
                                     bg-emerald-50
                                     text-emerald-600
-                                "
-                            >
+                                ">
                                 <i class="bi bi-person-check"></i>
                             </div>
 
@@ -236,8 +198,7 @@
                     {{-- Footer --}}
                     <div class="border-t border-slate-100 p-3">
 
-                        <button
-                            type="button"
+                        <button type="button"
                             class="
                                 flex w-full items-center gap-3
                                 rounded-lg px-3 py-2.5
@@ -246,8 +207,7 @@
                                 transition
                                 hover:bg-primary/5
                                 hover:text-primary
-                            "
-                        >
+                            ">
 
                             <i class="bi bi-person-circle"></i>
 
@@ -259,8 +219,7 @@
 
 
                         {{-- Logout --}}
-                        <button
-                            type="button"
+                        <button type="button"
                             class="
                                 flex w-full items-center gap-3
                                 rounded-lg px-3 py-2.5
@@ -268,8 +227,7 @@
                                 text-red-500
                                 transition
                                 hover:bg-red-50
-                            "
-                        >
+                            ">
 
                             <i class="bi bi-box-arrow-right"></i>
 
@@ -293,4 +251,35 @@
 {{-- Profile Popup Script --}}
 @push('scripts')
     <script src="{{ asset('/assets/js/profilePopup.js') }}"></script>
+    <script>
+        const updateDateTime = () => {
+            const now = new Date();
+            // Date
+            const date = now.toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+            // Time
+            const time = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+            const dateElement = document.getElementById('currentDate');
+            const timeElement = document.getElementById('currentTime');
+            if (dateElement) {
+                dateElement.textContent = date;
+            }
+            if (timeElement) {
+                timeElement.textContent = time;
+            }
+        };
+
+        // Initial update
+        updateDateTime();
+        // Update every second
+        setInterval(updateDateTime, 1000);
+    </script>
 @endpush

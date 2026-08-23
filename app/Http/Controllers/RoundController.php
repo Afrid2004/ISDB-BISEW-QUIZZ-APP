@@ -21,7 +21,7 @@ class RoundController extends Controller
 
                     // Search by ID only if search value is numeric
                     if (is_numeric($search)) {
-                        $q->where('id', $search)
+                        $q->where('id', "=", $search)
                             ->orWhere('round_number', 'like', "%{$search}%");
                     } else {
                         $q->where('description', 'like', "%{$search}%");
@@ -132,5 +132,30 @@ class RoundController extends Controller
         return redirect()
             ->route('rounds.index')
             ->with('success', 'Round deleted successfully.');
+    }
+
+    public function deletedRounds(Request $request)
+    {
+        $search = $request->input('search');
+
+        $rounds = Round::query()
+            ->when($search, function ($query, $search) {
+
+                $query->where(function ($q) use ($search) {
+                    // Search by ID only if search value is numeric
+                    if (is_numeric($search)) {
+                        $q->where('id', "=", $search)
+                            ->orWhere('round_number', 'like', "%{$search}%");
+                    } else {
+                        $q->where('description', 'like', "%{$search}%");
+                    }
+                });
+            })
+            ->onlyTrashed()
+            ->orderByDesc('id')
+            ->paginate(5)
+            ->withQueryString();
+
+        return view('rounds.deleted', compact('rounds', 'search'));
     }
 }
