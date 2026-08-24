@@ -16,9 +16,21 @@ document.addEventListener("DOMContentLoaded", function () {
         otherSection.classList.add("hidden");
     }
 
-    csvTab.onclick = () =>
+    csvTab.onclick = () => {
+        sessionStorage.setItem("question_tab", "csv");
         activateTab(csvTab, csvSection, manualTab, manualSection);
+    };
 
-    manualTab.onclick = () =>
+    manualTab.onclick = () => {
+        sessionStorage.setItem("question_tab", "manual");
         activateTab(manualTab, manualSection, csvTab, csvSection);
+    };
+
+    // get the saved tab
+    const savedTab = sessionStorage.getItem("question_tab");
+    if (savedTab === "csv") {
+        activateTab(csvTab, csvSection, manualTab, manualSection);
+    } else {
+        activateTab(manualTab, manualSection, csvTab, csvSection);
+    }
 });

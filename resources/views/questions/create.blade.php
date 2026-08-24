@@ -292,7 +292,7 @@
                         class="inline-flex items-center gap-2 rounded-lg
                                bg-primary px-5 py-2.5 text-sm font-semibold
                                text-white shadow-sm transition
-                               hover:bg-primary/90">
+                               hover:bg-primary/90 cursor-pointer">
 
                         <i class="bi bi-cloud-upload"></i>
 
@@ -358,9 +358,7 @@
                             </h3>
 
 
-                            <div
-                                class="grid grid-cols-1 gap-4 sm:grid-cols-2
-                                        lg:grid-cols-3">
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
 
                                 {{-- Subject --}}
@@ -452,6 +450,22 @@
 
                                 </div>
 
+                                {{-- Marks --}}
+                                <div>
+                                    <label for="marks" class="mb-2 block text-xs font-semibold text-slate-600">
+                                        Marks
+                                    </label>
+
+                                    <input type="number" id="marks" name="marks" value="2" min="1"
+                                        placeholder="Enter marks"
+                                        class="w-full rounded-lg border border-slate-200
+               bg-white px-3 py-2.75 text-sm
+               text-slate-600 outline-none
+               transition
+               focus:border-primary
+               focus:ring-2 focus:ring-primary/10">
+                                </div>
+
                             </div>
 
                         </div>
@@ -497,12 +511,12 @@
 
                                 {{-- Single Choice --}}
                                 <label
-                                    class="question-type-label flex cursor-pointer items-center gap-2
-                   rounded-lg border border-primary/20 bg-primary/5
-                   px-4 py-2.5 transition">
+                                    class="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 transition
+               has-checked:border-primary/20
+               has-checked:bg-primary/5">
 
                                     <input type="radio" name="question_type" value="single_choice" checked
-                                        class="question-type accent-primary">
+                                        class="accent-primary question-type">
 
                                     <span class="text-sm font-medium text-slate-700">
                                         Single Choice
@@ -513,12 +527,12 @@
 
                                 {{-- Multiple Choice --}}
                                 <label
-                                    class="question-type-label flex cursor-pointer items-center gap-2
-                   rounded-lg border border-slate-200 bg-white
-                   px-4 py-2.5 transition">
+                                    class="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 transition
+               has-checked:border-primary/20
+               has-checked:bg-primary/5">
 
                                     <input type="radio" name="question_type" value="multiple_choice"
-                                        class="question-type accent-primary">
+                                        class="accent-primary question-type">
 
                                     <span class="text-sm font-medium text-slate-700">
                                         Multiple Choice
@@ -527,17 +541,15 @@
                                 </label>
 
                             </div>
-
                         </div>
 
 
-                        {{-- Answer Options --}}
+
+
+
                         <div>
-
                             <div class="mb-3 flex items-center justify-between">
-
                                 <div>
-
                                     <h3 class="text-sm font-semibold text-slate-700">
                                         Answer Options
                                     </h3>
@@ -545,147 +557,155 @@
                                     <p class="mt-1 text-xs text-slate-400">
                                         Select the correct answer.
                                     </p>
-
                                 </div>
 
                                 <span class="text-xs font-medium text-slate-400">
-                                    4 Options
+                                    <span id="option-count">4</span> Options
                                 </span>
-
                             </div>
 
 
-                            <div class="space-y-3">
+                            <div id="options-container" class="space-y-3">
 
                                 {{-- Option A --}}
-                                <div class="flex items-center gap-3">
-
+                                <div class="option-row flex items-center gap-3">
                                     <span
-                                        class="flex h-9 w-9 shrink-0 items-center justify-center
-                       rounded-lg bg-primary/10 text-sm font-bold text-primary">
+                                        class="option-letter flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-sm font-bold text-slate-500">
                                         A
                                     </span>
 
                                     <input type="text" name="option_a" placeholder="Enter option A"
-                                        class="w-full rounded-lg border border-slate-200
-                       bg-white px-4 py-2.5 text-sm outline-none transition
-                       focus:border-primary focus:ring-2 focus:ring-primary/10">
+                                        class="option-input w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10">
+
 
                                     <label
-                                        class="correct-option flex h-9 w-9 shrink-0 cursor-pointer
-                       items-center justify-center rounded-lg
-                       border border-slate-200 text-slate-400 transition
-                       hover:border-primary hover:bg-primary/5
-                       hover:text-primary"
+                                        class="correct-option flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-slate-200 text-slate-400 transition hover:border-primary hover:bg-primary/5 hover:text-primary"
                                         title="Mark as correct answer">
 
                                         <input type="radio" name="correct_answer" value="A"
                                             class="correct-input sr-only">
 
                                         <i class="bi bi-check-lg"></i>
-
                                     </label>
+
+                                    {{-- Delete --}}
+                                    <button type="button"
+                                        class="delete-option border border-red-100 bg-red-300/20 text-red-300 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition hover:bg-red-50 hover:text-red-500"
+                                        title="Delete option">
+
+                                        <i class="bi bi-trash"></i>
+                                    </button>
 
                                 </div>
 
 
                                 {{-- Option B --}}
-                                <div class="flex items-center gap-3">
+                                <div class="option-row flex items-center gap-3">
 
                                     <span
-                                        class="flex h-9 w-9 shrink-0 items-center justify-center
-                       rounded-lg bg-slate-100 text-sm font-bold text-slate-500">
+                                        class="option-letter flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-sm font-bold text-slate-500">
                                         B
                                     </span>
 
                                     <input type="text" name="option_b" placeholder="Enter option B"
-                                        class="w-full rounded-lg border border-slate-200
-                       bg-white px-4 py-2.5 text-sm outline-none transition
-                       focus:border-primary focus:ring-2 focus:ring-primary/10">
+                                        class="option-input w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10">
 
                                     <label
-                                        class="correct-option flex h-9 w-9 shrink-0 cursor-pointer
-                       items-center justify-center rounded-lg
-                       border border-slate-200 text-slate-400 transition
-                       hover:border-primary hover:bg-primary/5
-                       hover:text-primary"
+                                        class="correct-option flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-slate-200 text-slate-400 transition hover:border-primary hover:bg-primary/5 hover:text-primary"
                                         title="Mark as correct answer">
 
                                         <input type="radio" name="correct_answer" value="B"
                                             class="correct-input sr-only">
 
                                         <i class="bi bi-check-lg"></i>
-
                                     </label>
+
+                                    {{-- Delete --}}
+                                    <button type="button"
+                                        class="delete-option border border-red-100 bg-red-300/20 text-red-300 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition hover:bg-red-50 hover:text-red-500"
+                                        title="Delete option">
+
+                                        <i class="bi bi-trash"></i>
+                                    </button>
 
                                 </div>
 
 
                                 {{-- Option C --}}
-                                <div class="flex items-center gap-3">
+                                <div class="option-row flex items-center gap-3">
 
                                     <span
-                                        class="flex h-9 w-9 shrink-0 items-center justify-center
-                       rounded-lg bg-slate-100 text-sm font-bold text-slate-500">
+                                        class="option-letter flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-sm font-bold text-slate-500">
                                         C
                                     </span>
 
                                     <input type="text" name="option_c" placeholder="Enter option C"
-                                        class="w-full rounded-lg border border-slate-200
-                       bg-white px-4 py-2.5 text-sm outline-none transition
-                       focus:border-primary focus:ring-2 focus:ring-primary/10">
+                                        class="option-input w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10">
 
                                     <label
-                                        class="correct-option flex h-9 w-9 shrink-0 cursor-pointer
-                       items-center justify-center rounded-lg
-                       border border-slate-200 text-slate-400 transition
-                       hover:border-primary hover:bg-primary/5
-                       hover:text-primary"
+                                        class="correct-option flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-slate-200 text-slate-400 transition hover:border-primary hover:bg-primary/5 hover:text-primary"
                                         title="Mark as correct answer">
 
                                         <input type="radio" name="correct_answer" value="C"
                                             class="correct-input sr-only">
 
                                         <i class="bi bi-check-lg"></i>
-
                                     </label>
+
+                                    {{-- Delete --}}
+                                    <button type="button"
+                                        class="delete-option border border-red-100 bg-red-300/20 text-red-300 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition hover:bg-red-50 hover:text-red-500"
+                                        title="Delete option">
+
+                                        <i class="bi bi-trash"></i>
+                                    </button>
 
                                 </div>
 
 
                                 {{-- Option D --}}
-                                <div class="flex items-center gap-3">
+                                <div class="option-row flex items-center gap-3">
 
                                     <span
-                                        class="flex h-9 w-9 shrink-0 items-center justify-center
-                       rounded-lg bg-slate-100 text-sm font-bold text-slate-500">
+                                        class="option-letter flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-sm font-bold text-slate-500">
                                         D
                                     </span>
 
                                     <input type="text" name="option_d" placeholder="Enter option D"
-                                        class="w-full rounded-lg border border-slate-200
-                       bg-white px-4 py-2.5 text-sm outline-none transition
-                       focus:border-primary focus:ring-2 focus:ring-primary/10">
+                                        class="option-input w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10">
 
                                     <label
-                                        class="correct-option flex h-9 w-9 shrink-0 cursor-pointer
-                       items-center justify-center rounded-lg
-                       border border-slate-200 text-slate-400 transition
-                       hover:border-primary hover:bg-primary/5
-                       hover:text-primary"
+                                        class="correct-option flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-slate-200 text-slate-400 transition hover:border-primary hover:bg-primary/5 hover:text-primary"
                                         title="Mark as correct answer">
 
                                         <input type="radio" name="correct_answer" value="D"
                                             class="correct-input sr-only">
 
                                         <i class="bi bi-check-lg"></i>
-
                                     </label>
+
+                                    {{-- Delete --}}
+                                    <button type="button"
+                                        class="delete-option border border-red-100 bg-red-300/20 text-red-300 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition hover:bg-red-50 hover:text-red-500"
+                                        title="Delete option">
+
+                                        <i class="bi bi-trash"></i>
+                                    </button>
 
                                 </div>
 
                             </div>
 
+                            {{-- Add button MUST be outside options-container --}}
+                            <div class="mt-3">
+                                <button type="button" id="add-option"
+                                    class="hidden items-center gap-2 rounded-lg border border-dashed border-primary px-4 py-2 text-sm font-medium text-primary transition hover:bg-primary/5">
+
+                                    <i class="bi bi-plus-lg"></i>
+
+                                    Add Option
+                                </button>
+                            </div>
                         </div>
 
 
@@ -763,7 +783,7 @@
                                    hover:bg-primary/90
                                    focus:outline-none
                                    focus:ring-2
-                                   focus:ring-primary/20">
+                                   focus:ring-primary/20 cursor-pointer">
 
                             <i class="bi bi-check-lg"></i>
 
