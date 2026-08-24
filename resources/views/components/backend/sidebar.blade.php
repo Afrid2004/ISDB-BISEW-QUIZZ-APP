@@ -37,20 +37,24 @@
                 Dashboard
             </x-sidebar.link>
 
+            {{-- Rounds --}}
             <x-sidebar.dropdown title="Rounds" route="rounds.*" icon="bi-layers">
-
                 <x-sidebar.sub-link route="rounds.index">
                     All Rounds
                 </x-sidebar.sub-link>
-
                 <x-sidebar.sub-link route="rounds.create">
                     Create Round
                 </x-sidebar.sub-link>
+            </x-sidebar.dropdown>
 
-                <x-sidebar.sub-link route="rounds.deleted">
-                    Deleted Rounds
+            {{-- Questions --}}
+            <x-sidebar.dropdown title="Qustions" route="questions.*" icon="bi-layers">
+                <x-sidebar.sub-link route="questions.index">
+                    All Questions
                 </x-sidebar.sub-link>
-
+                <x-sidebar.sub-link route="questions.create">
+                    Create Question
+                </x-sidebar.sub-link>
             </x-sidebar.dropdown>
 
 
