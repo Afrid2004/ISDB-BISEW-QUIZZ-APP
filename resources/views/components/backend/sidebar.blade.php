@@ -47,6 +47,15 @@
                 </x-sidebar.sub-link>
             </x-sidebar.dropdown>
 
+            <x-sidebar.dropdown title="Courses" route="courses.*" icon="bi-book">
+                {{-- <x-sidebar.sub-link route="rounds.index">
+                    All Rounds
+                </x-sidebar.sub-link> --}}
+                <x-sidebar.sub-link route="courses.create">
+                    Create Course
+                </x-sidebar.sub-link>
+            </x-sidebar.dropdown>
+
             {{-- Questions --}}
             <x-sidebar.dropdown title="Qustions" route="questions.*" icon="bi-layers">
                 <x-sidebar.sub-link route="questions.index">

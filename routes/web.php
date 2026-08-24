@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CourseController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\RoundController;
 use Illuminate\Support\Facades\Route;
@@ -13,6 +14,8 @@ Route::get('/', function () {
 Route::get("/rounds/deleted", [RoundController::class, 'deletedRounds'])->name('rounds.deleted');
 Route::resource("/rounds", RoundController::class);
 
+// courses controller 
+Route::resource("/courses", CourseController::class);
 
 // questions controller 
 Route::resource("/questions", QuestionController::class);
