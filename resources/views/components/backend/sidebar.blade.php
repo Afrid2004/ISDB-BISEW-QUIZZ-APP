@@ -56,6 +56,9 @@
                 <x-sidebar.sub-link route="courses.create">
                     Create Course
                 </x-sidebar.sub-link>
+                <x-sidebar.sub-link route="courses.deleted">
+                    Deleted Courses
+                </x-sidebar.sub-link>
             </x-sidebar.dropdown>
 
             {{-- Questions --}}

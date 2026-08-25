@@ -19,9 +19,9 @@ class CourseController extends Controller
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('code', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
-                    
+                        ->orWhere('code', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%");
+
                     // Search by ID only if search value is numeric
                     if (is_numeric($search)) {
                         $q->orWhere('id', $search);
@@ -91,7 +91,7 @@ class CourseController extends Controller
         //
         $request->validate([
             "name"              => ["required", "string", "max:150"],
-            "code"              => ["required", "string", "max:50", "unique:courses,code,".$course->id],
+            "code"              => ["required", "string", "max:50", "unique:courses,code," . $course->id],
             "description"       => ["nullable", "string"],
             "is_active"         => ["nullable", "boolean"]
         ]);
@@ -112,5 +112,43 @@ class CourseController extends Controller
         //
         $course->delete();
         return redirect()->route('courses.index')->with("success", "Course deleted successfully.");
+    }
+
+    // all deleted course 
+    public function deletedCourses(Request $request)
+    {
+        $search = $request->input('search');
+        $courses = Course::query()
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('code', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%");
+                    if (is_numeric($search)) {
+                        $q->orWhere('id', $search);
+                    }
+                });
+            })
+            ->onlyTrashed()
+            ->orderByDesc('id')
+            ->paginate(5)
+            ->withQueryString();
+        return view('courses.deleted', compact('courses'));
+    }
+
+    // restore deletd course 
+    public function restoreCourses(int $id)
+    {
+        $course = Course::withTrashed()->findOrFail($id);
+        $course->restore();
+        return redirect()->route('courses.deleted')->with("success", "Course restored successfully.");
+    }
+
+    // permanent delete 
+    public function forceDelete(int $id)
+    {
+        $course = Course::withTrashed()->findOrFail($id);
+        $course->forceDelete();
+        return redirect()->route('courses.deleted')->with("success", "Course permanently deleted.");
     }
 }

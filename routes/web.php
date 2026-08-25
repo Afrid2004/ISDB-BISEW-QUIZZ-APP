@@ -15,6 +15,9 @@ Route::get("/rounds/deleted", [RoundController::class, 'deletedRounds'])->name('
 Route::resource("/rounds", RoundController::class);
 
 // courses controller 
+Route::get("/courses/deleted", [CourseController::class, 'deletedCourses'])->name('courses.deleted');
+Route::patch('/courses/{id}/restore', [CourseController::class, 'restoreCourses'])->name('courses.restore');
+Route::delete('/courses/{id}/delete', [CourseController::class, 'forceDelete'])->name('courses.forceDelete');
 Route::resource("/courses", CourseController::class);
 
 // questions controller 
