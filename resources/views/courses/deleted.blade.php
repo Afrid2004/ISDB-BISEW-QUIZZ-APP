@@ -229,7 +229,6 @@
                                                    transition
                                                    hover:bg-emerald-100
                                                    hover:text-emerald-600 cursor-pointer">
-
                                                 <i class="bi bi-arrow-counterclockwise text-sm"></i>
 
                                             </button>
@@ -275,9 +274,7 @@
                                                 items-center justify-center
                                                 rounded-full bg-slate-100">
 
-                                            <i
-                                                class="bi bi-trash3
-                                                  text-xl text-slate-400"></i>
+                                            <i class="bi bi-trash3 text-xl text-slate-400"></i>
 
                                         </div>
 
@@ -346,10 +343,7 @@
 
                             {{-- Status --}}
                             <span
-                                class="inline-flex shrink-0 items-center gap-1.5
-                                     rounded-full bg-red-50
-                                     px-2.5 py-1 text-xs
-                                     font-medium text-red-600">
+                                class="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600">
 
                                 <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>
 
@@ -386,7 +380,7 @@
                                 border-t border-slate-100 pt-4">
 
                             {{-- Restore --}}
-                            <form method="POST" class="flex-1">
+                            <form action="{{ route('courses.restore', $course->id) }}" method="POST" class="flex-1">
 
                                 @csrf
                                 @method('PATCH')
@@ -410,7 +404,8 @@
 
 
                             {{-- Permanent Delete --}}
-                            <form method="POST" data-item="course permanently" class="delete-form flex-1">
+                            <form action="{{ route('courses.forceDelete', $course->id) }}" method="POST"
+                                data-item="course permanently" class="delete-form flex-1">
 
                                 @csrf
                                 @method('DELETE')
