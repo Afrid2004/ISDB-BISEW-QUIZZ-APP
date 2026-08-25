@@ -10,9 +10,28 @@ class CourseController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         //
+        $search = $request->input('search');
+
+        $courses = Course::query()
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+                    
+                    // Search by ID only if search value is numeric
+                    if (is_numeric($search)) {
+                        $q->orWhere('id', $search);
+                    }
+                });
+            })
+            ->orderByDesc('id')
+            ->paginate(5)
+            ->withQueryString();
+        return view('courses.index', compact('courses'));
     }
 
     /**
@@ -32,7 +51,7 @@ class CourseController extends Controller
         //
         $request->validate([
             "name"              => ["required", "string", "max:150"],
-            "code"              => ["nullable", "string", "max:50", "unique:courses,code"],
+            "code"              => ["required", "string", "max:50", "unique:courses,code"],
             "description"       => ["nullable", "string"],
             "is_active"         => ["nullable", "boolean"]
         ]);
@@ -43,7 +62,7 @@ class CourseController extends Controller
         $course->description = $request->description;
         $course->is_active = $request->boolean('is_active');
         $course->save();
-        return redirect()->route('courses.create')->with('success', 'Course created successfully.');
+        return redirect()->route('courses.index')->with('success', 'Course created successfully.');
     }
 
     /**
@@ -52,6 +71,7 @@ class CourseController extends Controller
     public function show(Course $course)
     {
         //
+        return view('courses.show', compact('course'));
     }
 
     /**
@@ -60,6 +80,7 @@ class CourseController extends Controller
     public function edit(Course $course)
     {
         //
+        return view('courses.edit', compact('course'));
     }
 
     /**
@@ -68,6 +89,19 @@ class CourseController extends Controller
     public function update(Request $request, Course $course)
     {
         //
+        $request->validate([
+            "name"              => ["required", "string", "max:150"],
+            "code"              => ["required", "string", "max:50", "unique:courses,code,".$course->id],
+            "description"       => ["nullable", "string"],
+            "is_active"         => ["nullable", "boolean"]
+        ]);
+
+        $course->name = $request->name;
+        $course->code = $request->code;
+        $course->description = $request->description;
+        $course->is_active = $request->boolean('is_active');
+        $course->update();
+        return redirect()->route('courses.index')->with('success', 'Course updated successfully.');
     }
 
     /**
@@ -76,5 +110,7 @@ class CourseController extends Controller
     public function destroy(Course $course)
     {
         //
+        $course->delete();
+        return redirect()->route('courses.index')->with("success", "Course deleted successfully.");
     }
 }

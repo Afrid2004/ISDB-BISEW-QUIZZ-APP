@@ -21,9 +21,7 @@
     <div>
         <label for="code" class="mb-2 block text-sm font-semibold text-slate-700">
             Course Code
-            <span class="font-normal text-slate-400">
-                (Optional)
-            </span>
+            <span class="text-red-500">*</span>
         </label>
 
         <input type="text" name="code" id="code" value="{{ old('code', $course->code ?? '') }}"

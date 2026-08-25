@@ -19,7 +19,7 @@
 
                 {{-- Show Data --}}
                 <div>
-                    <button type="button"
+                    <a href="{{route('courses.index')}}"
                         class="inline-flex items-center justify-center
                                gap-2 rounded-lg bg-primary
                                px-5 py-2.5 text-sm font-semibold
@@ -32,7 +32,7 @@
                         <i class="bi bi-eye text-base"></i>
                         Show Data
 
-                    </button>
+                    </a>
                 </div>
 
             </div>
@@ -77,19 +77,6 @@
                         </div>
                     @endif
 
-                    {{-- Success Message --}}
-                    @if (session('success'))
-                        <div class="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
-                            <div class="flex items-center gap-3">
-                                <i class="bi bi-check-circle-fill text-base text-emerald-500"></i>
-
-                                <p class="text-sm font-medium text-emerald-700">
-                                    {{ session('success') }}
-                                </p>
-                            </div>
-                        </div>
-                    @endif
-
                 </div>
 
 
@@ -106,7 +93,7 @@
                                sm:flex-row sm:justify-end">
 
                         {{-- Cancel --}}
-                        <button type="button"
+                        <a href="{{route('courses.index')}}"
                             class="inline-flex items-center justify-center
                                    rounded-lg border border-slate-200
                                    bg-white px-5 py-2.5 text-sm font-semibold
@@ -115,7 +102,7 @@
 
                             Cancel
 
-                        </button>
+                        </a>
 
 
                         {{-- Create --}}
@@ -127,7 +114,7 @@
                                    hover:bg-primary/90
                                    focus:outline-none focus:ring-2
                                    focus:ring-primary/50
-                                   focus:ring-offset-2">
+                                   focus:ring-offset-2 cursor-pointer">
 
                             <i class="bi bi-check-lg text-base"></i>
 

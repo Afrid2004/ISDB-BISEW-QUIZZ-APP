@@ -14,7 +14,9 @@
 
         <div class="flex items-center gap-3">
 
-            <img src="{{ asset('/assets/images/logo.png') }}" alt="isdb logo" class="w-70">
+            <a href="{{ route('dashboard') }}">
+                <img src="{{ asset('/assets/images/logo.png') }}" alt="isdb logo" class="w-70">
+            </a>
 
         </div>
 
@@ -48,9 +50,9 @@
             </x-sidebar.dropdown>
 
             <x-sidebar.dropdown title="Courses" route="courses.*" icon="bi-book">
-                {{-- <x-sidebar.sub-link route="rounds.index">
-                    All Rounds
-                </x-sidebar.sub-link> --}}
+                <x-sidebar.sub-link route="courses.index">
+                    All Courses
+                </x-sidebar.sub-link>
                 <x-sidebar.sub-link route="courses.create">
                     Create Course
                 </x-sidebar.sub-link>

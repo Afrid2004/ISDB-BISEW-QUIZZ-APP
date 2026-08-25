@@ -2,7 +2,7 @@
 
 @section('content')
 
-    <div class="min-h-screen bg-[#f7f8fc] px-4 py-6 sm:px-6 lg:px-0">
+    <div class="min-h-screen bg-[#f7f8fc]">
 
         {{-- Page Header --}}
         <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -233,6 +233,7 @@
                 {{-- Delete --}}
                 <form action="{{ route('rounds.destroy', $round->id) }}"
                     method="POST"
+                    data-item="rounds"
                     class="delete-form flex-1">
 
                     @csrf
@@ -243,7 +244,7 @@
                                gap-2 rounded-lg border border-red-200
                                bg-white px-4 py-2.5 text-sm font-semibold
                                text-red-500 transition
-                               hover:bg-red-50 sm:w-auto">
+                               hover:bg-red-50 sm:w-auto cursor-pointer">
 
                         <i class="bi bi-trash3"></i>
 
