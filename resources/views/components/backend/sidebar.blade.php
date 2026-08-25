@@ -37,6 +37,7 @@
                 Dashboard
             </x-sidebar.link>
 
+            {{-- Rounds Dropdown --}}
             <x-sidebar.dropdown title="Rounds" route="rounds.*" icon="bi-layers">
 
                 <x-sidebar.sub-link route="rounds.index">
@@ -49,6 +50,55 @@
 
                 <x-sidebar.sub-link route="rounds.deleted">
                     Deleted Rounds
+                </x-sidebar.sub-link>
+
+            </x-sidebar.dropdown>
+
+
+            {{-- Training Centers Dropdown --}}
+            <x-sidebar.dropdown title="Training Centers" route="training-centers.*" icon="bi-building">
+
+                <x-sidebar.sub-link route="training-centers.index">
+                    All Training Centers
+                </x-sidebar.sub-link>
+
+                <x-sidebar.sub-link route="training-centers.create">
+                    Create Training Center
+                </x-sidebar.sub-link>
+
+                <x-sidebar.sub-link route="training-centers.deleted">
+                    Deleted Training Centers
+                </x-sidebar.sub-link>
+
+            </x-sidebar.dropdown>
+
+
+            {{-- Shifts Dropdown --}}
+            <x-sidebar.dropdown title="Shifts" route="shifts.*" icon="bi-clock-history">
+
+                <x-sidebar.sub-link route="shifts.index">
+                    All Shifts
+                </x-sidebar.sub-link>
+
+                <x-sidebar.sub-link route="shifts.create">
+                    Create Shift
+                </x-sidebar.sub-link>
+
+            </x-sidebar.dropdown>
+
+            {{-- Batches Dropdown --}}
+            <x-sidebar.dropdown title="Batches" route="batches.*" icon="bi-people-fill">
+
+                <x-sidebar.sub-link route="batches.index">
+                    All Batches
+                </x-sidebar.sub-link>
+
+                <x-sidebar.sub-link route="batches.create">
+                    Create Batch
+                </x-sidebar.sub-link>
+
+                <x-sidebar.sub-link route="batches.deleted">
+                    Deleted Batches
                 </x-sidebar.sub-link>
 
             </x-sidebar.dropdown>

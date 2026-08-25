@@ -1,8 +1,8 @@
 @extends('layouts.backend.app')
 
-@section('title', 'Deleted Rounds')
+@section('title', 'Deleted Training Centers')
 
-@section('page-title', 'Deleted Rounds')
+@section('page-title', 'Deleted Training Centers')
 
 @section('content')
 
@@ -13,16 +13,16 @@
 
             <div>
                 <h1 class="text-2xl font-bold text-slate-800">
-                    Deleted Rounds
+                    Deleted Training Centers
                 </h1>
 
                 <p class="mt-1 text-sm text-slate-500">
-                    Manage deleted rounds and restore or permanently remove them.
+                    Manage deleted training centers and restore or permanently remove them.
                 </p>
             </div>
 
             {{-- Back Button --}}
-            <a href="{{ route('rounds.index') }}"
+            <a href="{{ route('training-centers.index') }}"
                 class="inline-flex items-center justify-center gap-2
                        rounded-lg border border-slate-200
                        bg-white px-5 py-2.5
@@ -36,7 +36,7 @@
 
                 <i class="bi bi-arrow-left text-sm"></i>
 
-                Back to Rounds
+                Back to Training Centers
             </a>
 
         </div>
@@ -45,7 +45,7 @@
         {{-- Search --}}
         <div class="mb-4">
 
-            <form method="GET" action="{{ route('rounds.deleted') }}">
+            <form method="GET" action="{{ route('training-centers.deleted') }}">
 
                 <div class="relative max-w-sm">
 
@@ -54,7 +54,7 @@
                               -translate-y-1/2 text-slate-400"></i>
 
                     <input type="text" name="search" value="{{ request('search') }}"
-                        placeholder="Search deleted rounds"
+                        placeholder="Search deleted training centers"
                         class="w-full rounded-lg
                                border border-slate-200
                                bg-white py-2.5 pl-10 pr-4
@@ -91,14 +91,21 @@
                                 class="px-5 py-3 text-[11px]
                                        font-bold uppercase
                                        tracking-wide text-slate-400">
-                                Round
+                                Training Center
                             </th>
 
                             <th
                                 class="px-5 py-3 text-[11px]
                                        font-bold uppercase
                                        tracking-wide text-slate-400">
-                                Description
+                                Code
+                            </th>
+
+                            <th
+                                class="px-5 py-3 text-[11px]
+                                       font-bold uppercase
+                                       tracking-wide text-slate-400">
+                                Location
                             </th>
 
                             <th
@@ -131,11 +138,11 @@
                     {{-- Table Body --}}
                     <tbody class="divide-y divide-slate-100">
 
-                        @forelse ($rounds as $round)
+                        @forelse ($trainingCenters as $trainingCenter)
                             <tr class="transition hover:bg-slate-50/70">
 
 
-                                {{-- Round --}}
+                                {{-- Training Center Name --}}
                                 <td class="px-5 py-4">
 
                                     <div class="flex items-center gap-3">
@@ -143,16 +150,15 @@
                                         <div
                                             class="flex h-9 w-9 items-center
                                                    justify-center rounded-lg
-                                                   bg-primary/10 text-sm
-                                                   font-bold text-primary">
+                                                   bg-primary/10 text-primary">
 
-                                            {{ $round->round_number }}
+                                            <i class="bi bi-building text-base"></i>
 
                                         </div>
 
                                         <span class="text-sm font-semibold text-slate-700">
 
-                                            Round {{ $round->round_number }}
+                                            {{ $trainingCenter->name }}
 
                                         </span>
 
@@ -161,12 +167,24 @@
                                 </td>
 
 
-                                {{-- Description --}}
+                                {{-- Code --}}
+                                <td class="px-5 py-4">
+
+                                    <p class="text-sm text-slate-600">
+
+                                        {{ $trainingCenter->code }}
+
+                                    </p>
+
+                                </td>
+
+
+                                {{-- Location --}}
                                 <td class="max-w-md px-5 py-4">
 
                                     <p class="truncate text-sm text-slate-500">
 
-                                        {{ $round->description ?? 'No description available' }}
+                                        {{ $trainingCenter->location ?? 'No location provided' }}
 
                                     </p>
 
@@ -192,7 +210,7 @@
                                 {{-- Deleted At --}}
                                 <td class="px-5 py-4 text-sm text-slate-500">
 
-                                    {{ $round->deleted_at?->format('d M, Y h:i A') }}
+                                    {{ $trainingCenter->deleted_at?->format('d M, Y h:i A') }}
 
                                 </td>
 
@@ -204,13 +222,13 @@
 
 
                                         {{-- Restore --}}
-                                        <form action="{{ route('rounds.restore', $round->id) }}" method="POST"
-                                            class="shrink-0">
+                                        <form action="{{ route('training-centers.restore', $trainingCenter->id) }}"
+                                            method="POST" class="shrink-0">
 
                                             @csrf
                                             @method('PATCH')
 
-                                            <button type="submit" title="Restore Round"
+                                            <button type="submit" title="Restore Training Center"
                                                 class="flex gap-1 p-2
                                                        items-center
                                                        justify-center
@@ -233,8 +251,8 @@
 
 
                                         {{-- Force Delete --}}
-                                        <form action="{{ route('rounds.forceDelete', $round->id) }}" method="POST"
-                                            class="delete-form shrink-0">
+                                        <form action="{{ route('training-centers.forceDelete', $trainingCenter->id) }}"
+                                            method="POST" class="delete-form shrink-0">
 
                                             @csrf
                                             @method('DELETE')
@@ -270,7 +288,7 @@
 
                             <tr>
 
-                                <td colspan="5" class="px-5 py-12 text-center">
+                                <td colspan="6" class="px-5 py-12 text-center">
 
                                     <div class="flex flex-col items-center">
 
@@ -287,11 +305,11 @@
                                         </div>
 
                                         <p class="text-sm font-medium text-slate-600">
-                                            No deleted rounds found
+                                            No deleted training centers found
                                         </p>
 
                                         <p class="mt-1 text-xs text-slate-400">
-                                            Deleted rounds will appear here.
+                                            Deleted training centers will appear here.
                                         </p>
 
                                     </div>
@@ -311,7 +329,7 @@
             {{-- Mobile Cards --}}
             <div class="divide-y divide-slate-100 md:hidden">
 
-                @forelse ($rounds as $round)
+                @forelse ($trainingCenters as $trainingCenter)
                     <div class="p-4">
 
                         {{-- Top --}}
@@ -322,10 +340,10 @@
                                 <div
                                     class="flex h-10 w-10 shrink-0
                                            items-center justify-center
-                                           rounded-lg bg-primary/10 text-sm
-                                                   font-bold text-primary">
+                                           rounded-lg bg-primary/10
+                                           text-primary">
 
-                                    {{ $round->round_number }}
+                                    <i class="bi bi-building text-lg"></i>
 
                                 </div>
 
@@ -333,14 +351,13 @@
 
                                     <h3 class="text-sm font-semibold text-slate-700">
 
-                                        Round {{ $round->round_number }}
+                                        {{ $trainingCenter->name }}
 
                                     </h3>
 
                                     <p class="mt-1 text-xs text-slate-400">
 
-                                        Deleted
-                                        {{ $round->deleted_at?->format('d M, Y') }}
+                                        Code: {{ $trainingCenter->code }}
 
                                     </p>
 
@@ -364,17 +381,17 @@
                         </div>
 
 
-                        {{-- Description --}}
-                        @if ($round->description)
+                        {{-- Location --}}
+                        @if ($trainingCenter->location)
                             <p class="mt-4 text-sm leading-6 text-slate-500">
 
-                                {{ $round->description }}
+                                {{ $trainingCenter->location }}
 
                             </p>
                         @else
                             <p class="mt-4 text-sm italic text-slate-400">
 
-                                No description available
+                                No location provided
 
                             </p>
                         @endif
@@ -387,7 +404,8 @@
 
 
                             {{-- Restore --}}
-                            <form action="{{ route('rounds.restore', $round->id) }}" method="POST" class="flex-1">
+                            <form action="{{ route('training-centers.restore', $trainingCenter->id) }}"
+                                method="POST" class="flex-1">
 
                                 @csrf
                                 @method('PATCH')
@@ -415,8 +433,8 @@
 
 
                             {{-- Force Delete --}}
-                            <form action="{{ route('rounds.forceDelete', $round->id) }}" method="POST"
-                                class="delete-form flex-1">
+                            <form action="{{ route('training-centers.forceDelete', $trainingCenter->id) }}"
+                                method="POST" class="delete-form flex-1">
 
                                 @csrf
                                 @method('DELETE')
@@ -467,11 +485,11 @@
                         </div>
 
                         <p class="text-sm font-medium text-slate-600">
-                            No deleted rounds found
+                            No deleted training centers found
                         </p>
 
                         <p class="mt-1 text-xs text-slate-400">
-                            Deleted rounds will appear here.
+                            Deleted training centers will appear here.
                         </p>
 
                     </div>
@@ -481,7 +499,7 @@
 
 
             {{-- Pagination --}}
-            @if ($rounds->hasPages())
+            @if ($trainingCenters->hasPages())
                 <div
                     class="flex flex-col gap-4
                            border-t border-slate-100
@@ -494,7 +512,7 @@
                         Showing
 
                         <span class="font-semibold text-slate-700">
-                            {{ $rounds->firstItem() }}
+                            {{ $trainingCenters->firstItem() }}
                         </span>
 
                         <span class="px-0.5 text-slate-400">
@@ -502,13 +520,13 @@
                         </span>
 
                         <span class="font-semibold text-slate-700">
-                            {{ $rounds->lastItem() }}
+                            {{ $trainingCenters->lastItem() }}
                         </span>
 
                         of
 
                         <span class="font-semibold text-slate-700">
-                            {{ $rounds->total() }}
+                            {{ $trainingCenters->total() }}
                         </span>
 
                         results
@@ -518,7 +536,7 @@
 
                     <div class="overflow-x-auto">
 
-                        {{ $rounds->onEachSide(1)->links() }}
+                        {{ $trainingCenters->onEachSide(1)->links() }}
 
                     </div>
 

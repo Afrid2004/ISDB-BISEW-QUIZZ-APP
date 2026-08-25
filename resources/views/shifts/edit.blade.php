@@ -12,23 +12,23 @@
                 {{-- Breadcrumb --}}
                 <div class="mb-2 flex items-center gap-2 text-xs text-slate-400">
 
-                    <a href="{{ route('rounds.index') }}"
+                    <a href="{{ route('shifts.index') }}"
                         class="transition hover:text-primary">
-                        Rounds
+                        Shifts
                     </a>
 
                     <i class="bi bi-chevron-right text-[9px]"></i>
 
-                    <span>Edit Round</span>
+                    <span>Edit Shift</span>
 
                 </div>
 
                 <h1 class="text-2xl font-bold text-slate-800">
-                    Edit Round
+                    Edit Shift
                 </h1>
 
                 <p class="mt-1 text-sm text-slate-500">
-                    Update the information of Round {{ $round->round_number }}.
+                    Update the information of {{ $shift->name }}.
                 </p>
 
             </div>
@@ -37,7 +37,7 @@
              {{-- Show Data / Back Button --}}
                 <div>
 
-                    <a href="{{ route('rounds.index') }}"
+                    <a href="{{ route('shifts.index') }}"
                         class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90">
 
                         <i class="bi bi-eye text-base"></i>
@@ -71,11 +71,11 @@
                     <div>
 
                         <h2 class="text-base font-semibold text-slate-800">
-                            Round Information
+                            Shift Information
                         </h2>
 
                         <p class="mt-0.5 text-xs text-slate-400">
-                            Update the basic information for this round.
+                            Update the basic information for this shift.
                         </p>
 
                     </div>
@@ -86,7 +86,7 @@
 
 
             {{-- Form --}}
-            <form action="{{ route('rounds.update', $round->id) }}"
+            <form action="{{ route('shifts.update', $shift->id) }}"
                 method="POST"
                 class="px-5 py-6 sm:px-6">
 
@@ -154,14 +154,14 @@
                 <div class="space-y-6">
 
 
-                    {{-- Round Number --}}
+                    {{-- Name --}}
                     <div>
 
-                        <label for="round_number"
+                        <label for="name"
                             class="mb-2 block text-sm font-semibold
                                    text-slate-700">
 
-                            Round Number
+                            Shift Name
 
                             <span class="text-red-500">*</span>
 
@@ -169,12 +169,12 @@
 
 
                         <input
-                            type="number"
-                            name="round_number"
-                            id="round_number"
-                            min="1"
-                            value="{{ old('round_number', $round->round_number) }}"
-                            placeholder="e.g. 1"
+                            type="text"
+                            name="name"
+                            id="name"
+                            maxlength="50"
+                            value="{{ old('name', $shift->name) }}"
+                            placeholder="e.g. Morning Shift"
                             class="w-full rounded-lg border
                                    border-slate-200 bg-white px-4 py-2.5
                                    text-sm text-slate-700
@@ -182,14 +182,14 @@
                                    outline-none transition
                                    focus:border-primary
                                    focus:ring-2 focus:ring-primary/10
-                                   @error('round_number')
+                                   @error('name')
                                        border-red-400
                                        focus:border-red-500
                                        focus:ring-red-100
                                    @enderror">
 
 
-                        @error('round_number')
+                        @error('name')
 
                             <p class="mt-1.5 text-xs text-red-500">
                                 {{ $message }}
@@ -199,54 +199,154 @@
 
 
                         <p class="mt-1.5 text-xs text-slate-400">
-                            Enter a unique number for this round.
+                            Enter a descriptive name for this shift.
                         </p>
 
                     </div>
 
 
-                    {{-- Description --}}
+                    {{-- Code --}}
                     <div>
 
-                        <label for="description"
+                        <label for="code"
                             class="mb-2 block text-sm font-semibold
                                    text-slate-700">
 
-                            Description
+                            Shift Code
 
-                            <span class="font-normal text-slate-400">
-                                (Optional)
-                            </span>
+                            <span class="text-red-500">*</span>
 
                         </label>
 
 
-                        <textarea
-                            name="description"
-                            id="description"
-                            rows="4"
-                            placeholder="Enter a short description about this round..."
-                            class="w-full resize-none rounded-lg border
-                                   border-slate-200 bg-white px-4 py-3
+                        <input
+                            type="text"
+                            name="code"
+                            id="code"
+                            maxlength="20"
+                            value="{{ old('code', $shift->code) }}"
+                            placeholder="e.g. SH-M-01"
+                            class="w-full rounded-lg border
+                                   border-slate-200 bg-white px-4 py-2.5
                                    text-sm text-slate-700
                                    placeholder:text-slate-400
                                    outline-none transition
                                    focus:border-primary
                                    focus:ring-2 focus:ring-primary/10
-                                   @error('description')
+                                   @error('code')
                                        border-red-400
                                        focus:border-red-500
                                        focus:ring-red-100
-                                   @enderror">{{ old('description', $round->description) }}</textarea>
+                                   @enderror">
 
 
-                        @error('description')
+                        @error('code')
 
                             <p class="mt-1.5 text-xs text-red-500">
                                 {{ $message }}
                             </p>
 
                         @enderror
+
+
+                        <p class="mt-1.5 text-xs text-slate-400">
+                            Enter a unique code for this shift (max 20 characters).
+                        </p>
+
+                    </div>
+
+
+                    {{-- Time Range --}}
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+
+                        {{-- Start Time --}}
+                        <div>
+
+                            <label for="start_time"
+                                class="mb-2 block text-sm font-semibold
+                                          text-slate-700">
+
+                                Start Time
+
+                                <span class="font-normal text-slate-400">
+                                    (Optional)
+                                </span>
+
+                            </label>
+
+
+                            <input
+                                type="time"
+                                name="start_time"
+                                id="start_time"
+                                value="{{ old('start_time', $shift->start_time) }}"
+                                class="w-full rounded-lg border
+                                       border-slate-200 bg-white px-4 py-2.5
+                                       text-sm text-slate-700
+                                       outline-none transition
+                                       focus:border-primary
+                                       focus:ring-2 focus:ring-primary/10
+                                       @error('start_time')
+                                           border-red-400
+                                           focus:border-red-500
+                                           focus:ring-red-100
+                                       @enderror">
+
+
+                            @error('start_time')
+
+                                <p class="mt-1.5 text-xs text-red-500">
+                                    {{ $message }}
+                                </p>
+
+                            @enderror
+
+                        </div>
+
+
+                        {{-- End Time --}}
+                        <div>
+
+                            <label for="end_time"
+                                class="mb-2 block text-sm font-semibold
+                                          text-slate-700">
+
+                                End Time
+
+                                <span class="font-normal text-slate-400">
+                                    (Optional)
+                                </span>
+
+                            </label>
+
+
+                            <input
+                                type="time"
+                                name="end_time"
+                                id="end_time"
+                                value="{{ old('end_time', $shift->end_time) }}"
+                                class="w-full rounded-lg border
+                                       border-slate-200 bg-white px-4 py-2.5
+                                       text-sm text-slate-700
+                                       outline-none transition
+                                       focus:border-primary
+                                       focus:ring-2 focus:ring-primary/10
+                                       @error('end_time')
+                                           border-red-400
+                                           focus:border-red-500
+                                           focus:ring-red-100
+                                       @enderror">
+
+
+                            @error('end_time')
+
+                                <p class="mt-1.5 text-xs text-red-500">
+                                    {{ $message }}
+                                </p>
+
+                            @enderror
+
+                        </div>
 
                     </div>
 
@@ -271,11 +371,11 @@
                             <div>
 
                                 <p class="text-sm font-medium text-slate-700">
-                                    Active Round
+                                    Active Shift
                                 </p>
 
                                 <p class="mt-0.5 text-xs text-slate-400">
-                                    Allow this round to be used in the quiz.
+                                    Allow this shift to be used in the system.
                                 </p>
 
                             </div>
@@ -289,7 +389,7 @@
                                     name="is_active"
                                     value="1"
                                     class="peer sr-only"
-                                    {{ old('is_active', $round->is_active) ? 'checked' : '' }}>
+                                    {{ old('is_active', $shift->is_active) ? 'checked' : '' }}>
 
 
                                 <div class="h-6 w-11 rounded-full
@@ -324,7 +424,7 @@
 
 
                         {{-- Cancel --}}
-                        <a href="{{ route('rounds.index') }}"
+                        <a href="{{ route('shifts.index') }}"
                             class="inline-flex items-center justify-center
                                   gap-2 rounded-lg border border-slate-200
                                   bg-white px-5 py-2.5 text-sm font-semibold
@@ -350,7 +450,7 @@
 
                             <i class="bi bi-check-lg"></i>
 
-                            Update Round
+                            Update Shift
 
                         </button>
 
@@ -364,8 +464,8 @@
 
 
         {{-- Delete Form --}}
-        <form id="delete-round-form"
-            action="{{ route('rounds.destroy', $round->id) }}"
+        <form id="delete-shift-form"
+            action="{{ route('shifts.destroy', $shift->id) }}"
             method="POST"
             class="hidden">
 
