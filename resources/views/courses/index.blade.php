@@ -282,6 +282,7 @@
                                         {{-- Delete --}}
                                         <form action="{{ route('courses.destroy', $course) }}"
                                             method="POST"
+                                            data-item="course"
                                             class="delete-form">
 
                                             @csrf

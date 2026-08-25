@@ -277,7 +277,7 @@
 
 
                                         {{-- Delete --}}
-                                        <form action="{{ route('rounds.destroy', $round) }}" class="delete-form flex-1"
+                                        <form data-item="rounds" action="{{ route('rounds.destroy', $round) }}" class="delete-form flex-1"
                                             method="POST">
 
                                             @csrf
