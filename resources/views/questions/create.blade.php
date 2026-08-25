@@ -361,20 +361,20 @@
                             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
 
-                                {{-- Subject --}}
+                                {{-- Course --}}
                                 <div>
 
                                     <label
                                         class="mb-2 block text-xs font-semibold
                                                text-slate-600">
 
-                                        Subject
+                                        Course
 
                                         <span class="text-red-500">*</span>
 
                                     </label>
 
-                                    <select name="subject_id"
+                                    <select name="course_id"
                                         class="w-full rounded-lg border border-slate-200
                                                bg-white px-3 py-2.5 text-sm
                                                text-slate-600 outline-none
@@ -383,7 +383,7 @@
                                                focus:ring-2 focus:ring-primary/10">
 
                                         <option value="">
-                                            Select Subject
+                                            Select Course
                                         </option>
 
                                     </select>
@@ -421,20 +421,20 @@
                                 </div>
 
 
-                                {{-- Chapter --}}
+                                {{-- Competency unit --}}
                                 <div>
 
                                     <label
                                         class="mb-2 block text-xs font-semibold
                                                text-slate-600">
 
-                                        Chapter
+                                        Competency unit
 
                                         <span class="text-red-500">*</span>
 
                                     </label>
 
-                                    <select name="chapter_id"
+                                    <select name="competency_unit_id"
                                         class="w-full rounded-lg border border-slate-200
                                                bg-white px-3 py-2.5 text-sm
                                                text-slate-600 outline-none
@@ -443,7 +443,7 @@
                                                focus:ring-2 focus:ring-primary/10">
 
                                         <option value="">
-                                            Select Chapter
+                                            Select Competency unit
                                         </option>
 
                                     </select>

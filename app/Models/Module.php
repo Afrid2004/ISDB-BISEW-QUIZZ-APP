@@ -6,13 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Course extends Model
+class Module extends Model
 {
-    /** @use HasFactory<\Database\Factories\CourseFactory> */
+    /** @use HasFactory<\Database\Factories\ModuleFactory> */
     use HasFactory, SoftDeletes;
 
-    public function modules()
+    public function course()
     {
-        return $this->hasMany(Module::class);
+        return $this->belongsTo(Course::class);
     }
 }

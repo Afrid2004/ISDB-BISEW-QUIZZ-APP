@@ -49,6 +49,9 @@ class CourseController extends Controller
     public function store(Request $request)
     {
         //
+        $request->merge([
+            'name' => preg_replace('/\s+/', ' ', trim($request->name))
+        ]);
         $request->validate([
             "name"              => ["required", "string", "max:150"],
             "code"              => ["required", "string", "max:50", "unique:courses,code"],
