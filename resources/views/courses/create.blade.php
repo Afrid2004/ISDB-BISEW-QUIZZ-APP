@@ -56,26 +56,8 @@
                         Enter the basic information for this course.
                     </p>
 
-                    {{-- Validation Errors --}}
-                    @if ($errors->any())
-                        <div class="mt-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
-                            <div class="flex gap-3">
-                                <i class="bi bi-exclamation-triangle-fill mt-0.5 shrink-0 text-base text-red-500"></i>
-
-                                <div>
-                                    <p class="text-sm font-semibold text-red-700">
-                                        Please fix the following errors:
-                                    </p>
-
-                                    <ul class="mt-1 list-disc pl-5 text-xs text-red-600">
-                                        @foreach ($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
+                    {{-- Alerts --}}
+                    <x-_alerts />
 
                 </div>
 

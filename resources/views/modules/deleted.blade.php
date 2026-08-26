@@ -52,40 +52,8 @@
         {{-- Table Card --}}
         <div class="overflow-hidden rounded-xl border border-slate-200 bg-white">
 
-            {{-- Success Message --}}
-            @if (session('success'))
-                <div class="m-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
-
-                    <div class="flex items-center gap-3">
-
-                        <i class="bi bi-check-circle-fill text-base text-emerald-500"></i>
-
-                        <p class="text-sm font-medium text-emerald-700">
-                            {{ session('success') }}
-                        </p>
-
-                    </div>
-
-                </div>
-            @endif
-
-
-            {{-- Error Message --}}
-            @if (session('error'))
-                <div class="m-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
-
-                    <div class="flex items-center gap-3">
-
-                        <i class="bi bi-exclamation-triangle-fill text-base text-red-500"></i>
-
-                        <p class="text-sm font-medium text-red-700">
-                            {{ session('error') }}
-                        </p>
-
-                    </div>
-
-                </div>
-            @endif
+            {{-- Alerts --}}
+            <x-_alerts class="m-3" />
 
 
             {{-- Desktop Table --}}

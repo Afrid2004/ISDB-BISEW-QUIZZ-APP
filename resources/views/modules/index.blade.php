@@ -1,7 +1,6 @@
 @extends('layouts.backend.app')
 
 @section('content')
-
     <div class="min-h-screen bg-[#f7f8fc]">
 
         {{-- Page Header --}}
@@ -52,39 +51,8 @@
         {{-- Table Card --}}
         <div class="overflow-hidden rounded-xl border border-slate-200 bg-white">
 
-            {{-- Success Message --}}
-            @if (session('success'))
-                <div class="m-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
-                    <div class="flex items-center gap-3">
-                        <i class="bi bi-check-circle-fill text-base text-emerald-500"></i>
-
-                        <p class="text-sm font-medium text-emerald-700">
-                            {{ session('success') }}
-                        </p>
-                    </div>
-                </div>
-            @endif
-
-            {{-- Validation Errors --}}
-            @if ($errors->any())
-                <div class="m-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
-                    <div class="flex gap-3">
-                        <i class="bi bi-exclamation-triangle-fill mt-0.5 shrink-0 text-base text-red-500"></i>
-
-                        <div>
-                            <p class="text-sm font-semibold text-red-700">
-                                Please fix the following errors:
-                            </p>
-
-                            <ul class="mt-1 list-disc pl-5 text-xs text-red-600">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            @endif
+            {{-- Alerts --}}
+            <x-_alerts class="m-3" />
 
             {{-- Desktop Table --}}
             <div class="hidden overflow-x-auto md:block">
@@ -542,7 +510,6 @@
         </div>
 
     </div>
-
 @endsection
 
 @push('scripts')

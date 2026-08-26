@@ -47,6 +47,9 @@
                 <x-sidebar.sub-link route="rounds.create">
                     Create Round
                 </x-sidebar.sub-link>
+                <x-sidebar.sub-link route="rounds.deleted">
+                    Deleted Rounds
+                </x-sidebar.sub-link>
             </x-sidebar.dropdown>
 
             {{-- Course Dropdown --}}
