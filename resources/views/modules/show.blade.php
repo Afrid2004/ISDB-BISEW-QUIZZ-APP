@@ -12,9 +12,8 @@
                 {{-- Breadcrumb --}}
                 <div class="mb-2 flex items-center gap-2 text-xs text-slate-400">
 
-                    <a href="{{ route('rounds.index') }}"
-                        class="transition hover:text-primary">
-                        Rounds
+                    <a href="{{ route('modules.index') }}" class="transition hover:text-primary">
+                        Modules
                     </a>
 
                     <i class="bi bi-chevron-right text-[9px]"></i>
@@ -24,21 +23,19 @@
                 </div>
 
                 <h1 class="text-2xl font-bold text-slate-800">
-                    Round {{ $round->round_number }}
+                    {{ $module->name }}
                 </h1>
 
                 <p class="mt-1 text-sm text-slate-500">
-                    View round information and details.
+                    View module information and details.
                 </p>
 
             </div>
 
+            {{-- Back --}}
+            <div>
 
-            {{-- Actions --}}
-            <div class="flex items-center gap-2">
-
-                {{-- Back --}}
-                <a href="{{ route('rounds.index') }}"
+                <a href="{{ route('modules.index') }}"
                     class="inline-flex items-center gap-2 rounded-lg
                            border border-slate-200 bg-white
                            px-4 py-2.5 text-sm font-medium
@@ -60,13 +57,17 @@
         <div class="overflow-hidden rounded-xl border border-slate-200
                     bg-white shadow-sm">
 
+
             {{-- Card Header --}}
-            <div class="flex items-center justify-between
+            <div
+                class="flex items-center justify-between
                         border-b border-slate-100 px-5 py-4 sm:px-6">
 
                 <div class="flex items-center gap-3">
 
-                    <div class="flex h-10 w-10 items-center justify-center
+                    {{-- Icon --}}
+                    <div
+                        class="flex h-10 w-10 items-center justify-center
                                 rounded-lg bg-primary/10 text-primary">
 
                         <i class="bi bi-collection text-lg"></i>
@@ -76,11 +77,11 @@
                     <div>
 
                         <h2 class="text-base font-semibold text-slate-800">
-                            Round Information
+                            Module Information
                         </h2>
 
                         <p class="mt-0.5 text-xs text-slate-400">
-                            Details of this quiz round.
+                            Details of this module.
                         </p>
 
                     </div>
@@ -89,9 +90,9 @@
 
 
                 {{-- Status --}}
-                @if ($round->is_active)
-
-                    <span class="inline-flex items-center gap-1.5
+                @if ($module->is_active)
+                    <span
+                        class="inline-flex items-center gap-1.5
                                  rounded-full bg-emerald-50
                                  px-3 py-1.5 text-xs font-semibold
                                  text-emerald-600">
@@ -101,10 +102,9 @@
                         Active
 
                     </span>
-
                 @else
-
-                    <span class="inline-flex items-center gap-1.5
+                    <span
+                        class="inline-flex items-center gap-1.5
                                  rounded-full bg-amber-50
                                  px-3 py-1.5 text-xs font-semibold
                                  text-amber-600">
@@ -114,7 +114,6 @@
                         Inactive
 
                     </span>
-
                 @endif
 
             </div>
@@ -124,41 +123,112 @@
             <div class="divide-y divide-slate-100">
 
 
+                {{-- Module Name --}}
+                <div class="px-5 py-5 sm:px-6">
+
+                    <p
+                        class="mb-2 text-xs font-semibold uppercase
+                              tracking-wide text-slate-400">
+
+                        Module Name
+
+                    </p>
+
+                    <p class="text-sm font-semibold text-slate-700">
+
+                        {{ $module->name }}
+
+                    </p>
+
+                </div>
+
+
+                {{-- Course --}}
+                <div class="px-5 py-5 sm:px-6">
+
+                    <p
+                        class="mb-2 text-xs font-semibold uppercase
+                              tracking-wide text-slate-400">
+
+                        Course
+
+                    </p>
+
+                    @if ($module->course)
+                        <div class="flex flex-wrap items-center gap-2">
+
+                            <span class="text-sm font-semibold text-slate-700">
+
+                                {{ $module->course->name }}
+
+                            </span>
+
+                            @if ($module->course->code)
+                                <span
+                                    class="inline-flex items-center
+                                             rounded-md bg-slate-100
+                                             px-2.5 py-1 text-xs font-medium
+                                             text-slate-600">
+
+                                    {{ $module->course->code }}
+
+                                </span>
+                            @endif
+
+                        </div>
+                    @else
+                        <p class="text-sm italic text-slate-400">
+
+                            No course available.
+
+                        </p>
+                    @endif
+
+                </div>
+
+
                 {{-- Description --}}
                 <div class="px-5 py-5 sm:px-6">
 
-                    <p class="mb-2 text-xs font-semibold uppercase
+                    <p
+                        class="mb-2 text-xs font-semibold uppercase
                               tracking-wide text-slate-400">
+
                         Description
+
                     </p>
 
-                    @if ($round->description)
-
+                    @if ($module->description)
                         <p class="text-sm leading-6 text-slate-600">
-                            {{ $round->description }}
-                        </p>
 
+                            {{ $module->description }}
+
+                        </p>
                     @else
-
                         <p class="text-sm italic text-slate-400">
-                            No description available.
-                        </p>
 
+                            No description available.
+
+                        </p>
                     @endif
 
                 </div>
 
 
                 {{-- Created At --}}
-                <div class="flex flex-col gap-2 px-5 py-5
+                <div
+                    class="flex flex-col gap-2 px-5 py-5
                             sm:flex-row sm:items-center
                             sm:justify-between sm:px-6">
 
                     <div>
 
-                        <p class="text-xs font-semibold uppercase
+                        <p
+                            class="text-xs font-semibold uppercase
                                   tracking-wide text-slate-400">
+
                             Created At
+
                         </p>
 
                     </div>
@@ -167,18 +237,14 @@
 
                         <i class="bi bi-calendar3 text-primary"></i>
 
-                        @if ($round->created_at)
-
-                            {{ $round->created_at->format('d M, Y') }}
+                        @if ($module->created_at)
+                            {{ $module->created_at->format('d M, Y') }}
 
                             <span class="text-slate-300">•</span>
 
-                            {{ $round->created_at->format('h:i A') }}
-
+                            {{ $module->created_at->format('h:i A') }}
                         @else
-
                             N/A
-
                         @endif
 
                     </div>
@@ -187,15 +253,19 @@
 
 
                 {{-- Updated At --}}
-                <div class="flex flex-col gap-2 px-5 py-5
+                <div
+                    class="flex flex-col gap-2 px-5 py-5
                             sm:flex-row sm:items-center
                             sm:justify-between sm:px-6">
 
                     <div>
 
-                        <p class="text-xs font-semibold uppercase
+                        <p
+                            class="text-xs font-semibold uppercase
                                   tracking-wide text-slate-400">
+
                             Last Updated
+
                         </p>
 
                     </div>
@@ -204,18 +274,14 @@
 
                         <i class="bi bi-clock-history text-primary"></i>
 
-                        @if ($round->updated_at)
-
-                            {{ $round->updated_at->format('d M, Y') }}
+                        @if ($module->updated_at)
+                            {{ $module->updated_at->format('d M, Y') }}
 
                             <span class="text-slate-300">•</span>
 
-                            {{ $round->updated_at->format('h:i A') }}
-
+                            {{ $module->updated_at->format('h:i A') }}
                         @else
-
                             N/A
-
                         @endif
 
                     </div>
@@ -226,17 +292,18 @@
 
 
             {{-- Footer Actions --}}
-            <div class="flex flex-col-reverse gap-3
+            <div
+                class="flex flex-col-reverse gap-3
                         border-t border-slate-100
                         px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
 
+
                 {{-- Delete --}}
-                <form action="{{ route('rounds.destroy', $round->id) }}"
-                    method="POST"
-                    data-item="rounds"
+                <form data-item="module" action="{{ route('modules.destroy', $module) }}" method="POST"
                     class="delete-form flex-1">
 
                     @csrf
+
                     @method('DELETE')
 
                     <button type="submit"
@@ -256,7 +323,7 @@
 
 
                 {{-- Edit --}}
-                <a href="{{ route('rounds.edit', $round->id) }}"
+                <a href="{{ route('modules.edit', $module) }}"
                     class="inline-flex items-center justify-center gap-2
                            rounded-lg bg-primary px-4 py-2.5
                            text-sm font-semibold text-white
@@ -264,7 +331,7 @@
 
                     <i class="bi bi-pencil-square"></i>
 
-                    Edit Round
+                    Edit Module
 
                 </a>
 
@@ -276,6 +343,7 @@
 
 @endsection
 
+
 @push('scripts')
-<script src="{{asset('/assets/js/deleteAlert.js')}}"></script>
+    <script src="{{ asset('/assets/js/deleteAlert.js') }}"></script>
 @endpush

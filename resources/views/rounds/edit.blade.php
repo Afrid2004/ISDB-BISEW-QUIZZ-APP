@@ -2,7 +2,7 @@
 
 @section('content')
 
-    <div class="min-h-screen bg-[#f7f8fc] px-4 py-6 sm:px-6 lg:px-0">
+    <div class="min-h-screen bg-[#f7f8fc]">
 
         {{-- Page Header --}}
         <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -317,8 +317,8 @@
 
                 {{-- Form Actions --}}
                 <div class="mt-8 flex flex-col-reverse gap-3
-                            border-t border-slate-100 pt-5
-                            sm:flex-row sm:justify-between">
+                               border-t border-slate-100 pt-5
+                               sm:flex-row sm:justify-end">
 
                     <div class="flex flex-col-reverse gap-3 sm:flex-row">
 
@@ -346,7 +346,7 @@
                                    text-white shadow-sm transition
                                    hover:bg-primary/90
                                    focus:outline-none focus:ring-2
-                                   focus:ring-primary/20">
+                                   focus:ring-primary/20 cursor-pointer">
 
                             <i class="bi bi-check-lg"></i>
 
@@ -361,18 +361,6 @@
             </form>
 
         </div>
-
-
-        {{-- Delete Form --}}
-        <form id="delete-round-form"
-            action="{{ route('rounds.destroy', $round->id) }}"
-            method="POST"
-            class="hidden">
-
-            @csrf
-            @method('DELETE')
-
-        </form>
 
     </div>
 

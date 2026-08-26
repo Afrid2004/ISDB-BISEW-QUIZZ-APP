@@ -2,7 +2,7 @@
 
 @section('content')
 
-    <div class="min-h-screen bg-[#f7f8fc] px-4 py-6 sm:px-6 lg:px-0">
+    <div class="min-h-screen bg-[#f7f8fc]">
 
         {{-- Page Header --}}
         <div class="mb-6">
@@ -25,7 +25,7 @@
                 {{-- Show Data --}}
                 <div>
 
-                    <button type="button"
+                    <a href="{{route('rounds.index')}}"
                         class="inline-flex items-center justify-center
                                gap-2 rounded-lg bg-primary
                                px-5 py-2.5 text-sm font-semibold
@@ -39,7 +39,7 @@
 
                         Show Data
 
-                    </button>
+                    </a>
 
                 </div>
 
@@ -345,7 +345,7 @@
                                    hover:bg-primary/90
                                    focus:outline-none focus:ring-2
                                    focus:ring-primary/50
-                                   focus:ring-offset-2">
+                                   focus:ring-offset-2 cursor-pointer">
 
                             <i class="bi bi-check-lg text-base"></i>
 

@@ -8,29 +8,28 @@
 
             <div>
                 <h1 class="text-2xl font-bold text-slate-800">
-                    Round Information
+                    Course Information
                 </h1>
 
                 <p class="mt-1 text-sm text-slate-500">
-                    Manage rounds for your online exam management system.
+                    Manage courses for your online exam management system.
                 </p>
             </div>
 
-
-            {{-- Add Round Button --}}
-            <a href="{{ route('rounds.create') }}"
+            {{-- Add Course Button --}}
+            <a href="{{ route('courses.create') }}"
                 class="inline-flex items-center justify-center gap-2
-                   rounded-lg bg-primary px-5 py-2.5
-                   text-sm font-semibold text-white
-                   shadow-sm transition
-                   hover:bg-primary/90
-                   focus:outline-none focus:ring-2
-                   focus:ring-primary/30
-                   focus:ring-offset-2">
+                       rounded-lg bg-primary px-5 py-2.5
+                       text-sm font-semibold text-white
+                       shadow-sm transition
+                       hover:bg-primary/90
+                       focus:outline-none focus:ring-2
+                       focus:ring-primary/30
+                       focus:ring-offset-2">
 
                 <i class="bi bi-plus-lg text-sm"></i>
 
-                Add Round
+                Add Course
 
             </a>
 
@@ -40,21 +39,21 @@
         {{-- Search --}}
         <div class="mb-4">
 
-            <form method="GET" action="{{ route('rounds.index') }}">
+            <form method="GET" action="{{ route('courses.index') }}">
 
                 <div class="relative max-w-sm">
 
                     <i
                         class="bi bi-search absolute left-3 top-1/2
-                          -translate-y-1/2 text-slate-400"></i>
+                              -translate-y-1/2 text-slate-400"></i>
 
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search rounds"
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search courses"
                         class="w-full rounded-lg border border-slate-200
-                           bg-white py-2.5 pl-10 pr-4 text-sm
-                           text-slate-700 placeholder:text-slate-400
-                           outline-none transition
-                           focus:border-primary
-                           focus:ring-2 focus:ring-primary/20">
+                               bg-white py-2.5 pl-10 pr-4 text-sm
+                               text-slate-700 placeholder:text-slate-400
+                               outline-none transition
+                               focus:border-primary
+                               focus:ring-2 focus:ring-primary/20">
 
                 </div>
 
@@ -65,7 +64,7 @@
 
         {{-- Table Card --}}
         <div class="overflow-hidden rounded-xl border border-slate-200
-                bg-white shadow-sm">
+                    bg-white">
 
             {{-- Success Message --}}
             @if (session('success'))
@@ -101,6 +100,7 @@
                 </div>
             @endif
 
+
             {{-- Desktop Table --}}
             <div class="hidden overflow-x-auto md:block">
 
@@ -113,32 +113,32 @@
 
                             <th
                                 class="px-5 py-3 text-[11px] font-bold
-                                   uppercase tracking-wide text-slate-400">
-                                Round
+                                       uppercase tracking-wide text-slate-400">
+                                Course
                             </th>
 
                             <th
                                 class="px-5 py-3 text-[11px] font-bold
-                                   uppercase tracking-wide text-slate-400">
+                                       uppercase tracking-wide text-slate-400">
+                                Code
+                            </th>
+
+                            <th
+                                class="px-5 py-3 text-[11px] font-bold
+                                       uppercase tracking-wide text-slate-400">
                                 Description
                             </th>
 
                             <th
                                 class="px-5 py-3 text-[11px] font-bold
-                                   uppercase tracking-wide text-slate-400">
+                                       uppercase tracking-wide text-slate-400">
                                 Status
                             </th>
 
                             <th
-                                class="px-5 py-3 text-[11px] font-bold
-                                   uppercase tracking-wide text-slate-400">
-                                Created At
-                            </th>
-
-                            <th
                                 class="px-5 py-3 text-center text-[11px]
-                                   font-bold uppercase tracking-wide
-                                   text-slate-400">
+                                       font-bold uppercase tracking-wide
+                                       text-slate-400">
                                 Actions
                             </th>
 
@@ -150,30 +150,30 @@
                     {{-- Table Body --}}
                     <tbody class="divide-y divide-slate-100">
 
-                        @forelse ($rounds as $round)
+                        @forelse ($courses as $course)
                             <tr class="transition hover:bg-slate-50/70">
 
 
-                                {{-- Round --}}
+                                {{-- Course --}}
                                 <td class="px-5 py-4">
 
                                     <div class="flex items-center gap-3">
 
                                         <div
                                             class="flex h-9 w-9 items-center
-                                                justify-center rounded-lg
-                                                bg-primary/10 text-sm
-                                                font-bold text-primary">
+                                                    justify-center rounded-lg
+                                                    bg-primary/10 text-sm
+                                                    font-bold text-primary">
 
-                                            {{ $round->round_number }}
+                                            <i class="bi bi-book"></i>
 
                                         </div>
 
                                         <span
                                             class="text-sm font-semibold
-                                                 text-slate-700">
+                                                     text-slate-700">
 
-                                            Round {{ $round->round_number }}
+                                            {{ $course->name }}
 
                                         </span>
 
@@ -181,13 +181,25 @@
 
                                 </td>
 
+                                {{-- code --}}
+                                <td class="max-w-md px-5 py-4">
+
+                                    <p class="truncate text-sm text-slate-500">
+
+                                        {{ $course->code ?? 'No Code' }}
+
+                                    </p>
+
+                                </td>
+
+
 
                                 {{-- Description --}}
                                 <td class="max-w-md px-5 py-4">
 
                                     <p class="truncate text-sm text-slate-500">
 
-                                        {{ $round->description ?? 'No description available' }}
+                                        {{ $course->description ?? 'No description available' }}
 
                                     </p>
 
@@ -197,16 +209,16 @@
                                 {{-- Status --}}
                                 <td class="px-5 py-4">
 
-                                    @if ($round->is_active)
+                                    @if ($course->is_active)
                                         <span
                                             class="inline-flex items-center gap-1.5
-                                                 rounded-full bg-emerald-50
-                                                 px-2.5 py-1 text-xs
-                                                 font-semibold text-emerald-600">
+                                                     rounded-full bg-emerald-50
+                                                     px-2.5 py-1 text-xs
+                                                     font-semibold text-emerald-600">
 
                                             <span
                                                 class="h-1.5 w-1.5 rounded-full
-                                                     bg-emerald-500"></span>
+                                                         bg-emerald-500"></span>
 
                                             Active
 
@@ -214,13 +226,13 @@
                                     @else
                                         <span
                                             class="inline-flex items-center gap-1.5
-                                                 rounded-full bg-amber-50
-                                                 px-2.5 py-1 text-xs
-                                                 font-semibold text-amber-600">
+                                                     rounded-full bg-amber-50
+                                                     px-2.5 py-1 text-xs
+                                                     font-semibold text-amber-600">
 
                                             <span
                                                 class="h-1.5 w-1.5 rounded-full
-                                                     bg-amber-500"></span>
+                                                         bg-amber-500"></span>
 
                                             Inactive
 
@@ -230,13 +242,6 @@
                                 </td>
 
 
-                                {{-- Created At --}}
-                                <td class="px-5 py-4 text-sm text-slate-500">
-
-                                    {{ $round->created_at?->format('d M, Y') }}
-
-                                </td>
-
 
                                 {{-- Actions --}}
                                 <td class="px-5 py-4">
@@ -245,15 +250,15 @@
 
 
                                         {{-- View --}}
-                                        <a href="{{ route('rounds.show', $round) }}" title="View Round"
+                                        <a href="{{ route('courses.show', $course) }}" title="View Course"
                                             class="inline-flex h-8 w-8 items-center
-                                               justify-center rounded-lg
-                                               border border-slate-200
-                                               bg-white text-slate-500
-                                               transition
-                                               hover:border-primary/30
-                                               hover:bg-primary/10
-                                               hover:text-primary">
+                                                   justify-center rounded-lg
+                                                   border border-slate-200
+                                                   bg-white text-slate-500
+                                                   transition
+                                                   hover:border-primary/30
+                                                   hover:bg-primary/10
+                                                   hover:text-primary">
 
                                             <i class="bi bi-eye text-sm"></i>
 
@@ -261,15 +266,15 @@
 
 
                                         {{-- Edit --}}
-                                        <a href="{{ route('rounds.edit', $round) }}" title="Edit Round"
+                                        <a href="{{ route('courses.edit', $course) }}" title="Edit Course"
                                             class="inline-flex h-8 w-8 items-center
-                                               justify-center rounded-lg
-                                               border border-slate-200
-                                               bg-white text-slate-500
-                                               transition
-                                               hover:border-primary/30
-                                               hover:bg-primary/10
-                                               hover:text-primary">
+                                                   justify-center rounded-lg
+                                                   border border-slate-200
+                                                   bg-white text-slate-500
+                                                   transition
+                                                   hover:border-primary/30
+                                                   hover:bg-primary/10
+                                                   hover:text-primary">
 
                                             <i class="bi bi-pencil-square text-sm"></i>
 
@@ -277,20 +282,20 @@
 
 
                                         {{-- Delete --}}
-                                        <form data-item="rounds" action="{{ route('rounds.destroy', $round) }}" class="delete-form flex-1"
-                                            method="POST">
+                                        <form action="{{ route('courses.destroy', $course) }}" method="POST"
+                                            data-item="course" class="delete-form">
 
                                             @csrf
                                             @method('DELETE')
 
-                                            <button type="submit" title="Delete Round"
+                                            <button type="submit" title="Delete Course"
                                                 class="inline-flex h-8 w-8 items-center
-                                                   justify-center rounded-lg
-                                                   border border-red-100
-                                                   bg-red-50 text-red-500
-                                                   transition
-                                                   hover:bg-red-100
-                                                   hover:text-red-600">
+                                                       justify-center rounded-lg
+                                                       border border-red-100
+                                                       bg-red-50 text-red-500
+                                                       transition
+                                                       hover:bg-red-100
+                                                       hover:text-red-600 cursor-pointer">
 
                                                 <i class="bi bi-trash3 text-sm"></i>
 
@@ -309,27 +314,27 @@
 
                             <tr>
 
-                                <td colspan="5" class="px-5 py-12 text-center">
+                                <td colspan="6" class="px-5 py-12 text-center">
 
                                     <div class="flex flex-col items-center">
 
                                         <div
                                             class="mb-3 flex h-12 w-12
-                                                items-center justify-center
-                                                rounded-full bg-slate-100">
+                                                    items-center justify-center
+                                                    rounded-full bg-slate-100">
 
                                             <i
-                                                class="bi bi-journal-x
-                                                  text-xl text-slate-400"></i>
+                                                class="bi bi-book-x
+                                                      text-xl text-slate-400"></i>
 
                                         </div>
 
                                         <p class="text-sm font-medium text-slate-600">
-                                            No rounds found
+                                            No courses found
                                         </p>
 
                                         <p class="mt-1 text-xs text-slate-400">
-                                            Create your first round to get started.
+                                            Create your first course to get started.
                                         </p>
 
                                     </div>
@@ -349,34 +354,39 @@
             {{-- Mobile Cards --}}
             <div class="divide-y divide-slate-100 md:hidden">
 
-                @forelse ($rounds as $round)
+                @forelse ($courses as $course)
                     <div class="p-4">
-
 
                         {{-- Top --}}
                         <div class="flex items-start justify-between gap-3">
 
-                            <div class="flex items-center gap-3">
+                            <div class="flex min-w-0 items-center gap-3">
 
                                 <div
                                     class="flex h-10 w-10 shrink-0
-                                        items-center justify-center
-                                        rounded-lg bg-primary/10
-                                        text-sm font-bold text-primary">
+                                            items-center justify-center
+                                            rounded-lg bg-primary/10
+                                            text-sm font-bold text-primary">
 
-                                    {{ $round->round_number }}
+                                    <i class="bi bi-book"></i>
 
                                 </div>
 
-                                <div>
+                                <div class="min-w-0">
 
-                                    <h3 class="text-sm font-semibold text-slate-700">
-                                        Round {{ $round->round_number }}
+                                    <h3 class="truncate text-sm font-semibold text-slate-700">
+                                        {{ $course->name }}
                                     </h3>
 
-                                    <p class="mt-1 text-xs text-slate-400">
-                                        {{ $round->created_at?->format('d M, Y') }}
-                                    </p>
+                                    @if ($course->code)
+                                        <p class="mt-1 text-xs text-slate-400">
+                                            {{ $course->code }}
+                                        </p>
+                                    @else
+                                        <p class="mt-1 text-xs italic text-slate-400">
+                                            No course code
+                                        </p>
+                                    @endif
 
                                 </div>
 
@@ -384,14 +394,16 @@
 
 
                             {{-- Status --}}
-                            @if ($round->is_active)
+                            @if ($course->is_active)
                                 <span
                                     class="inline-flex shrink-0 items-center gap-1.5
-                                         rounded-full bg-emerald-50
-                                         px-2.5 py-1 text-xs
-                                         font-semibold text-emerald-600">
+                                             rounded-full bg-emerald-50
+                                             px-2.5 py-1 text-xs
+                                             font-semibold text-emerald-600">
 
-                                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                    <span
+                                        class="h-1.5 w-1.5 rounded-full
+                                                 bg-emerald-500"></span>
 
                                     Active
 
@@ -399,11 +411,13 @@
                             @else
                                 <span
                                     class="inline-flex shrink-0 items-center gap-1.5
-                                         rounded-full bg-amber-50
-                                         px-2.5 py-1 text-xs
-                                         font-semibold text-amber-600">
+                                             rounded-full bg-amber-50
+                                             px-2.5 py-1 text-xs
+                                             font-semibold text-amber-600">
 
-                                    <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                                    <span
+                                        class="h-1.5 w-1.5 rounded-full
+                                                 bg-amber-500"></span>
 
                                     Inactive
 
@@ -414,9 +428,9 @@
 
 
                         {{-- Description --}}
-                        @if ($round->description)
+                        @if ($course->description)
                             <p class="mt-4 text-sm leading-6 text-slate-500">
-                                {{ $round->description }}
+                                {{ $course->description }}
                             </p>
                         @else
                             <p class="mt-4 text-sm italic text-slate-400">
@@ -425,22 +439,32 @@
                         @endif
 
 
+                        {{-- Created At --}}
+                        <p class="mt-3 text-xs text-slate-400">
+
+                            <i class="bi bi-calendar3 mr-1"></i>
+
+                            {{ $course->created_at?->format('d M, Y') }}
+
+                        </p>
+
+
                         {{-- Mobile Actions --}}
                         <div
-                            class="mt-4 flex items-center gap-2 border-t
-                                border-slate-100 pt-4">
+                            class="mt-4 flex items-center gap-2
+                                    border-t border-slate-100 pt-4">
 
 
                             {{-- View --}}
-                            <a href="{{ route('rounds.show', $round) }}"
+                            <a href="{{ route('courses.show', $course) }}"
                                 class="inline-flex flex-1 items-center
-                                   justify-center gap-2 rounded-lg
-                                   border border-slate-200 bg-white
-                                   px-3 py-2 text-xs font-semibold
-                                   text-slate-600 transition
-                                   hover:border-primary/30
-                                   hover:bg-primary/10
-                                   hover:text-primary">
+                                       justify-center gap-2 rounded-lg
+                                       border border-slate-200 bg-white
+                                       px-3 py-2 text-xs font-semibold
+                                       text-slate-600 transition
+                                       hover:border-primary/30
+                                       hover:bg-primary/10
+                                       hover:text-primary">
 
                                 <i class="bi bi-eye"></i>
 
@@ -450,15 +474,15 @@
 
 
                             {{-- Edit --}}
-                            <a href="{{ route('rounds.edit', $round) }}"
+                            <a href="{{ route('courses.edit', $course) }}"
                                 class="inline-flex flex-1 items-center
-                                   justify-center gap-2 rounded-lg
-                                   border border-slate-200 bg-white
-                                   px-3 py-2 text-xs font-semibold
-                                   text-slate-600 transition
-                                   hover:border-primary/30
-                                   hover:bg-primary/10
-                                   hover:text-primary">
+                                       justify-center gap-2 rounded-lg
+                                       border border-slate-200 bg-white
+                                       px-3 py-2 text-xs font-semibold
+                                       text-slate-600 transition
+                                       hover:border-primary/30
+                                       hover:bg-primary/10
+                                       hover:text-primary">
 
                                 <i class="bi bi-pencil-square"></i>
 
@@ -468,7 +492,7 @@
 
 
                             {{-- Delete --}}
-                            <form data-item="rounds" action="{{ route('rounds.destroy', $round) }}" method="POST"
+                            <form action="{{ route('courses.destroy', $course) }}" method="POST" data-item="course"
                                 class="delete-form flex-1">
 
                                 @csrf
@@ -476,13 +500,13 @@
 
                                 <button type="submit"
                                     class="inline-flex w-full items-center
-               justify-center gap-2 rounded-lg
-               border border-red-100
-               bg-red-50 px-3 py-2
-               text-xs font-semibold
-               text-red-500 transition
-               hover:bg-red-100
-               hover:text-red-600">
+                                           justify-center gap-2 rounded-lg
+                                           border border-red-100
+                                           bg-red-50 px-3 py-2
+                                           text-xs font-semibold
+                                           text-red-500 transition
+                                           hover:bg-red-100
+                                           hover:text-red-600">
 
                                     <i class="bi bi-trash3"></i>
 
@@ -505,20 +529,23 @@
 
                             <div
                                 class="flex h-12 w-12 items-center
-                                    justify-center rounded-full bg-slate-100">
+                                        justify-center rounded-full
+                                        bg-slate-100">
 
-                                <i class="bi bi-journal-x text-xl text-slate-400"></i>
+                                <i
+                                    class="bi bi-book-x
+                                          text-xl text-slate-400"></i>
 
                             </div>
 
                         </div>
 
                         <p class="text-sm font-medium text-slate-600">
-                            No rounds found
+                            No courses found
                         </p>
 
                         <p class="mt-1 text-xs text-slate-400">
-                            Create your first round to get started.
+                            Create your first course to get started.
                         </p>
 
                     </div>
@@ -528,11 +555,11 @@
 
 
             {{-- Pagination --}}
-            @if ($rounds->hasPages())
+            @if ($courses->hasPages())
                 <div
                     class="flex flex-col gap-4 border-t border-slate-100
-                px-4 py-4 sm:flex-row sm:items-center
-                sm:justify-between sm:px-5">
+                            px-4 py-4 sm:flex-row sm:items-center
+                            sm:justify-between sm:px-5">
 
                     {{-- Result Information --}}
                     <p class="text-xs text-slate-500">
@@ -540,19 +567,19 @@
                         Showing
 
                         <span class="font-semibold text-slate-700">
-                            {{ $rounds->firstItem() }}
+                            {{ $courses->firstItem() }}
                         </span>
 
                         <span class="px-0.5 text-slate-400">–</span>
 
                         <span class="font-semibold text-slate-700">
-                            {{ $rounds->lastItem() }}
+                            {{ $courses->lastItem() }}
                         </span>
 
                         of
 
                         <span class="font-semibold text-slate-700">
-                            {{ $rounds->total() }}
+                            {{ $courses->total() }}
                         </span>
 
                         results
@@ -562,7 +589,7 @@
 
                     {{-- Pagination --}}
                     <div class="overflow-x-auto">
-                        {{ $rounds->onEachSide(1)->links() }}
+                        {{ $courses->onEachSide(1)->links() }}
                     </div>
 
                 </div>

@@ -16,15 +16,13 @@ class RoundController extends Controller
 
         $rounds = Round::query()
             ->when($search, function ($query, $search) {
-
                 $query->where(function ($q) use ($search) {
+                    $q->where('round_number', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%");
 
                     // Search by ID only if search value is numeric
                     if (is_numeric($search)) {
-                        $q->where('id', "=", $search)
-                            ->orWhere('round_number', 'like', "%{$search}%");
-                    } else {
-                        $q->where('description', 'like', "%{$search}%");
+                        $q->orWhere('id', $search);
                     }
                 });
             })

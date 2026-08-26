@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
 
             // Relationships
-            $table->foreignId('subject_id')
-                ->constrained('subjects')
+            $table->foreignId('course_id')
+                ->constrained('courses')
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
 
@@ -25,13 +25,22 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
 
-            $table->foreignId('chapter_id')
-                ->constrained('chapters')
+            $table->foreignId('competency_unit_id')
+                ->constrained('competency_units')
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
 
             // Question
             $table->text('question_text');
+
+            // Options
+            $table->string('option_a');
+            $table->string('option_b');
+            $table->string('option_c')->nullable();
+            $table->string('option_d')->nullable();
+
+            // Correct Answer
+            $table->json('correct_answer');
 
             // Marks
             $table->decimal('marks', 8, 2)

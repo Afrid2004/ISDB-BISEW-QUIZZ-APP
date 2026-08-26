@@ -14,7 +14,9 @@
 
         <div class="flex items-center gap-3">
 
-            <img src="{{ asset('/assets/images/logo.png') }}" alt="isdb logo" class="w-70">
+            <a href="{{ route('dashboard') }}">
+                <img src="{{ asset('/assets/images/logo.png') }}" alt="isdb logo" class="w-70">
+            </a>
 
         </div>
 
@@ -47,6 +49,18 @@
                 </x-sidebar.sub-link>
             </x-sidebar.dropdown>
 
+            <x-sidebar.dropdown title="Courses" route="courses.*" icon="bi-book">
+                <x-sidebar.sub-link route="courses.index">
+                    All Courses
+                </x-sidebar.sub-link>
+                <x-sidebar.sub-link route="courses.create">
+                    Create Course
+                </x-sidebar.sub-link>
+                <x-sidebar.sub-link route="courses.deleted">
+                    Deleted Courses
+                </x-sidebar.sub-link>
+            </x-sidebar.dropdown>
+
             {{-- Questions --}}
             <x-sidebar.dropdown title="Qustions" route="questions.*" icon="bi-layers">
                 <x-sidebar.sub-link route="questions.index">
@@ -58,60 +72,18 @@
             </x-sidebar.dropdown>
 
 
-            {{-- Students --}}
-            <a href="#"
-                class="flex items-center gap-3 rounded-lg
-                       px-3 py-2.5 text-sm text-slate-500
-                       transition hover:bg-primary/10
-                       hover:text-primary">
-
-                <i class="bi bi-people text-base"></i>
-
-                <span>Students</span>
-
-            </a>
-
-
-            {{-- Batches --}}
-            <a href="#"
-                class="flex items-center gap-3 rounded-lg
-                       px-3 py-2.5 text-sm text-slate-500
-                       transition hover:bg-primary/10
-                       hover:text-primary">
-
-                <i class="bi bi-mortarboard text-base"></i>
-
-                <span>Batches</span>
-
-            </a>
-
-
-            {{-- Subjects --}}
-            <a href="#"
-                class="flex items-center gap-3 rounded-lg
-                       px-3 py-2.5 text-sm text-slate-500
-                       transition hover:bg-primary/10
-                       hover:text-primary">
-
-                <i class="bi bi-book text-base"></i>
-
-                <span>Subjects</span>
-
-            </a>
-
-
             {{-- Modules --}}
-            <a href="#"
-                class="flex items-center gap-3 rounded-lg
-                       px-3 py-2.5 text-sm text-slate-500
-                       transition hover:bg-primary/10
-                       hover:text-primary">
-
-                <i class="bi bi-collection text-base"></i>
-
-                <span>Modules</span>
-
-            </a>
+            <x-sidebar.dropdown title="Modules" route="modules.*" icon="bi-collection">
+                <x-sidebar.sub-link route="modules.index">
+                    All Modules
+                </x-sidebar.sub-link>
+                <x-sidebar.sub-link route="modules.create">
+                    Create Module
+                </x-sidebar.sub-link>
+                <x-sidebar.sub-link route="modules.deleted">
+                    Deleted Modules
+                </x-sidebar.sub-link>
+            </x-sidebar.dropdown>
 
 
             {{-- Chapters --}}
