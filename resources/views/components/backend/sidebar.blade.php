@@ -84,6 +84,10 @@
                     Create Shift
                 </x-sidebar.sub-link>
 
+                <x-sidebar.sub-link route="shifts.deleted">
+                    Deleted Shifts
+                </x-sidebar.sub-link>
+
             </x-sidebar.dropdown>
 
             {{-- Batches Dropdown --}}
@@ -114,20 +118,6 @@
                 <i class="bi bi-people text-base"></i>
 
                 <span>Students</span>
-
-            </a>
-
-
-            {{-- Batches --}}
-            <a href="#"
-                class="flex items-center gap-3 rounded-lg
-                       px-3 py-2.5 text-sm text-slate-500
-                       transition hover:bg-primary/10
-                       hover:text-primary">
-
-                <i class="bi bi-mortarboard text-base"></i>
-
-                <span>Batches</span>
 
             </a>
 
