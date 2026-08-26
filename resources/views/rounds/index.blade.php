@@ -150,19 +150,3 @@
         </div>
     </div>
 @endsection
-
-@push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Global Delete Confirmation
-            document.querySelectorAll('.delete-form').forEach(form => {
-                form.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    if (confirm('Critical Action: Are you absolutely sure you want to delete this round? This cannot be undone.')) {
-                        form.submit();
-                    }
-                });
-            });
-        });
-    </script>
-@endpush

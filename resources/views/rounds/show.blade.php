@@ -1,7 +1,8 @@
 @extends('layouts.backend.app')
 
 @section('content')
-    <div class="min-h-screen bg-[#f7f8fc] px-4 py-6 sm:px-6 lg:px-0">
+
+    <div class="min-h-screen bg-[#f7f8fc]">
 
         {{-- Page Header --}}
         <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -143,19 +144,3 @@
         </div>
     </div>
 @endsection
-
-@push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Native Delete Confirmation (Replaces SweetAlert)
-            document.querySelectorAll('.delete-form').forEach(form => {
-                form.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    if (confirm('Critical Action: Are you absolutely sure you want to delete this round? This cannot be undone.')) {
-                        form.submit();
-                    }
-                });
-            });
-        });
-    </script>
-@endpush

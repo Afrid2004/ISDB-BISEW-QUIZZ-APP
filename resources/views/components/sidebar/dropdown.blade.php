@@ -38,8 +38,17 @@
 
     {{-- Children --}}
     <div
-        class="transition-all ease-in-out sidebar-dropdown-menu border-l-2 border-gray-300/50 pl-2
-        {{ $isActive ? 'max-h-96 opacity-100 mt-2' : 'max-h-0 opacity-0 mt-0' }}">
+        class="sidebar-dropdown-menu
+            overflow-hidden
+            transition-all
+            duration-300
+            ease-in-out
+            border-l-2
+            border-gray-300/50
+            pl-2
+            {{ $isActive
+                ? 'max-h-96 opacity-100 mt-2 pointer-events-auto'
+                : 'max-h-0 opacity-0 mt-0 pointer-events-none' }}">
         <div class="space-y-1.5">
 
             {{ $slot }}

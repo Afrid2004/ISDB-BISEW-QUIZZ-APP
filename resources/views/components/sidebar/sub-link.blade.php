@@ -9,7 +9,8 @@
         px-3 py-2.5
         text-[13px]
         transition
-
+        hover:bg-primary/10
+        hover:text-primary
         {{ $isActive
             ? 'bg-primary/10 font-medium text-primary'
             : 'text-slate-500 hover:bg-primary/10 hover:text-primary' }}

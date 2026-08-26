@@ -1,11 +1,48 @@
 @extends('layouts.backend.app')
 
 @section('content')
-    <div class="min-h-screen bg-[#f7f8fc] px-4 py-6 sm:px-6 lg:px-0">
-        <div class="mb-6 flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-slate-800">Add New Round</h1>
-                <p class="text-sm text-slate-500">Create a new assessment cycle.</p>
+
+    <div class="min-h-screen bg-[#f7f8fc]">
+
+        {{-- Page Header --}}
+        <div class="mb-6">
+
+            <div class="flex items-center justify-between flex-wrap sm:flex-nowrap gap-3">
+
+                <div>
+
+                    <h1 class="text-2xl font-bold text-slate-800">
+                        Add New Round
+                    </h1>
+
+                    <p class="mt-1 text-sm text-slate-500">
+                        Create a new quiz round for your assessment system.
+                    </p>
+
+                </div>
+
+
+                {{-- Show Data --}}
+                <div>
+
+                    <a href="{{route('rounds.index')}}"
+                        class="inline-flex items-center justify-center
+                               gap-2 rounded-lg bg-primary
+                               px-5 py-2.5 text-sm font-semibold
+                               text-white transition
+                               hover:bg-primary/90
+                               focus:outline-none focus:ring-2
+                               focus:ring-primary/50
+                               focus:ring-offset-2">
+
+                        <i class="bi bi-eye text-base"></i>
+
+                        Show Data
+
+                    </a>
+
+                </div>
+
             </div>
             <a href="{{ route('rounds.index') }}" class="inline-flex items-center gap-2 rounded-lg bg-white border border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-600 transition hover:bg-slate-50 shadow-sm">
                 <i class="bi bi-arrow-left"></i> Back to List
