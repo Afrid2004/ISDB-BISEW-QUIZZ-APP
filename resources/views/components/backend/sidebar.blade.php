@@ -65,17 +65,6 @@
                 </x-sidebar.sub-link>
             </x-sidebar.dropdown>
 
-            {{-- Questions Dropdown --}}
-            <x-sidebar.dropdown title="Qustions" route="questions.*" icon="bi-layers">
-                <x-sidebar.sub-link route="questions.index">
-                    All Questions
-                </x-sidebar.sub-link>
-                <x-sidebar.sub-link route="questions.create">
-                    Create Question
-                </x-sidebar.sub-link>
-            </x-sidebar.dropdown>
-
-
             {{-- Modules Dropdown --}}
             <x-sidebar.dropdown title="Modules" route="modules.*" icon="bi-collection">
                 <x-sidebar.sub-link route="modules.index">
@@ -86,6 +75,16 @@
                 </x-sidebar.sub-link>
                 <x-sidebar.sub-link route="modules.deleted">
                     Deleted Modules
+                </x-sidebar.sub-link>
+            </x-sidebar.dropdown>
+
+            {{-- Questions Dropdown --}}
+            <x-sidebar.dropdown title="Qustions" route="questions.*" icon="bi-layers">
+                <x-sidebar.sub-link route="questions.index">
+                    All Questions
+                </x-sidebar.sub-link>
+                <x-sidebar.sub-link route="questions.create">
+                    Create Question
                 </x-sidebar.sub-link>
             </x-sidebar.dropdown>
 
