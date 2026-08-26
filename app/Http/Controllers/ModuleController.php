@@ -35,7 +35,7 @@ class ModuleController extends Controller
                 });
             })
             ->orderByDesc('id')
-            ->paginate(5)
+            ->paginate(10)
             ->withQueryString();
 
         return view('modules.index', compact('modules'));
@@ -150,7 +150,7 @@ class ModuleController extends Controller
             })
             ->onlyTrashed()
             ->orderByDesc('id')
-            ->paginate(5)
+            ->paginate(10)
             ->withQueryString();
         return view('modules.deleted', compact('modules'));
     }

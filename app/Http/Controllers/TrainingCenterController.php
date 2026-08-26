@@ -27,7 +27,7 @@ class TrainingCenterController extends Controller
                 });
             })
             ->orderByDesc('id')
-            ->paginate(5)
+            ->paginate(10)
             ->withQueryString();
 
         return view('training_centers.index', compact('trainingCenters'));
@@ -135,7 +135,7 @@ class TrainingCenterController extends Controller
             })
             ->onlyTrashed()
             ->orderByDesc('id')
-            ->paginate(5)
+            ->paginate(10)
             ->withQueryString();
 
         return view('training_centers.deleted', compact('trainingCenters', 'search'));

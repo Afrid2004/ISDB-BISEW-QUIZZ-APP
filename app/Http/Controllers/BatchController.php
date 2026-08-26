@@ -31,7 +31,7 @@ class BatchController extends Controller
                 });
             })
             ->orderByDesc('id')
-            ->paginate(5)
+            ->paginate(10)
             ->withQueryString();
 
         return view('batches.index', compact('batches'));
@@ -164,7 +164,7 @@ class BatchController extends Controller
                 });
             })
             ->orderByDesc('id')
-            ->paginate(5)
+            ->paginate(10)
             ->withQueryString();
 
         return view('batches.deleted', compact('batches', 'search'));

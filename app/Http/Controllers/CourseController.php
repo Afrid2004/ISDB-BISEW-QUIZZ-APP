@@ -29,7 +29,7 @@ class CourseController extends Controller
                 });
             })
             ->orderByDesc('id')
-            ->paginate(5)
+            ->paginate(10)
             ->withQueryString();
         return view('courses.index', compact('courses'));
     }
@@ -134,7 +134,7 @@ class CourseController extends Controller
             })
             ->onlyTrashed()
             ->orderByDesc('id')
-            ->paginate(5)
+            ->paginate(10)
             ->withQueryString();
         return view('courses.deleted', compact('courses'));
     }

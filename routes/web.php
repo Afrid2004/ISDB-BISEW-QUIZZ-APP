@@ -7,6 +7,7 @@ use App\Http\Controllers\RoundController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\TrainingCenterController;
 use App\Http\Controllers\BatchController;
+use App\Http\Controllers\CompetencyUnitController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -26,6 +27,12 @@ Route::get("/modules/deleted", [ModuleController::class, 'deletedModules'])->nam
 Route::patch('/modules/{id}/restore', [ModuleController::class, 'restoreModules'])->name('modules.restore');
 Route::delete('/modules/{id}/delete', [ModuleController::class, 'forceDelete'])->name('modules.forceDelete');
 Route::resource("/modules", ModuleController::class);
+
+//competency unit controller
+Route::get('/competency-units/deleted', [CompetencyUnitController::class, 'deletedCompetencyUnits'])->name('competency-units.deleted');
+Route::patch('/competency-units/{id}/restore', [CompetencyUnitController::class, 'restoreCompetencyUnit'])->name('competency-units.restore');
+Route::patch('/competency-units/{id}/delete', [CompetencyUnitController::class, 'forceDelete'])->name('competency-units.forceDelete');
+Route::resource('/competency-units', CompetencyUnitController::class);
 
 // questions controller 
 Route::resource("/questions", QuestionController::class);

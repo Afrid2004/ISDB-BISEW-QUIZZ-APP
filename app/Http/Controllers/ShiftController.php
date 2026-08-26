@@ -26,7 +26,7 @@ class ShiftController extends Controller
                 });
             })
             ->orderByDesc('id')
-            ->paginate(5)
+            ->paginate(10)
             ->withQueryString();
 
         return view('shifts.index', compact('shifts'));
