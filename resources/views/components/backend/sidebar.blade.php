@@ -39,7 +39,7 @@
                 Dashboard
             </x-sidebar.link>
 
-            {{-- Rounds --}}
+            {{-- Rounds Dropdown --}}
             <x-sidebar.dropdown title="Rounds" route="rounds.*" icon="bi-layers">
                 <x-sidebar.sub-link route="rounds.index">
                     All Rounds
@@ -49,6 +49,7 @@
                 </x-sidebar.sub-link>
             </x-sidebar.dropdown>
 
+            {{-- Course Dropdown --}}
             <x-sidebar.dropdown title="Courses" route="courses.*" icon="bi-book">
                 <x-sidebar.sub-link route="courses.index">
                     All Courses
@@ -60,8 +61,8 @@
                     Deleted Courses
                 </x-sidebar.sub-link>
             </x-sidebar.dropdown>
-
-            {{-- Questions --}}
+            
+            {{-- Questions Dropdown--}}
             <x-sidebar.dropdown title="Qustions" route="questions.*" icon="bi-layers">
                 <x-sidebar.sub-link route="questions.index">
                     All Questions
@@ -72,7 +73,7 @@
             </x-sidebar.dropdown>
 
 
-            {{-- Modules --}}
+            {{-- Modules Dropdown--}}
             <x-sidebar.dropdown title="Modules" route="modules.*" icon="bi-collection">
                 <x-sidebar.sub-link route="modules.index">
                     All Modules
@@ -83,6 +84,58 @@
                 <x-sidebar.sub-link route="modules.deleted">
                     Deleted Modules
                 </x-sidebar.sub-link>
+            </x-sidebar.dropdown>
+
+            {{-- Training Centers Dropdown --}}
+            <x-sidebar.dropdown title="Training Centers" route="training-centers.*" icon="bi-building">
+
+                <x-sidebar.sub-link route="training-centers.index">
+                    All Training Centers
+                </x-sidebar.sub-link>
+
+                <x-sidebar.sub-link route="training-centers.create">
+                    Create Training Center
+                </x-sidebar.sub-link>
+
+                <x-sidebar.sub-link route="training-centers.deleted">
+                    Deleted Training Centers
+                </x-sidebar.sub-link>
+
+            </x-sidebar.dropdown>
+
+
+            {{-- Shifts Dropdown --}}
+            <x-sidebar.dropdown title="Shifts" route="shifts.*" icon="bi-clock-history">
+
+                <x-sidebar.sub-link route="shifts.index">
+                    All Shifts
+                </x-sidebar.sub-link>
+
+                <x-sidebar.sub-link route="shifts.create">
+                    Create Shift
+                </x-sidebar.sub-link>
+
+                <x-sidebar.sub-link route="shifts.deleted">
+                    Deleted Shifts
+                </x-sidebar.sub-link>
+
+            </x-sidebar.dropdown>
+
+            {{-- Batches Dropdown --}}
+            <x-sidebar.dropdown title="Batches" route="batches.*" icon="bi-people-fill">
+
+                <x-sidebar.sub-link route="batches.index">
+                    All Batches
+                </x-sidebar.sub-link>
+
+                <x-sidebar.sub-link route="batches.create">
+                    Create Batch
+                </x-sidebar.sub-link>
+
+                <x-sidebar.sub-link route="batches.deleted">
+                    Deleted Batches
+                </x-sidebar.sub-link>
+
             </x-sidebar.dropdown>
 
 

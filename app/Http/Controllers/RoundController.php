@@ -17,12 +17,13 @@ class RoundController extends Controller
         $rounds = Round::query()
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
-                    $q->where('round_number', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%");
-
-                    // Search by ID only if search value is numeric
+                    // Search by ID or Round Number if numeric
                     if (is_numeric($search)) {
-                        $q->orWhere('id', $search);
+                        $q->where('id', '=', $search)
+                            ->orWhere('round_number', 'like', "%{$search}%");
+                    } else {
+                        // Otherwise search by description
+                        $q->where('description', 'like', "%{$search}%");
                     }
                 });
             })
@@ -46,7 +47,6 @@ class RoundController extends Controller
      */
     public function store(Request $request, Round $round)
     {
-        //
         $request->validate([
             'round_number' => [
                 'required',
@@ -54,22 +54,24 @@ class RoundController extends Controller
                 'min:1',
                 'unique:rounds,round_number',
             ],
-
             'description' => [
                 'nullable',
                 'string',
             ],
-
             'is_active' => [
                 'nullable',
                 'boolean',
             ],
         ]);
+
         $round->round_number = $request->round_number;
         $round->description = $request->description;
         $round->is_active = $request->boolean('is_active');
         $round->save();
-        return redirect()->route('rounds.index')->with('success', 'Round created successfully.');
+
+        return redirect()
+            ->route('rounds.index')
+            ->with('success', 'Round created successfully.');
     }
 
     /**
@@ -77,8 +79,6 @@ class RoundController extends Controller
      */
     public function show(Round $round)
     {
-        //
-
         return view('rounds.show', compact('round'));
     }
 
@@ -87,7 +87,6 @@ class RoundController extends Controller
      */
     public function edit(Round $round)
     {
-        //
         return view('rounds.edit', compact('round'));
     }
 
@@ -96,53 +95,56 @@ class RoundController extends Controller
      */
     public function update(Request $request, Round $round)
     {
-        //
         $request->validate([
             'round_number' => [
                 'required',
                 'integer',
                 'min:1',
             ],
-
             'description' => [
                 'nullable',
                 'string',
             ],
-
             'is_active' => [
                 'nullable',
                 'boolean',
             ],
         ]);
+
         $round->round_number = $request->round_number;
         $round->description = $request->description;
         $round->is_active = $request->boolean('is_active');
         $round->update();
-        return redirect()->route('rounds.index')->with('success', 'Round updated successfully.');
+
+        return redirect()
+            ->route('rounds.index')
+            ->with('success', 'Round updated successfully.');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified resource from storage (Soft Delete).
      */
     public function destroy(Round $round)
     {
         $round->delete();
+
         return redirect()
             ->route('rounds.index')
             ->with('success', 'Round deleted successfully.');
     }
 
+    /**
+     * Display a listing of the soft-deleted resources.
+     */
     public function deletedRounds(Request $request)
     {
         $search = $request->input('search');
 
         $rounds = Round::query()
             ->when($search, function ($query, $search) {
-
                 $query->where(function ($q) use ($search) {
-                    // Search by ID only if search value is numeric
                     if (is_numeric($search)) {
-                        $q->where('id', "=", $search)
+                        $q->where('id', '=', $search)
                             ->orWhere('round_number', 'like', "%{$search}%");
                     } else {
                         $q->where('description', 'like', "%{$search}%");
@@ -155,5 +157,29 @@ class RoundController extends Controller
             ->withQueryString();
 
         return view('rounds.deleted', compact('rounds', 'search'));
+    }
+
+    /**
+     * Restore the specified soft-deleted resource.
+     */
+    public function restore($id)
+    {
+        $round = Round::withTrashed()->find($id);
+        $round->restore();
+
+        return redirect("/rounds/deleted")
+            ->with("success", "Round restored successfully");
+    }
+
+    /**
+     * Permanently remove the specified resource from storage.
+     */
+    public function forceDelete($id)
+    {
+        $round = Round::withTrashed()->find($id);
+        $round->forceDelete();
+
+        return redirect()->back()
+            ->with("success", "Round deleted permanently");
     }
 }

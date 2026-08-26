@@ -1,20 +1,19 @@
 @extends('layouts.backend.app')
 
 @section('content')
+    <div class="min-h-screen bg-[#f7f8fc] px-4 py-6 sm:px-6 lg:px-0">
 
-    <div class="min-h-screen bg-[#f7f8fc]">
-
-        {{-- Page Header --}}
-        <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-
+        <div class="mb-6 flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-slate-800">Edit Round</h1>
-                <p class="text-sm text-slate-500">Updating information for Round: {{ $round->round_number }}</p>
+                <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Edit Shift</h1>
+                <p class="text-sm text-slate-500">Updating information for {{ $shift->name }}.</p>
             </div>
-            <a href="{{ route('rounds.index') }}" class="inline-flex items-center gap-2 rounded-lg bg-white border border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-600 transition hover:bg-slate-50 shadow-sm">
-                <i class="bi bi-eye text-base"></i> View All
+            <a href="{{ route('shifts.index') }}" class="inline-flex items-center gap-2 rounded-lg bg-white border border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-600 transition hover:bg-slate-50 shadow-sm">
+                <i class="bi bi-eye"></i> View All
             </a>
         </div>
+
+        @include('components._alerts')
 
         <div class="mx-auto max-w-3xl md:max-w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
             <div class="border-b border-slate-100 px-6 py-4 bg-slate-50/30 flex items-center gap-3">
@@ -24,12 +23,10 @@
                 <h2 class="text-base font-bold text-slate-800 tracking-tight">Modification Panel</h2>
             </div>
 
-            <form action="{{ route('rounds.update', $round->id) }}" method="POST" class="px-6 py-6">
+            <form action="{{ route('shifts.update', $shift->id) }}" method="POST" class="px-6 py-6">
                 @csrf
                 @method('PUT')
-                
-                  <x-_alerts />
-                @include('rounds._form')
+                @include('shifts._form')
 
                 <div class="mt-8 flex justify-end gap-3 border-t border-slate-100 pt-6">
                     <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition hover:bg-primary/90">
