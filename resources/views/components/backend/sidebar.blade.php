@@ -61,8 +61,8 @@
                     Deleted Courses
                 </x-sidebar.sub-link>
             </x-sidebar.dropdown>
-            
-            {{-- Questions Dropdown--}}
+
+            {{-- Questions Dropdown --}}
             <x-sidebar.dropdown title="Qustions" route="questions.*" icon="bi-layers">
                 <x-sidebar.sub-link route="questions.index">
                     All Questions
@@ -73,7 +73,7 @@
             </x-sidebar.dropdown>
 
 
-            {{-- Modules Dropdown--}}
+            {{-- Modules Dropdown --}}
             <x-sidebar.dropdown title="Modules" route="modules.*" icon="bi-collection">
                 <x-sidebar.sub-link route="modules.index">
                     All Modules
@@ -122,7 +122,7 @@
             </x-sidebar.dropdown>
 
             {{-- Batches Dropdown --}}
-            <x-sidebar.dropdown title="Batches" route="batches.*" icon="bi-people-fill">
+            <x-sidebar.dropdown title="Batches" route="batches.*" icon="bi-people">
 
                 <x-sidebar.sub-link route="batches.index">
                     All Batches
