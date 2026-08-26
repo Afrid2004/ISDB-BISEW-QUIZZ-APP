@@ -49,3 +49,23 @@
 
     </div>
 @endif
+
+
+@if (session('info'))
+    <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 5000)" x-show="show" x-transition.duration.500ms
+        {{ $attributes->merge(['class' => 'mt-3 flex items-center justify-between rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3']) }}>
+
+        <div class="flex items-center gap-3">
+
+            <div class="flex h-6 w-6 items-center justify-center rounded-full bg-yellow-500 text-white">
+                <i class="bi bi-check text-lg"></i>
+            </div>
+
+            <p class="text-sm font-semibold text-yellow-800">
+                {{ session('info') }}
+            </p>
+
+        </div>
+
+    </div>
+@endif
