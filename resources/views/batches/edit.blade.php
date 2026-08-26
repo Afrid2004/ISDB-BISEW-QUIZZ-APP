@@ -13,10 +13,6 @@
 
             <div class="flex items-center gap-3">
 
-                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <i class="bi bi-people-fill text-lg"></i>
-                </div>
-
                 <div>
                     <h1 class="text-2xl font-bold text-slate-800">
                         Edit Batch
