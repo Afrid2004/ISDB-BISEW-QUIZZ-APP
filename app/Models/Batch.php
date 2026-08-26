@@ -42,4 +42,8 @@ class Batch extends Model
     {
         return $this->belongsTo(Shift::class, 'shift_id');
     }
+    public function course()
+    {
+        return $this->belongsTo(Course::class, 'course_id');
+    }
 }

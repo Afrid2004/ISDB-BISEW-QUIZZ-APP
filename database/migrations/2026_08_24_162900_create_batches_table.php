@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('round_id');
             $table->unsignedBigInteger('training_center_id');
             $table->unsignedBigInteger('shift_id');
+            $table->unsignedBigInteger('course_id');
 
             // Batch Details
             $table->string('batch_number', 50)->unique();
