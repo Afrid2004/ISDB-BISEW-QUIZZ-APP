@@ -33,15 +33,6 @@ return new class extends Migration
             // Question
             $table->text('question_text');
 
-            // Options
-            $table->string('option_a');
-            $table->string('option_b');
-            $table->string('option_c')->nullable();
-            $table->string('option_d')->nullable();
-
-            // Correct Answer
-            $table->json('correct_answer');
-
             // Marks
             $table->decimal('marks', 8, 2)
                 ->default(2.00);

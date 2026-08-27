@@ -2,9 +2,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const optionsContainer = document.getElementById("options-container");
     const optionCount = document.getElementById("option-count");
     const questionTypes = document.querySelectorAll(".question-type");
-    const correctInputs = optionsContainer.querySelectorAll(".correct-input");
     const addOptionButton = document.getElementById("add-option");
-    const deleteButtons = document.querySelectorAll(".delete-option");
+
     const letters = ["A", "B", "C", "D"];
 
     // Question type change
@@ -18,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
             correctInputs.forEach(function (input) {
                 if (isMultiple) {
                     input.type = "checkbox";
-                    input.name = "correct_answer[]";
+                    input.name = "correct_answers[]";
                 } else {
                     input.type = "radio";
                     input.name = "correct_answer";
@@ -31,7 +30,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Update correct answer style
     function updateCorrectAnswerStyles() {
-        correctInputs.forEach((input) => {
+        const correctInputs =
+            optionsContainer.querySelectorAll(".correct-input");
+
+        correctInputs.forEach(function (input) {
             const label = input.closest(".correct-option");
             const row = label.parentElement;
             const letter = row.querySelector(".option-letter");
@@ -39,26 +41,43 @@ document.addEventListener("DOMContentLoaded", function () {
             if (input.checked) {
                 letter.classList.add("bg-primary/10", "text-primary");
                 letter.classList.remove("bg-slate-100", "text-slate-500");
-                label.classList.remove("border-slate-200", "text-slate-400");
+
+                label.classList.remove(
+                    "border-slate-200",
+                    "text-slate-400"
+                );
+
                 label.classList.add(
                     "border-primary",
                     "bg-primary",
-                    "text-white",
+                    "text-white"
                 );
             } else {
-                letter.classList.remove("bg-primary/10", "text-primary");
-                letter.classList.add("bg-slate-100", "text-slate-500");
-                label.classList.add("border-slate-200", "text-slate-400");
+                letter.classList.remove(
+                    "bg-primary/10",
+                    "text-primary"
+                );
+
+                letter.classList.add(
+                    "bg-slate-100",
+                    "text-slate-500"
+                );
+
+                label.classList.add(
+                    "border-slate-200",
+                    "text-slate-400"
+                );
+
                 label.classList.remove(
                     "border-primary",
                     "bg-primary",
-                    "text-white",
+                    "text-white"
                 );
             }
         });
     }
 
-    // Get option rows option a, option b
+    // Get option rows
     function getOptionRows() {
         return optionsContainer.querySelectorAll(".option-row");
     }
@@ -66,36 +85,46 @@ document.addEventListener("DOMContentLoaded", function () {
     // Update Add Option button
     function updateAddButton() {
         const count = getOptionRows().length;
+
         if (count < 4) {
             addOptionButton.classList.remove("hidden");
+            addOptionButton.classList.add("inline-flex");
         } else {
             addOptionButton.classList.add("hidden");
+            addOptionButton.classList.remove("inline-flex");
         }
     }
 
     // Re-index options
     function reindexOptions() {
         const rows = getOptionRows();
+
         rows.forEach(function (row, index) {
-            const letter = letters[index]; //A[0], B[1]...
-            row.querySelector(".option-letter").innerHTML = letter;
+            const letter = letters[index];
+
+            // Letter
+            row.querySelector(".option-letter").textContent = letter;
 
             // Option input
             const optionInput = row.querySelector(".option-input");
-            optionInput.name = `option_${letter.toLowerCase()}`; //option_a, option_b...
+
+            optionInput.name = `options[${letter}]`;
             optionInput.placeholder = `Enter option ${letter}`;
 
             // Correct answer
-            const correctInput = row.querySelector(".correct-input");
+            const correctInput =
+                row.querySelector(".correct-input");
+
             correctInput.value = letter;
         });
 
-        // Count
-        optionCount.innerHTML = rows.length;
+        // Option count
+        optionCount.textContent = rows.length;
 
         // Add button
         updateAddButton();
-        // Correct style
+
+        // Correct answer styles
         updateCorrectAnswerStyles();
     }
 
@@ -108,18 +137,28 @@ document.addEventListener("DOMContentLoaded", function () {
     function createOption() {
         const rows = getOptionRows();
         const index = rows.length;
-        // Maximum 4
+
+        // Maximum 4 options
         if (index >= 4) {
             return;
         }
+
         const letter = letters[index];
+
         const isMultiple =
             document.querySelector(".question-type:checked")?.value ===
-            "multiple_choice"; //for current question type
+            "multiple_choice";
+
         const inputType = isMultiple ? "checkbox" : "radio";
-        const inputName = isMultiple ? "correct_answer[]" : "correct_answer";
+
+        const inputName = isMultiple
+            ? "correct_answers[]"
+            : "correct_answer";
+
         const row = document.createElement("div");
+
         row.className = "option-row flex items-center gap-3";
+
         row.innerHTML = `
             <span
                 class="option-letter flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-sm font-bold text-slate-500">
@@ -128,7 +167,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             <input
                 type="text"
-                name="option_${letter.toLowerCase()}"
+                name="options[${letter}]"
                 placeholder="Enter option ${letter}"
                 class="option-input w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10">
 
@@ -146,25 +185,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
             </label>
 
-            <button type="button"
-                class="delete-option border border-red-100 bg-red-300/20 text-red-300 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition hover:bg-red-50 hover:text-red-500" title="Delete option">
-                    <i class="bi bi-trash"></i>
+            <button
+                type="button"
+                class="delete-option border border-red-100 bg-red-300/20 text-red-300 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition hover:bg-red-50 hover:text-red-500"
+                title="Delete option">
+
+                <i class="bi bi-trash"></i>
+
             </button>
         `;
+
         optionsContainer.appendChild(row);
+
         reindexOptions();
     }
 
-    // delete options
-    deleteButtons.forEach((button) => {
-        button.addEventListener("click", function () {
-            if (getOptionRows().length <= 2) {
-                alert("At least 2 options are required.");
-                return;
-            }
-            this.parentElement.remove();
-            reindexOptions();
-        });
+    // Delete option
+    optionsContainer.addEventListener("click", function (event) {
+        const deleteButton =
+            event.target.closest(".delete-option");
+
+        if (!deleteButton) {
+            return;
+        }
+
+        if (getOptionRows().length <= 2) {
+            alert("At least 2 options are required.");
+            return;
+        }
+
+        deleteButton.closest(".option-row").remove();
+
+        reindexOptions();
     });
 
     // Correct answer change
@@ -172,8 +224,10 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!event.target.classList.contains("correct-input")) {
             return;
         }
+
         updateCorrectAnswerStyles();
     });
 
+    // Initial setup
     reindexOptions();
 });
