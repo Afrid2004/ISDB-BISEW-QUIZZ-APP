@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Batch;
+use App\Models\Course;
 use App\Models\Round;
 use App\Models\TrainingCenter;
 use App\Models\Shift;
@@ -10,23 +11,19 @@ use Illuminate\Http\Request;
 
 class BatchController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         $search = $request->input('search');
 
-        $batches = Batch::with(['round', 'trainingCenter', 'shift'])
+        $batches = Batch::with(['round', 'course', 'trainingCenter', 'shift'])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     if (is_numeric($search)) {
-                        $q->where('id', '=', $search)
-                            ->orWhere('batch_number', 'like', "%{$search}%")
-                            ->orWhere('max_students', '=', (int)$search);
+                        $q->where('id', $search)->orWhere('batch_number', 'like', "%{$search}%")->orWhere('max_students', (int) $search);
                     } else {
-                        $q->where('name', 'like', "%{$search}%")
-                            ->orWhere('description', 'like', "%{$search}%");
+                        $q->where('name', 'like', "%{$search}%")->orWhere('description', 'like', "%{$search}%")->orWhereHas('course', function ($courseQuery) use ($search) {
+                            $courseQuery->where('name', 'like', "%{$search}%");
+                        });
                     }
                 });
             })
@@ -37,25 +34,21 @@ class BatchController extends Controller
         return view('batches.index', compact('batches'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $rounds = Round::where('is_active', true)->orderBy('round_number')->get();
+        $courses = Course::where('is_active', true)->orderBy('name')->get();
         $trainingCenters = TrainingCenter::where('is_active', true)->orderBy('name')->get();
         $shifts = Shift::where('is_active', true)->orderBy('name')->get();
 
-        return view('batches.create', compact('rounds', 'trainingCenters', 'shifts'));
+        return view('batches.create', compact('rounds', 'courses', 'trainingCenters', 'shifts'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request, Batch $batch)
+    public function store(Request $request)
     {
         $request->validate([
             'round_id' => ['required', 'exists:rounds,id'],
+            'course_id' => ['required', 'exists:courses,id'],
             'training_center_id' => ['required', 'exists:training_centers,id'],
             'shift_id' => ['required', 'exists:shifts,id'],
             'batch_number' => ['required', 'string', 'max:50', 'unique:batches,batch_number'],
@@ -65,7 +58,9 @@ class BatchController extends Controller
             'is_active' => ['nullable', 'boolean'],
         ]);
 
+        $batch = new Batch();
         $batch->round_id = $request->round_id;
+        $batch->course_id = $request->course_id;
         $batch->training_center_id = $request->training_center_id;
         $batch->shift_id = $request->shift_id;
         $batch->batch_number = $request->batch_number;
@@ -75,39 +70,31 @@ class BatchController extends Controller
         $batch->is_active = $request->boolean('is_active');
         $batch->save();
 
-        return redirect()
-            ->route('batches.index')
-            ->with('success', 'Batch created successfully.');
+        return redirect()->route('batches.index')->with('success', 'Batch created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Batch $batch)
     {
-        $batch->load(['round', 'trainingCenter', 'shift']);
+        $batch->load(['round', 'course', 'trainingCenter', 'shift']);
+
         return view('batches.show', compact('batch'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Batch $batch)
     {
         $rounds = Round::where('is_active', true)->orderBy('round_number')->get();
+        $courses = Course::where('is_active', true)->orderBy('name')->get();
         $trainingCenters = TrainingCenter::where('is_active', true)->orderBy('name')->get();
         $shifts = Shift::where('is_active', true)->orderBy('name')->get();
 
-        return view('batches.edit', compact('batch', 'rounds', 'trainingCenters', 'shifts'));
+        return view('batches.edit', compact('batch', 'rounds', 'courses', 'trainingCenters', 'shifts'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Batch $batch)
     {
         $request->validate([
             'round_id' => ['required', 'exists:rounds,id'],
+            'course_id' => ['required', 'exists:courses,id'],
             'training_center_id' => ['required', 'exists:training_centers,id'],
             'shift_id' => ['required', 'exists:shifts,id'],
             'batch_number' => ['required', 'string', 'max:50', 'unique:batches,batch_number,' . $batch->id],
@@ -118,6 +105,7 @@ class BatchController extends Controller
         ]);
 
         $batch->round_id = $request->round_id;
+        $batch->course_id = $request->course_id;
         $batch->training_center_id = $request->training_center_id;
         $batch->shift_id = $request->shift_id;
         $batch->batch_number = $request->batch_number;
@@ -125,41 +113,32 @@ class BatchController extends Controller
         $batch->description = $request->description;
         $batch->max_students = $request->max_students ?? 50;
         $batch->is_active = $request->boolean('is_active');
-        $batch->update();
+        $batch->save();
 
-        return redirect()
-            ->route('batches.index')
-            ->with('success', 'Batch updated successfully.');
+        return redirect()->route('batches.index')->with('success', 'Batch updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Batch $batch)
     {
         $batch->delete();
-        return redirect()
-            ->route('batches.index')
-            ->with('success', 'Batch deleted successfully.');
+
+        return redirect()->route('batches.index')->with('success', 'Batch deleted successfully.');
     }
 
-    /**
-     * Display a listing of the soft-deleted resources.
-     */
     public function deletedBatches(Request $request)
     {
         $search = $request->input('search');
 
         $batches = Batch::onlyTrashed()
-            ->with(['round', 'trainingCenter', 'shift'])
+            ->with(['round', 'course', 'trainingCenter', 'shift'])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     if (is_numeric($search)) {
-                        $q->where('id', '=', $search)
-                            ->orWhere('batch_number', 'like', "%{$search}%");
+                        $q->where('id', $search)->orWhere('batch_number', 'like', "%{$search}%");
                     } else {
-                        $q->where('name', 'like', "%{$search}%")
-                            ->orWhere('description', 'like', "%{$search}%");
+                        $q->where('name', 'like', "%{$search}%")->orWhere('description', 'like', "%{$search}%")->orWhereHas('course', function ($courseQuery) use ($search) {
+                            $courseQuery->where('name', 'like', "%{$search}%");
+                        });
                     }
                 });
             })
@@ -170,27 +149,19 @@ class BatchController extends Controller
         return view('batches.deleted', compact('batches', 'search'));
     }
 
-    /**
-     * Restore the specified soft-deleted resource.
-     */
     public function restore($id)
     {
-        $batch = Batch::withTrashed()->find($id);
+        $batch = Batch::withTrashed()->findOrFail($id);
         $batch->restore();
 
-        return redirect("/batches/deleted")
-            ->with("success", "Batch restored successfully");
+        return redirect('/batches/deleted')->with('success', 'Batch restored successfully.');
     }
 
-    /**
-     * Permanently remove the specified resource from storage.
-     */
     public function forceDelete($id)
     {
-        $batch = Batch::withTrashed()->find($id);
+        $batch = Batch::withTrashed()->findOrFail($id);
         $batch->forceDelete();
 
-        return redirect()->back()
-            ->with("success", "Batch deleted permanently");
+        return redirect()->back()->with('success', 'Batch deleted permanently.');
     }
 }
