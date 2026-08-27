@@ -35,6 +35,10 @@ Route::patch('/competency-units/{id}/delete', [CompetencyUnitController::class, 
 Route::resource('/competency-units', CompetencyUnitController::class);
 
 // questions controller 
+Route::get('/questions/modules/{courseId}', [QuestionController::class, 'getModules'])
+->name('questions.modules');
+Route::get('/questions/competency-units/{moduleId}', [QuestionController::class, 'getCompetencyUnits'])
+->name('questions.competency-units');
 Route::resource("/questions", QuestionController::class);
 
 
