@@ -78,6 +78,23 @@
                 </x-sidebar.sub-link>
             </x-sidebar.dropdown>
 
+            {{-- Competency Units Dropdown --}}
+            <x-sidebar.dropdown title="Competency Units" route="competency-units.*" icon="bi-folder2-open">
+
+                <x-sidebar.sub-link route="competency-units.index">
+                    All Competency Units
+                </x-sidebar.sub-link>
+
+                <x-sidebar.sub-link route="competency-units.create">
+                    Create Competency Unit
+                </x-sidebar.sub-link>
+
+                <x-sidebar.sub-link route="competency-units.deleted">
+                    Deleted Competency Units
+                </x-sidebar.sub-link>
+
+            </x-sidebar.dropdown>
+
             {{-- Questions Dropdown --}}
             <x-sidebar.dropdown title="Qustions" route="questions.*" icon="bi-layers">
                 <x-sidebar.sub-link route="questions.index">
@@ -139,20 +156,6 @@
                 </x-sidebar.sub-link>
 
             </x-sidebar.dropdown>
-
-
-            {{-- Chapters --}}
-            <a href="#"
-                class="flex items-center gap-3 rounded-lg
-                       px-3 py-2.5 text-sm text-slate-500
-                       transition hover:bg-primary/10
-                       hover:text-primary">
-
-                <i class="bi bi-bookmark text-base"></i>
-
-                <span>Chapters</span>
-
-            </a>
 
 
             {{-- Question Bank --}}

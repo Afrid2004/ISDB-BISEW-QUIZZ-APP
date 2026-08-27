@@ -28,7 +28,7 @@ class RoundController extends Controller
                 });
             })
             ->orderByDesc('id')
-            ->paginate(5)
+            ->paginate(10)
             ->withQueryString();
 
         return view('rounds.index', compact('rounds'));
@@ -153,7 +153,7 @@ class RoundController extends Controller
             })
             ->onlyTrashed()
             ->orderByDesc('id')
-            ->paginate(5)
+            ->paginate(10)
             ->withQueryString();
 
         return view('rounds.deleted', compact('rounds', 'search'));
