@@ -21,20 +21,19 @@ class ModuleController extends Controller
             ->with('course')
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
-
-                    $q->where('name', 'like', "%{$search}%");
-
                     if (is_numeric($search)) {
-                        $q->orWhere('id', $search);
+                        $q->where('id', $search)
+                            ->orWhere('module_number', (int) $search);
+                    } else {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhereHas('course', function ($courseQuery) use ($search) {
+                                $courseQuery->where('name', 'like', "%{$search}%")
+                                    ->orWhere('code', 'like', "%{$search}%");
+                            });
                     }
-
-                    $q->orWhereHas('course', function ($courseQuery) use ($search) {
-                        $courseQuery->where('name', 'like', "%{$search}%")
-                            ->orWhere('code', 'like', "%{$search}%");
-                    });
                 });
             })
-            ->orderByDesc('id')
+            ->orderBy('id')
             ->paginate(10)
             ->withQueryString();
 
@@ -58,16 +57,27 @@ class ModuleController extends Controller
     {
         // removing extra spaces
         $request->merge([
-            'name' => preg_replace('/\s+/', ' ', trim($request->name))
+            'name' => preg_replace('/\s+/', ' ', trim($request->name)),
+            'module_number' => (int) $request->module_number,
         ]);
         $request->validate([
             "course_id"       => ["required", Rule::exists('courses', 'id')->where('is_active', true)->whereNull('deleted_at')],
-            "name"            => ["required", "string", "max:150"],
+            'module_number' => [
+                'required',
+                'integer',
+                'min:1',
+                Rule::unique('modules', 'module_number')
+                    ->where(function ($query) use ($request) {
+                        return $query->where('course_id', $request->course_id);
+                    }),
+            ],
+            "name"            => ["nullable", "string", "max:150"],
             "description"     => ["nullable", "string"],
             "is_active"       => ["nullable", "boolean"]
         ]);
         $module = new Module();
         $module->course_id          = $request->course_id;
+        $module->module_number      = $request->module_number;
         $module->name               = $request->name;
         $module->description        = $request->description;
         $module->is_active          = $request->boolean('is_active');
@@ -105,11 +115,17 @@ class ModuleController extends Controller
         ]);
         $request->validate([
             "course_id"       => ["required", Rule::exists('courses', 'id')->where('is_active', true)->whereNull('deleted_at')],
-            "name"            => ["required", "string", "max:150"],
+            Rule::unique('modules', 'module_number')
+                ->where(function ($query) use ($request) {
+                    return $query->where('course_id', $request->course_id);
+                })
+                ->ignore($module->id),
+            "name"            => ["nullable", "string", "max:150"],
             "description"     => ["nullable", "string"],
             "is_active"       => ["nullable", "boolean"]
         ]);
         $module->course_id          = $request->course_id;
+        $module->module_number      = $request->module_number;
         $module->name               = $request->name;
         $module->description        = $request->description;
         $module->is_active          = $request->boolean('is_active');
@@ -140,6 +156,7 @@ class ModuleController extends Controller
 
                     if (is_numeric($search)) {
                         $q->orWhere('id', $search);
+                        $q->orWhere('module_number', $search);
                     }
 
                     $q->orWhereHas('course', function ($courseQuery) use ($search) {

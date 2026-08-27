@@ -66,6 +66,11 @@
                             <th
                                 class="px-5 py-3 text-[11px] font-bold
                                        uppercase tracking-wide text-slate-400">
+                                Module Number
+                            </th>
+                            <th
+                                class="px-5 py-3 text-[11px] font-bold
+                                       uppercase tracking-wide text-slate-400">
                                 Module
                             </th>
 
@@ -73,12 +78,6 @@
                                 class="px-5 py-3 text-[11px] font-bold
                                        uppercase tracking-wide text-slate-400">
                                 Course
-                            </th>
-
-                            <th
-                                class="px-5 py-3 text-[11px] font-bold
-                                       uppercase tracking-wide text-slate-400">
-                                Description
                             </th>
 
                             <th
@@ -103,6 +102,24 @@
                         @forelse ($modules as $module)
                             <tr class="transition hover:bg-slate-50/70">
 
+
+                                <td class="px-5 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
+                                            {{ sprintf('%02d', $module->module_number) }}
+                                        </div>
+
+                                        <div class="shrink-0">
+                                            <p class="text-sm font-semibold text-slate-700">
+                                                Module {{ sprintf('%02d', $module->module_number) }}
+                                            </p>
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
                                 {{-- Module --}}
                                 <td class="px-5 py-4">
                                     <div class="flex items-center gap-3">
@@ -117,7 +134,7 @@
 
                                         <span
                                             class="text-sm font-semibold
-                                                   text-slate-700">
+                                                   text-slate-700 ">
                                             {{ $module->name }}
                                         </span>
 
@@ -132,12 +149,6 @@
                                     </p>
                                 </td>
 
-                                {{-- Description --}}
-                                <td class="max-w-md px-5 py-4">
-                                    <p class="truncate text-sm text-slate-500">
-                                        {{ $module->description ?? 'No description available' }}
-                                    </p>
-                                </td>
 
                                 {{-- Status --}}
                                 <td class="px-5 py-4">

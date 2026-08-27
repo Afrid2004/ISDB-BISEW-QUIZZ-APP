@@ -17,8 +17,10 @@ return new class extends Migration
                 ->constrained('courses')
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
+            $table->unsignedInteger('module_number');
             $table->string('name', 150);
             $table->text('description')->nullable();
+            $table->unique(['course_id', 'module_number']);
             $table->boolean('is_active')->default(true);
             $table->softDeletes();
             $table->timestamps();

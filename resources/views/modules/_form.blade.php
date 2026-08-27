@@ -34,6 +34,28 @@
     </div>
 
 
+    {{-- Module Number --}}
+    <div>
+
+        <label for="module_number" class="mb-2 block text-sm font-semibold text-slate-700">
+
+            Module Number
+
+            <span class="text-red-500">*</span>
+
+        </label>
+
+        <input type="text" min="1" name="module_number" id="module_number"
+            value="{{ old('module_number', $module->module_number ?? '') }}" placeholder="Enter module number"
+            class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">
+
+        <p class="mt-1.5 text-xs text-slate-400">
+            Enter the number of the module.
+        </p>
+
+    </div>
+
+
     {{-- Module Name --}}
     <div>
 
@@ -41,8 +63,9 @@
 
             Module Name
 
-            <span class="text-red-500">*</span>
-
+            <span class="font-normal text-slate-400">
+                (Optional)
+            </span>
         </label>
 
         <input type="text" name="name" id="name" value="{{ old('name', $module->name ?? '') }}"
