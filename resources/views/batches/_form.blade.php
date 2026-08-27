@@ -154,13 +154,14 @@
 
             <label for="max_students" class="mb-2 block text-sm font-semibold text-slate-700">
                 Max Students
+                <span class="text-red-500">*</span>
             </label>
 
             <input type="number"
                 name="max_students"
                 id="max_students"
                 min="1"
-                value="{{ old('max_students', $batch->max_students ?? 50) }}"
+                value="{{ old('max_students', $batch->max_students ?? 15) }}"
                 class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 @error('max_students') border-red-400 focus:border-red-500 focus:ring-red-100 @enderror">
 
             @error('max_students')

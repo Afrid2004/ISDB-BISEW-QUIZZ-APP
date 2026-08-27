@@ -454,6 +454,7 @@
                                 <div>
                                     <label for="marks" class="mb-2 block text-xs font-semibold text-slate-600">
                                         Marks
+                                        <span class="text-red-500">*</span>
                                     </label>
 
                                     <input type="number" id="marks" name="marks" value="2" min="1"

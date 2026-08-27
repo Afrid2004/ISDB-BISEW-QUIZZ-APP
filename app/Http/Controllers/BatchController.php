@@ -52,9 +52,9 @@ class BatchController extends Controller
             'training_center_id' => ['required', 'exists:training_centers,id'],
             'shift_id' => ['required', 'exists:shifts,id'],
             'batch_number' => ['required', 'string', 'max:50', 'unique:batches,batch_number'],
+            'max_students' => ['required', 'integer', 'max:50', 'min:1'],
             'name' => ['required', 'string', 'max:100'],
             'description' => ['nullable', 'string'],
-            'max_students' => ['nullable', 'integer', 'min:1'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 
@@ -66,7 +66,7 @@ class BatchController extends Controller
         $batch->batch_number = $request->batch_number;
         $batch->name = $request->name;
         $batch->description = $request->description;
-        $batch->max_students = $request->max_students ?? 50;
+        $batch->max_students = $request->max_students ?? 15;
         $batch->is_active = $request->boolean('is_active');
         $batch->save();
 
