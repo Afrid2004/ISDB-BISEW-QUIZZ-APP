@@ -9,7 +9,7 @@
             <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
                 <i class="bi bi-hash text-slate-400"></i>
             </div>
-            <input type="number" name="round_number" id="round_number" min="1"
+            <input type="text" name="round_number" id="round_number" min="1"
                 value="{{ old('round_number', $round->round_number ?? '') }}" 
                 placeholder="e.g. 1"
                 class="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-700 outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10 @error('round_number') border-red-400 focus:ring-red-100 @enderror">

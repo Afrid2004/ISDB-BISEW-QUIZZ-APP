@@ -121,24 +121,17 @@
                                 </td>
 
                                 {{-- Module --}}
-                                <td class="px-5 py-4">
-                                    <div class="flex items-center gap-3">
-
-                                        <div
-                                            class="flex h-9 w-9 items-center
-                                                   justify-center rounded-lg
-                                                   bg-primary/10 text-sm
-                                                   font-bold text-primary  shrink-0">
-                                            <i class="bi bi-collection"></i>
-                                        </div>
-
-                                        <span
-                                            class="text-sm font-semibold
-                                                   text-slate-700 ">
+                                <td class="max-w-md px-5 py-4">
+                                    @if ($module->name)
+                                        {{-- Module Name --}}
+                                        <p class="text-[13px] text-slate-700">
                                             {{ $module->name }}
-                                        </span>
-
-                                    </div>
+                                        </p>
+                                    @else
+                                        <p class="text-sm text-slate-400">
+                                            No Name
+                                        </p>
+                                    @endif
                                 </td>
 
                                 {{-- Course --}}

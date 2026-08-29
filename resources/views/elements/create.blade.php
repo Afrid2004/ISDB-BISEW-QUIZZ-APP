@@ -70,7 +70,3 @@
 
     </div>
 @endsection
-
-@push('scripts')
-    <script src="{{ asset('/assets/js/competencyDropdown.js') }}"></script>
-@endpush

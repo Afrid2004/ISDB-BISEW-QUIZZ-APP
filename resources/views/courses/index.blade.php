@@ -129,22 +129,30 @@
                                     <div class="flex items-center gap-3">
 
                                         <div
-                                            class="flex h-9 w-9 items-center
-                                                    justify-center rounded-lg
-                                                    bg-primary/10 text-sm
-                                                    font-bold text-primary">
+                                            class="flex h-9 w-9 shrink-0 items-center
+                   justify-center rounded-lg
+                   bg-primary/10 text-sm
+                   font-bold text-primary">
 
                                             <i class="bi bi-book"></i>
 
                                         </div>
 
-                                        <span
-                                            class="text-sm font-semibold
-                                                     text-slate-700">
+                                        <div class="min-w-0">
 
-                                            {{ $course->name }}
+                                            {{-- Course Name --}}
+                                            <p class="truncate text-sm font-semibold text-slate-700">
+                                                {{ $course->name }}
+                                            </p>
 
-                                        </span>
+                                            {{-- Round --}}
+                                            @if ($course->round)
+                                                <p class="mt-0.5 flex items-center gap-1 text-[13px] text-slate-400">
+                                                    Round {{ $course->round->round_number }}
+                                                </p>
+                                            @endif
+
+                                        </div>
 
                                     </div>
 
@@ -354,6 +362,13 @@
                                     @else
                                         <p class="mt-1 text-xs italic text-slate-400">
                                             No course code
+                                        </p>
+                                    @endif
+
+                                    {{-- Round --}}
+                                    @if ($course->round)
+                                        <p class="mt-0.5 flex items-center gap-1 text-[13px] text-slate-400">
+                                            Round {{ $course->round->round_number }}
                                         </p>
                                     @endif
 

@@ -113,7 +113,7 @@
 
                                         <div>
                                             <p class="text-sm font-semibold text-slate-700">
-                                                Round {{ $round->round_number }}
+                                                Round {{ sprintf('%02d', $round->round_number) }}
                                             </p>
 
                                             <p class="text-xs text-slate-400">

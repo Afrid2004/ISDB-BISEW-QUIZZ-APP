@@ -47,6 +47,9 @@ class RoundController extends Controller
      */
     public function store(Request $request, Round $round)
     {
+        $request->merge([
+            'round_number' => (int) $request->round_number,
+        ]);
         $request->validate([
             'round_number' => [
                 'required',

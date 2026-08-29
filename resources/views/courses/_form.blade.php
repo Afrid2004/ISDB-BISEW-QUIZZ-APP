@@ -1,5 +1,27 @@
 <div class="space-y-6">
 
+    {{-- Round ID --}}
+    <div>
+        <label for="round_id" class="mb-2 block text-sm font-semibold text-slate-700">
+            Round Id
+            <span class="text-red-500">*</span>
+        </label>
+
+        <select name="round_id" id="round_id" class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">
+            <option value="">Select Round</option>
+            @foreach ($rounds as $round)
+                <option value="{{$round->id}}" {{old('round_id', $course->round_id ?? "") == $round->id ? 'selected' : ''}}>
+                    Round {{$round->round_number}}
+                </option>
+            @endforeach
+        </select>
+
+        <p class="mt-1.5 text-xs text-slate-400">
+            Select the round this competency unit belongs to.
+        </p>
+    </div>
+
+
     {{-- Course Name --}}
     <div>
         <label for="name" class="mb-2 block text-sm font-semibold text-slate-700">

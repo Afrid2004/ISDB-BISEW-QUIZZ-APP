@@ -6,12 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Round extends Model
+class CompetencyUnit extends Model
 {
-    /** @use HasFactory<\Database\Factories\RoundFactory> */
+    /** @use HasFactory<\Database\Factories\CompetencyUnitFactory> */
     use HasFactory, SoftDeletes;
 
-    public function courses(){
-        return $this->hasMany(Course::class);
+    public function module()
+    {
+        return $this->belongsTo(Module::class);
     }
 }

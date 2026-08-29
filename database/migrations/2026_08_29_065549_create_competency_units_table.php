@@ -13,18 +13,26 @@ return new class extends Migration
     {
         Schema::create('competency_units', function (Blueprint $table) {
             $table->id();
+
             $table->foreignId('module_id')
                 ->constrained('modules')
                 ->cascadeOnDelete();
-            $table->string('name', 150);
-            $table->text('description')->nullable();
-            $table->unsignedInteger('competency_unit_order')->nullable();
+
+            $table->string('prefix', 10)->default('STC');
+
+            $table->unsignedInteger('serial');
+
+            $table->string('code', 50)->unique();
+
             $table->boolean('is_active')->default(true);
+
             $table->softDeletes();
             $table->timestamps();
+
+            // Same module-এর মধ্যে serial unique হবে
+            $table->unique(['module_id', 'serial']);
         });
     }
-
 
     /**
      * Reverse the migrations.

@@ -29,6 +29,8 @@ Route::delete('/modules/{id}/delete', [ModuleController::class, 'forceDelete'])-
 Route::resource("/modules", ModuleController::class);
 
 //competency unit controller
+Route::get('/competency-units/next-serial/{module}', [CompetencyUnitController::class, 'nextSerial'])->name('competency-units.next-serial');
+Route::get('/competency-units/modules/{course}', [CompetencyUnitController::class, 'modulesByCourse'])->name('competency-units.modules');
 Route::get('/competency-units/deleted', [CompetencyUnitController::class, 'deletedCompetencyUnits'])->name('competency-units.deleted');
 Route::patch('/competency-units/{id}/restore', [CompetencyUnitController::class, 'restoreCompetencyUnit'])->name('competency-units.restore');
 Route::patch('/competency-units/{id}/delete', [CompetencyUnitController::class, 'forceDelete'])->name('competency-units.forceDelete');
@@ -36,9 +38,9 @@ Route::resource('/competency-units', CompetencyUnitController::class);
 
 // questions controller 
 Route::get('/questions/modules/{courseId}', [QuestionController::class, 'getModules'])
-->name('questions.modules');
+    ->name('questions.modules');
 Route::get('/questions/competency-units/{moduleId}', [QuestionController::class, 'getCompetencyUnits'])
-->name('questions.competency-units');
+    ->name('questions.competency-units');
 Route::resource("/questions", QuestionController::class);
 
 
