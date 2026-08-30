@@ -15,12 +15,15 @@ class CompetencyUnitController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        $search = trim($request->input('search'));
+
+        $moduleNumber = str_ireplace('module', '', $search);
+        $moduleNumber = trim($moduleNumber);
 
         $competencyUnits = CompetencyUnit::with('module.course')
-            ->when($search, function ($query, $search) {
+            ->when($search, function ($query) use ($search, $moduleNumber) {
 
-                $query->where(function ($q) use ($search) {
+                $query->where(function ($q) use ($search, $moduleNumber) {
 
                     $q->where('code', 'like', "%{$search}%")
                         ->orWhere('name', 'like', "%{$search}%");
@@ -29,10 +32,16 @@ class CompetencyUnitController extends Controller
                         $q->orWhere('id', $search);
                     }
 
-                    $q->orWhereHas('module', function ($moduleQuery) use ($search) {
+                    $q->orWhereHas('module', function ($moduleQuery) use ($search, $moduleNumber) {
 
-                        $moduleQuery->where('name', 'like', "%{$search}%")
-                            ->orWhere('module_number', $search);
+                        $moduleQuery->where('name', 'like', "%{$search}%");
+
+                        if (is_numeric($moduleNumber)) {
+                            $moduleQuery->orWhere(
+                                'module_number',
+                                $moduleNumber
+                            );
+                        }
 
                         $moduleQuery->orWhereHas('course', function ($courseQuery) use ($search) {
 
@@ -42,7 +51,15 @@ class CompetencyUnitController extends Controller
                     });
                 });
             })
-            ->orderByDesc('id')
+            ->join(
+                'modules',
+                'competency_units.module_id',
+                '=',
+                'modules.id'
+            )
+            ->select('competency_units.*')
+            ->orderBy('modules.module_number', 'asc')
+            ->orderBy('competency_units.id', 'asc')
             ->paginate(10)
             ->withQueryString();
 
@@ -55,12 +72,15 @@ class CompetencyUnitController extends Controller
      */
     public function create()
     {
-        $courses = Course::where('is_active', true)
-            ->get();
+        $courses = Course::where('is_active', true)->get();
 
-        return view('competency-units.create', compact('courses'));
+        $modules = collect();
+
+        return view('competency-units.create', compact(
+            'courses',
+            'modules'
+        ));
     }
-
 
     /**
      * Get modules by course.
@@ -70,7 +90,11 @@ class CompetencyUnitController extends Controller
         $modules = Module::where('course_id', $courseId)
             ->where('is_active', true)
             ->orderBy('module_number')
-            ->get();
+            ->get([
+                'id',
+                'module_number',
+                'name',
+            ]);
 
         return response()->json($modules);
     }
@@ -81,14 +105,10 @@ class CompetencyUnitController extends Controller
     public function nextSerial($moduleId)
     {
         $last = CompetencyUnit::where('module_id', $moduleId)
-            ->orderByDesc('id')
+            ->orderByDesc('serial')
             ->first();
 
-        if ($last) {
-            $serial = $last->serial + 1;
-        } else {
-            $serial = 1;
-        }
+        $serial = $last ? $last->serial + 1 : 1;
 
         return response()->json([
             'serial' => $serial
@@ -191,13 +211,24 @@ class CompetencyUnitController extends Controller
      */
     public function edit(CompetencyUnit $competencyUnit)
     {
+        $competencyUnit->load('module.course');
+
         $courses = Course::where('is_active', true)
             ->get();
 
-        return view(
-            'competency-units.edit',
-            compact('competencyUnit', 'courses')
-        );
+        $modules = Module::where(
+            'course_id',
+            $competencyUnit->module->course_id
+        )
+            ->where('is_active', true)
+            ->orderBy('module_number')
+            ->get();
+
+        return view('competency-units.edit', compact(
+            'competencyUnit',
+            'courses',
+            'modules'
+        ));
     }
 
 
@@ -208,9 +239,7 @@ class CompetencyUnitController extends Controller
         Request $request,
         CompetencyUnit $competencyUnit
     ) {
-
         $request->validate([
-
             'prefix' => [
                 'required',
                 'string',
@@ -236,65 +265,61 @@ class CompetencyUnitController extends Controller
                 'nullable',
                 'boolean'
             ],
-
         ]);
 
-
-        $module = Module::where('id', $request->module_id)
+        $module = Module::with('course')
+            ->where('id', $request->module_id)
             ->where('course_id', $request->course_id)
             ->firstOrFail();
 
-
-        $course = Course::findOrFail($request->course_id);
-
+        $prefix = strtoupper($request->prefix);
+        $courseCode = strtoupper($module->course->code);
 
         /*
-        |--------------------------------------------------------------------------
-        | Generate code only if module changed
-        |--------------------------------------------------------------------------
-        */
+    |--------------------------------------------------------------------------
+    | Module changed
+    |--------------------------------------------------------------------------
+    */
 
         if ($module->id != $competencyUnit->module_id) {
 
-            $lastCompetencyUnit = CompetencyUnit::where(
-                'module_id',
-                $module->id
-            )
-                ->orderByDesc('id')
+            $last = CompetencyUnit::where('module_id', $module->id)
+                ->orderByDesc('serial')
                 ->first();
 
-            if ($lastCompetencyUnit) {
+            $serial = $last ? $last->serial + 1 : 1;
+        } else {
 
-                $serial = (int) substr(
-                    $lastCompetencyUnit->code,
-                    -2
-                ) + 1;
-            } else {
-
-                $serial = 1;
-            }
-
-            $serial = str_pad(
-                $serial,
-                2,
-                '0',
-                STR_PAD_LEFT
-            );
-
-
-            $competencyUnit->code =
-                strtoupper($request->prefix)
-                . strtoupper($course->code)
-                . $module->module_number
-                . $serial;
+            // Same module হলে আগের serial-টাই রাখবে
+            $serial = $competencyUnit->serial;
         }
 
+        /*
+    |--------------------------------------------------------------------------
+    | Generate code
+    |--------------------------------------------------------------------------
+    */
+
+        $code =
+            $prefix .
+            $courseCode .
+            $module->module_number .
+            str_pad($serial, 2, '0', STR_PAD_LEFT);
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | Update
+    |--------------------------------------------------------------------------
+    */
 
         $competencyUnit->module_id = $module->id;
-        $competencyUnit->prefix = strtoupper($request->prefix);
+        $competencyUnit->prefix = $prefix;
+        $competencyUnit->serial = $serial;
+        $competencyUnit->code = $code;
         $competencyUnit->is_active = $request->boolean('is_active');
 
-        $competencyUnit->update();
+        $competencyUnit->save();
 
 
         return redirect()
@@ -330,19 +355,23 @@ class CompetencyUnitController extends Controller
         $search = $request->input('search');
 
         $competencyUnits = CompetencyUnit::with('module.course')
-            ->when($search, function ($query, $search) {
-
-                $query->where(function ($q) use ($search) {
-
-                    $q->where('code', 'like', "%{$search}%")
-                        ->orWhere('name', 'like', "%{$search}%");
-
-                    if (is_numeric($search)) {
-                        $q->orWhere('id', $search);
-                    }
-                });
-            })
             ->onlyTrashed()
+            ->when($search, function ($query) use ($search) {
+
+                $query->where('code', 'like', "%{$search}%")
+
+                    // Module search
+                    ->orWhereHas('module', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('module_number', 'like', "%{$search}%");
+                    })
+
+                    // Course search
+                    ->orWhereHas('module.course', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('code', 'like', "%{$search}%");
+                    });
+            })
             ->orderByDesc('id')
             ->paginate(10)
             ->withQueryString();

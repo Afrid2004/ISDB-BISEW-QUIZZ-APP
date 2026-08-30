@@ -42,36 +42,15 @@
         </div>
 
 
-        {{-- Search --}}
-        <div class="mb-4">
-
-            <form method="GET" action="{{ route('batches.deleted') }}">
-
-                <div class="relative max-w-sm">
-
-                    <i
-                        class="bi bi-search absolute left-3 top-1/2
-                              -translate-y-1/2 text-slate-400"></i>
-
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search deleted batches"
-                        class="w-full rounded-lg
-                               border border-slate-200
-                               bg-white py-2.5 pl-10 pr-4
-                               text-sm text-slate-700
-                               placeholder:text-slate-400
-                               outline-none transition
-                               focus:border-primary
-                               focus:ring-2 focus:ring-primary/20">
-                </div>
-
-            </form>
-
-        </div>
-
-
         {{-- Table Card --}}
         <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
 
+            {{-- card header --}}
+            <x-backend.card-header title="Deleted Items" :count="$batches->total()" singular="deleted batch" plural="deleted batches"
+                action="{{ route('batches.deleted') }}" placeholder="Search deleted batches..." />
+
+            {{-- Alerts --}}
+            <x-_alerts class="m-3" />
 
             {{-- Desktop Table --}}
             <div class="hidden overflow-x-auto md:block">
@@ -203,7 +182,8 @@
                                             <button type="submit" title="Restore Batch"
                                                 class="flex gap-1 p-2 items-center justify-center rounded-lg text-sm border border-primary/20 bg-primary/7 text-emerald-500 transition hover:bg-primary/10 leading-none hover:text-emerald-600 cursor-pointer">
 
-                                                <i class="bi bi-arrow-counterclockwise text-sm flex items-center justify-center"></i>
+                                                <i
+                                                    class="bi bi-arrow-counterclockwise text-sm flex items-center justify-center"></i>
                                                 Restore
 
                                             </button>
@@ -318,7 +298,5 @@
 
 
 @push('scripts')
-
     <script src="{{ asset('/assets/js/deleteAlert.js') }}"></script>
-
 @endpush

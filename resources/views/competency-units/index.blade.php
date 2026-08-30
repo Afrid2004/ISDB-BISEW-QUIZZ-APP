@@ -29,31 +29,13 @@
         </div>
 
 
-        {{-- Search --}}
-        <div class="mb-4">
-
-            <form method="GET" action="{{ route('competency-units.index') }}">
-
-                <div class="relative max-w-sm">
-
-                    <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-
-                    <input
-                        type="text"
-                        name="search"
-                        value="{{ request('search') }}"
-                        placeholder="Search competency unit code"
-                        class="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-700 placeholder:text-slate-400 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">
-
-                </div>
-
-            </form>
-
-        </div>
-
-
         {{-- Table Card --}}
         <div class="overflow-hidden rounded-xl border border-slate-200 bg-white">
+
+            {{-- Card Header --}}
+            <x-backend.card-header title="Competency Units" :count="$competencyUnits->total()" singular="competency unit"
+                plural="competency units" action="{{ route('competency-units.index') }}"
+                placeholder="Search competency units..." />
 
             {{-- Alerts --}}
             <x-_alerts class="m-3" />
@@ -98,7 +80,6 @@
                     <tbody class="divide-y divide-slate-100">
 
                         @forelse ($competencyUnits as $competencyUnit)
-
                             <tr class="transition hover:bg-slate-50/70">
 
                                 {{-- Competency Unit Code --}}
@@ -113,8 +94,7 @@
 
                                         </div>
 
-                                        <span
-                                            class="text-sm font-bold tracking-wide text-slate-700">
+                                        <span class="text-sm font-bold tracking-wide text-slate-700">
 
                                             {{ $competencyUnit->code }}
 
@@ -129,7 +109,6 @@
                                 <td class="px-5 py-4">
 
                                     @if ($competencyUnit->module)
-
                                         <div>
 
                                             <p class="text-sm font-semibold text-slate-700">
@@ -143,13 +122,10 @@
                                             @endif
 
                                         </div>
-
                                     @else
-
                                         <span class="text-sm italic text-slate-400">
                                             No Module
                                         </span>
-
                                     @endif
 
                                 </td>
@@ -159,7 +135,6 @@
                                 <td class="px-5 py-4">
 
                                     @if ($competencyUnit->module?->course)
-
                                         <div>
 
                                             <p class="text-sm font-semibold text-slate-700">
@@ -171,13 +146,10 @@
                                             </p>
 
                                         </div>
-
                                     @else
-
                                         <span class="text-sm italic text-slate-400">
                                             No Course
                                         </span>
-
                                     @endif
 
                                 </td>
@@ -187,7 +159,6 @@
                                 <td class="px-5 py-4">
 
                                     @if ($competencyUnit->is_active)
-
                                         <span
                                             class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-600">
 
@@ -196,9 +167,7 @@
                                             Active
 
                                         </span>
-
                                     @else
-
                                         <span
                                             class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-600">
 
@@ -207,7 +176,6 @@
                                             Inactive
 
                                         </span>
-
                                     @endif
 
                                 </td>
@@ -219,8 +187,7 @@
                                     <div class="flex items-center justify-center gap-2">
 
                                         {{-- View --}}
-                                        <a
-                                            href="{{ route('competency-units.show', $competencyUnit) }}"
+                                        <a href="{{ route('competency-units.show', $competencyUnit) }}"
                                             title="View Competency Unit"
                                             class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:border-primary/30 hover:bg-primary/10 hover:text-primary">
 
@@ -230,8 +197,7 @@
 
 
                                         {{-- Edit --}}
-                                        <a
-                                            href="{{ route('competency-units.edit', $competencyUnit) }}"
+                                        <a href="{{ route('competency-units.edit', $competencyUnit) }}"
                                             title="Edit Competency Unit"
                                             class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:border-primary/30 hover:bg-primary/10 hover:text-primary">
 
@@ -241,18 +207,14 @@
 
 
                                         {{-- Delete --}}
-                                        <form
-                                            method="POST"
+                                        <form method="POST"
                                             action="{{ route('competency-units.destroy', $competencyUnit) }}"
-                                            data-item="competency unit"
-                                            class="delete-form">
+                                            data-item="competency unit" class="delete-form">
 
                                             @csrf
                                             @method('DELETE')
 
-                                            <button
-                                                type="submit"
-                                                title="Delete Competency Unit"
+                                            <button type="submit" title="Delete Competency Unit"
                                                 class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-red-100 bg-red-50 text-red-500 transition hover:bg-red-100 hover:text-red-600">
 
                                                 <i class="bi bi-trash3 text-sm"></i>
@@ -295,7 +257,6 @@
                                 </td>
 
                             </tr>
-
                         @endforelse
 
                     </tbody>
@@ -309,7 +270,6 @@
             <div class="divide-y divide-slate-100 md:hidden">
 
                 @forelse ($competencyUnits as $competencyUnit)
-
                     <div class="p-4">
 
                         {{-- Top --}}
@@ -320,32 +280,28 @@
                                 <div
                                     class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
 
-                                    <i class="bi bi-code-square"></i>
+                                    <i class="bi bi-mortarboard"></i>
 
                                 </div>
 
                                 <div class="min-w-0">
 
-                                    <h3 class="font-mono text-sm font-bold tracking-wide text-slate-700">
+                                    <h3 class="text-sm font-bold tracking-wide text-slate-700">
 
                                         {{ $competencyUnit->code }}
 
                                     </h3>
 
                                     @if ($competencyUnit->module)
-
                                         <p class="mt-1 truncate text-xs text-slate-400">
 
                                             {{ $competencyUnit->module->name }}
 
                                         </p>
-
                                     @else
-
                                         <p class="mt-1 text-xs italic text-slate-400">
                                             No module
                                         </p>
-
                                     @endif
 
                                 </div>
@@ -355,7 +311,6 @@
 
                             {{-- Status --}}
                             @if ($competencyUnit->is_active)
-
                                 <span
                                     class="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-600">
 
@@ -364,9 +319,7 @@
                                     Active
 
                                 </span>
-
                             @else
-
                                 <span
                                     class="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-600">
 
@@ -375,7 +328,6 @@
                                     Inactive
 
                                 </span>
-
                             @endif
 
                         </div>
@@ -383,7 +335,6 @@
 
                         {{-- Module --}}
                         @if ($competencyUnit->module)
-
                             <div class="mt-4 rounded-lg bg-slate-50 px-3 py-3">
 
                                 <p class="text-[10px] font-bold uppercase tracking-wide text-slate-400">
@@ -395,7 +346,6 @@
                                 </p>
 
                                 @if ($competencyUnit->module->course)
-
                                     <p class="mt-1 text-xs text-slate-400">
 
                                         {{ $competencyUnit->module->course->code }}
@@ -403,11 +353,9 @@
                                         {{ $competencyUnit->module->course->name }}
 
                                     </p>
-
                                 @endif
 
                             </div>
-
                         @endif
 
 
@@ -425,8 +373,7 @@
                         <div class="mt-4 flex items-center gap-2 border-t border-slate-100 pt-4">
 
                             {{-- View --}}
-                            <a
-                                href="{{ route('competency-units.show', $competencyUnit) }}"
+                            <a href="{{ route('competency-units.show', $competencyUnit) }}"
                                 class="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-primary/30 hover:bg-primary/10 hover:text-primary">
 
                                 <i class="bi bi-eye"></i>
@@ -437,8 +384,7 @@
 
 
                             {{-- Edit --}}
-                            <a
-                                href="{{ route('competency-units.edit', $competencyUnit) }}"
+                            <a href="{{ route('competency-units.edit', $competencyUnit) }}"
                                 class="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-primary/30 hover:bg-primary/10 hover:text-primary">
 
                                 <i class="bi bi-pencil-square"></i>
@@ -449,17 +395,13 @@
 
 
                             {{-- Delete --}}
-                            <form
-                                method="POST"
-                                action="{{ route('competency-units.destroy', $competencyUnit) }}"
-                                data-item="competency unit"
-                                class="delete-form flex-1">
+                            <form method="POST" action="{{ route('competency-units.destroy', $competencyUnit) }}"
+                                data-item="competency unit" class="delete-form flex-1">
 
                                 @csrf
                                 @method('DELETE')
 
-                                <button
-                                    type="submit"
+                                <button type="submit"
                                     class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-xs font-semibold text-red-500 transition hover:bg-red-100 hover:text-red-600">
 
                                     <i class="bi bi-trash3"></i>
@@ -480,8 +422,7 @@
 
                         <div class="mb-3 flex justify-center">
 
-                            <div
-                                class="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
 
                                 <i class="bi bi-code-square text-xl text-slate-400"></i>
 
@@ -498,7 +439,6 @@
                         </p>
 
                     </div>
-
                 @endforelse
 
             </div>
@@ -506,7 +446,6 @@
 
             {{-- Pagination --}}
             @if ($competencyUnits->hasPages())
-
                 <div
                     class="flex flex-col gap-4 border-t border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
 
@@ -546,7 +485,6 @@
                     </div>
 
                 </div>
-
             @endif
 
         </div>
@@ -556,7 +494,5 @@
 
 
 @push('scripts')
-
     <script src="{{ asset('/assets/js/deleteAlert.js') }}"></script>
-
 @endpush

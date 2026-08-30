@@ -29,28 +29,13 @@
         </div>
 
 
-        {{-- Search --}}
-        <div class="mb-4">
-
-            <form method="GET" action="{{ route('modules.deleted') }}">
-
-                <div class="relative max-w-sm">
-
-                    <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-
-                    <input type="text" name="search" value="{{ request('search') }}"
-                        placeholder="Search deleted modules"
-                        class="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-700 placeholder:text-slate-400 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">
-
-                </div>
-
-            </form>
-
-        </div>
-
 
         {{-- Table Card --}}
         <div class="overflow-hidden rounded-xl border border-slate-200 bg-white">
+
+            {{-- card header --}}
+            <x-backend.card-header title="Deleted Items" :count="$modules->total()" singular="deleted module" plural="deleted modules"
+                action="{{ route('modules.deleted') }}" placeholder="Search deleted modules..." />
 
             {{-- Alerts --}}
             <x-_alerts class="m-3" />
@@ -60,6 +45,7 @@
             <div class="hidden overflow-x-auto md:block">
 
                 <table class="w-full min-w-[1000px] text-left">
+
 
                     {{-- Table Header --}}
                     <thead class="border-b border-slate-100 bg-slate-50/60">

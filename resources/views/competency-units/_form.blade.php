@@ -35,22 +35,27 @@
                    text-sm text-slate-700 outline-none transition
                    focus:border-primary focus:ring-2 focus:ring-primary/20"
         >
+
             <option value="">Select Course</option>
 
             @foreach ($courses as $course)
+
                 <option
                     value="{{ $course->id }}"
-                    {{ old('course_id') == $course->id ? 'selected' : '' }}
+                    {{ old('course_id', $competencyUnit->module->course_id ?? '') == $course->id ? 'selected' : '' }}
                 >
                     {{ $course->code }} - {{ $course->name }}
                 </option>
+
             @endforeach
+
         </select>
     </div>
 
 
     {{-- Module --}}
     <div>
+
         <label for="module_id" class="mb-2 block text-sm font-semibold text-slate-700">
             Module
             <span class="text-red-500">*</span>
@@ -59,19 +64,32 @@
         <select
             name="module_id"
             id="module_id"
-            disabled
             class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5
                    text-sm text-slate-700 outline-none transition
-                   focus:border-primary focus:ring-2 focus:ring-primary/20
-                   disabled:bg-slate-50 disabled:text-slate-400"
+                   focus:border-primary focus:ring-2 focus:ring-primary/20"
         >
+
             <option value="">Select Module</option>
+
+            @foreach ($modules ?? [] as $module)
+
+                <option
+                    value="{{ $module->id }}"
+                    {{ old('module_id', $competencyUnit->module_id ?? '') == $module->id ? 'selected' : '' }}
+                >
+                    Module {{ $module->module_number }} - {{ $module->name }}
+                </option>
+
+            @endforeach
+
         </select>
+
     </div>
 
 
     {{-- Generated Code --}}
     <div>
+
         <label class="mb-2 block text-sm font-semibold text-slate-700">
             Competency Unit Code
         </label>
@@ -82,13 +100,15 @@
                    border border-slate-200 bg-slate-50 px-4
                    text-sm font-semibold text-slate-700"
         >
-            -
+            {{ $competencyUnit->code ?? '-' }}
         </div>
+
     </div>
 
 
     {{-- Active Status --}}
     <div>
+
         <label class="mb-2 block text-sm font-semibold text-slate-700">
             Status
         </label>
@@ -97,7 +117,9 @@
             class="flex cursor-pointer items-center justify-between rounded-lg
                    border border-slate-200 bg-slate-50/50 px-4 py-3"
         >
+
             <div>
+
                 <p class="text-sm font-medium text-slate-700">
                     Active Competency Unit
                 </p>
@@ -105,9 +127,11 @@
                 <p class="mt-0.5 text-xs text-slate-400">
                     Allow this competency unit to be used in the quiz system.
                 </p>
+
             </div>
 
             <div class="relative">
+
                 <input
                     type="checkbox"
                     name="is_active"
@@ -126,10 +150,11 @@
                            bg-white shadow-sm transition
                            peer-checked:translate-x-5"
                 ></div>
+
             </div>
+
         </label>
+
     </div>
 
 </div>
-
-

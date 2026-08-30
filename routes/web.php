@@ -30,6 +30,7 @@ Route::resource("/modules", ModuleController::class);
 
 //competency unit controller
 Route::get('/competency-units/next-serial/{module}', [CompetencyUnitController::class, 'nextSerial'])->name('competency-units.next-serial');
+Route::get('/competency-units/edit-next-serial/{moduleId}/{id}',[CompetencyUnitController::class, 'editNextSerial']);
 Route::get('/competency-units/modules/{course}', [CompetencyUnitController::class, 'modulesByCourse'])->name('competency-units.modules');
 Route::get('/competency-units/deleted', [CompetencyUnitController::class, 'deletedCompetencyUnits'])->name('competency-units.deleted');
 Route::patch('/competency-units/{id}/restore', [CompetencyUnitController::class, 'restoreCompetencyUnit'])->name('competency-units.restore');
