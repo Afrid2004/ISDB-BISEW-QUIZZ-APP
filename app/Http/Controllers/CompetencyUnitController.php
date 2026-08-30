@@ -29,7 +29,7 @@ class CompetencyUnitController extends Controller
                         ->orWhere('name', 'like', "%{$search}%");
 
                     if (is_numeric($search)) {
-                        $q->orWhere('id', $search);
+                        $q->orWhere('competency_units.id', $search);
                     }
 
                     $q->orWhereHas('module', function ($moduleQuery) use ($search, $moduleNumber) {

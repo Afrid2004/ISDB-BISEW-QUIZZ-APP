@@ -8,6 +8,7 @@ use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\TrainingCenterController;
 use App\Http\Controllers\BatchController;
 use App\Http\Controllers\CompetencyUnitController;
+use App\Http\Controllers\ElementController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -30,12 +31,20 @@ Route::resource("/modules", ModuleController::class);
 
 //competency unit controller
 Route::get('/competency-units/next-serial/{module}', [CompetencyUnitController::class, 'nextSerial'])->name('competency-units.next-serial');
-Route::get('/competency-units/edit-next-serial/{moduleId}/{id}',[CompetencyUnitController::class, 'editNextSerial']);
+Route::get('/competency-units/edit-next-serial/{moduleId}/{id}', [CompetencyUnitController::class, 'editNextSerial']);
 Route::get('/competency-units/modules/{course}', [CompetencyUnitController::class, 'modulesByCourse'])->name('competency-units.modules');
 Route::get('/competency-units/deleted', [CompetencyUnitController::class, 'deletedCompetencyUnits'])->name('competency-units.deleted');
 Route::patch('/competency-units/{id}/restore', [CompetencyUnitController::class, 'restoreCompetencyUnit'])->name('competency-units.restore');
 Route::patch('/competency-units/{id}/delete', [CompetencyUnitController::class, 'forceDelete'])->name('competency-units.forceDelete');
 Route::resource('/competency-units', CompetencyUnitController::class);
+
+// elements controller 
+Route::get('/elements/deleted', [ElementController::class, 'deletedElements'])->name('elements.deleted');
+Route::get('/elements/modules/{courseId}', [ElementController::class, 'modulesByCourse'])->name('elements.modules');
+Route::get('/elements/competency-units/{moduleId}', [ElementController::class, 'competencyUnitsByModule'])->name('elements.competency-units');
+Route::post('/elements/{id}/restore', [ElementController::class, 'restoreElement'])->name('elements.restore');
+Route::delete('/elements/{id}/force-delete', [ElementController::class, 'forceDelete'])->name('elements.force-delete');
+Route::resource('elements', ElementController::class);
 
 // questions controller 
 Route::get('/questions/modules/{courseId}', [QuestionController::class, 'getModules'])

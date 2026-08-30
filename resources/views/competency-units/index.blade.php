@@ -240,7 +240,7 @@
                                         <div
                                             class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
 
-                                            <i class="bi bi-code-square text-xl text-slate-400"></i>
+                                            <i class="bi bi-mortarboard text-xl text-slate-400"></i>
 
                                         </div>
 
@@ -424,7 +424,7 @@
 
                             <div class="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
 
-                                <i class="bi bi-code-square text-xl text-slate-400"></i>
+                                <i class="bi bi-mortarboard text-xl text-slate-400"></i>
 
                             </div>
 

@@ -1,47 +1,98 @@
 <div class="space-y-6">
 
-    {{-- Module --}}
+
+    {{-- Course Filter --}}
     <div>
-        <label for="module_id" class="mb-2 block text-sm font-semibold text-slate-700">
-            Module
+        <label for="course_id" class="mb-2 block text-sm font-semibold text-slate-700">
+            Course
             <span class="text-red-500">*</span>
         </label>
 
-        <select name="module_id" id="module_id"
+        <select id="course_id"
             class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">
 
             <option value="">
-                Select a module
+                Select a course
             </option>
 
-            @foreach ($modules as $module)
-                <option value="{{ $module->id }}"
-                    {{ old('module_id', $competencyUnit->module_id ?? '') == $module->id ? 'selected' : '' }}>
-                    {{ $module->name }}
+            @foreach ($courses as $course)
+                <option value="{{ $course->id }}"
+                    {{ old('course_id', $element->competencyUnit->module->course_id ?? '') == $course->id ? 'selected' : '' }}>
+                    {{ $course->code }} - {{ $course->name }}
                 </option>
             @endforeach
 
         </select>
 
         <p class="mt-1.5 text-xs text-slate-400">
-            Select the module this competency unit belongs to.
+            Select a course to filter its modules.
         </p>
     </div>
 
 
-    {{-- Competency Unit Name --}}
+    {{-- Module Filter --}}
     <div>
-        <label for="name" class="mb-2 block text-sm font-semibold text-slate-700">
-            Competency Unit Name
+        <label for="module_id" class="mb-2 block text-sm font-semibold text-slate-700">
+            Module
             <span class="text-red-500">*</span>
         </label>
 
-        <input type="text" name="name" id="name" value="{{ old('name', $competencyUnit->name ?? '') }}"
-            placeholder="Enter competency unit name"
+        <select id="module_id" disabled
+            class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20  disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400">
+
+            <option value="">
+                Select a module
+            </option>
+
+        </select>
+
+        <p class="mt-1.5 text-xs text-slate-400">
+            Select a module to filter its competency units.
+        </p>
+    </div>
+
+
+    {{-- Competency Unit --}}
+    <div>
+        <label for="competency_unit_id" class="mb-2 block text-sm font-semibold text-slate-700">
+            Competency Unit
+            <span class="text-red-500">*</span>
+        </label>
+
+        <select name="competency_unit_id" id="competency_unit_id" disabled
+            class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400">
+
+            <option value="">
+                Select a competency unit
+            </option>
+
+            @if (isset($element) && $element->competencyUnit)
+                <option value="{{ $element->competencyUnit->id }}" selected>
+                    {{ $element->competencyUnit->name }}
+                </option>
+            @endif
+
+        </select>
+
+        <p class="mt-1.5 text-xs text-slate-400">
+            Select the competency unit this element belongs to.
+        </p>
+    </div>
+
+
+    {{-- Element Name --}}
+    <div>
+        <label for="name" class="mb-2 block text-sm font-semibold text-slate-700">
+            Element Name
+            <span class="text-red-500">*</span>
+        </label>
+
+        <input type="text" name="name" id="name" value="{{ old('name', $element->name ?? '') }}"
+            placeholder="Enter element name"
             class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">
 
         <p class="mt-1.5 text-xs text-slate-400">
-            Enter the name of the competency unit.
+            Enter the name of the element.
         </p>
     </div>
 
@@ -56,31 +107,11 @@
         </label>
 
         <textarea name="description" id="description" rows="4"
-            placeholder="Enter a short description about this competency unit..."
-            class="w-full resize-none rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">{{ old('description', $competencyUnit->description ?? '') }}</textarea>
+            placeholder="Enter a short description about this element..."
+            class="w-full resize-none rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">{{ old('description', $element->description ?? '') }}</textarea>
 
         <p class="mt-1.5 text-xs text-slate-400">
-            Provide a brief description of the competency unit.
-        </p>
-    </div>
-
-
-    {{-- Competency Unit Order --}}
-    <div>
-        <label for="competency_unit_order" class="mb-2 block text-sm font-semibold text-slate-700">
-            Competency Unit Order
-            <span class="font-normal text-slate-400">
-                (Optional)
-            </span>
-        </label>
-
-        <input type="number" name="competency_unit_order" id="competency_unit_order"
-            value="{{ old('competency_unit_order', $competencyUnit->competency_unit_order ?? '') }}" min="1"
-            placeholder="Enter order number"
-            class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">
-
-        <p class="mt-1.5 text-xs text-slate-400">
-            Set the display order of this competency unit within the module.
+            Provide a brief description of the element.
         </p>
     </div>
 
@@ -96,26 +127,23 @@
 
             <div>
                 <p class="text-sm font-medium text-slate-700">
-                    Active Competency Unit
+                    Active Element
                 </p>
 
                 <p class="mt-0.5 text-xs text-slate-400">
-                    Allow this competency unit to be used in the quiz system.
+                    Allow this element to be used in the quiz system.
                 </p>
             </div>
 
-            {{-- Toggle --}}
             <div class="relative">
 
                 <input type="checkbox" name="is_active" value="1" class="peer sr-only"
-                    {{ old('is_active', $competencyUnit->is_active ?? true) ? 'checked' : '' }}>
+                    {{ old('is_active', $element->is_active ?? true) ? 'checked' : '' }}>
 
-                {{-- Toggle Background --}}
                 <div
                     class="h-6 w-11 rounded-full bg-slate-300 transition peer-checked:bg-primary peer-focus:ring-2 peer-focus:ring-primary/30">
                 </div>
 
-                {{-- Toggle Circle --}}
                 <div
                     class="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-sm transition peer-checked:translate-x-5">
                 </div>
@@ -124,5 +152,6 @@
 
         </label>
     </div>
+
 
 </div>

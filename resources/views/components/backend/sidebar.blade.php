@@ -95,6 +95,19 @@
 
             </x-sidebar.dropdown>
 
+            {{-- Elements Dropdown --}}
+            <x-sidebar.dropdown title="Elements" route="elements.*" icon="bi-puzzle">
+                <x-sidebar.sub-link route="elements.index">
+                    All Elements
+                </x-sidebar.sub-link>
+                <x-sidebar.sub-link route="elements.create">
+                    Create Element
+                </x-sidebar.sub-link>
+                <x-sidebar.sub-link route="elements.deleted">
+                    Deleted Elements
+                </x-sidebar.sub-link>
+            </x-sidebar.dropdown>
+
             {{-- Questions Dropdown --}}
             <x-sidebar.dropdown title="Qustions" route="questions.*" icon="bi-layers">
                 <x-sidebar.sub-link route="questions.index">
