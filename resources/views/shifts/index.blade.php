@@ -27,26 +27,12 @@
 
         </div>
 
-        {{-- Search --}}
-        <div class="mb-4">
-
-            <form method="GET" action="{{ route('shifts.index') }}">
-
-                <div class="relative max-w-sm">
-
-                    <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search shifts"
-                        class="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-700 placeholder:text-slate-400 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">
-
-                </div>
-
-            </form>
-
-        </div>
-
         {{-- Table Card --}}
         <div class="overflow-hidden rounded-xl border border-slate-200 bg-white">
+
+            {{-- header  --}}
+            <x-backend.card-header title="Shifts" :count="$shifts->total()" singular="shift" plural="shifts"
+                action="{{ route('shifts.index') }}" placeholder="Search shifts..." />
 
             {{-- Alerts --}}
             <x-_alerts class="m-3" />

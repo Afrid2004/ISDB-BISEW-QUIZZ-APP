@@ -15,4 +15,9 @@ class CompetencyUnit extends Model
     {
         return $this->belongsTo(Module::class);
     }
+
+    public function elements()
+    {
+        return $this->hasMany(Element::class);
+    }
 }

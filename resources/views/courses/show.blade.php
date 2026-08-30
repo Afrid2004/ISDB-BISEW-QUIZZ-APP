@@ -1,7 +1,6 @@
 @extends('layouts.backend.app')
 
 @section('content')
-
     <div class="min-h-screen bg-[#f7f8fc]">
 
         {{-- Page Header --}}
@@ -12,8 +11,7 @@
                 {{-- Breadcrumb --}}
                 <div class="mb-2 flex items-center gap-2 text-xs text-slate-400">
 
-                    <a href="{{ route('courses.index') }}"
-                        class="transition hover:text-primary">
+                    <a href="{{ route('courses.index') }}" class="transition hover:text-primary">
                         Courses
                     </a>
 
@@ -61,13 +59,15 @@
 
 
             {{-- Card Header --}}
-            <div class="flex items-center justify-between
+            <div
+                class="flex items-center justify-between
                         border-b border-slate-100 px-5 py-4 sm:px-6">
 
                 <div class="flex items-center gap-3">
 
                     {{-- Icon --}}
-                    <div class="flex h-10 w-10 items-center justify-center
+                    <div
+                        class="flex h-10 w-10 items-center justify-center
                                 rounded-lg bg-primary/10 text-primary">
 
                         <i class="bi bi-book text-lg"></i>
@@ -92,8 +92,8 @@
 
                 {{-- Status --}}
                 @if ($course->is_active)
-
-                    <span class="inline-flex items-center gap-1.5
+                    <span
+                        class="inline-flex items-center gap-1.5
                                  rounded-full bg-emerald-50
                                  px-3 py-1.5 text-xs font-semibold
                                  text-emerald-600">
@@ -103,10 +103,9 @@
                         Active
 
                     </span>
-
                 @else
-
-                    <span class="inline-flex items-center gap-1.5
+                    <span
+                        class="inline-flex items-center gap-1.5
                                  rounded-full bg-amber-50
                                  px-3 py-1.5 text-xs font-semibold
                                  text-amber-600">
@@ -116,7 +115,6 @@
                         Inactive
 
                     </span>
-
                 @endif
 
             </div>
@@ -125,11 +123,44 @@
             {{-- Information --}}
             <div class="divide-y divide-slate-100">
 
+                {{-- Round Information --}}
+                <div class="px-5 py-5 sm:px-6">
+
+                    @if ($course->round)
+                        <div class="flex items-center gap-3">
+
+                            {{-- Round Number --}}
+                            <div
+                                class="flex h-10 w-10 shrink-0 items-center justify-center
+                        rounded-lg bg-primary/10 text-sm font-bold text-primary">
+
+                                {{ sprintf('%02d', $course->round->round_number) }}
+
+                            </div>
+
+                            <div>
+
+                                <p class="text-sm font-semibold text-slate-700">
+                                    Round {{ $course->round->round_number }}
+                                </p>
+
+                                <p class="mt-0.5 text-xs text-slate-400">
+                                    Round ID: {{ $course->round->id }}
+                                </p>
+
+                            </div>
+
+                        </div>
+                    @endif
+
+                </div>
+
 
                 {{-- Course Name --}}
                 <div class="px-5 py-5 sm:px-6">
 
-                    <p class="mb-2 text-xs font-semibold uppercase
+                    <p
+                        class="mb-2 text-xs font-semibold uppercase
                               tracking-wide text-slate-400">
 
                         Course Name
@@ -148,7 +179,8 @@
                 {{-- Course Code --}}
                 <div class="px-5 py-5 sm:px-6">
 
-                    <p class="mb-2 text-xs font-semibold uppercase
+                    <p
+                        class="mb-2 text-xs font-semibold uppercase
                               tracking-wide text-slate-400">
 
                         Course Code
@@ -156,8 +188,8 @@
                     </p>
 
                     @if ($course->code)
-
-                        <span class="inline-flex items-center
+                        <span
+                            class="inline-flex items-center
                                      rounded-md bg-slate-100
                                      px-2.5 py-1 text-sm font-medium
                                      text-slate-600">
@@ -165,15 +197,12 @@
                             {{ $course->code }}
 
                         </span>
-
                     @else
-
                         <p class="text-sm italic text-slate-400">
 
                             No course code available.
 
                         </p>
-
                     @endif
 
                 </div>
@@ -182,7 +211,8 @@
                 {{-- Description --}}
                 <div class="px-5 py-5 sm:px-6">
 
-                    <p class="mb-2 text-xs font-semibold uppercase
+                    <p
+                        class="mb-2 text-xs font-semibold uppercase
                               tracking-wide text-slate-400">
 
                         Description
@@ -190,34 +220,32 @@
                     </p>
 
                     @if ($course->description)
-
                         <p class="text-sm leading-6 text-slate-600">
 
                             {{ $course->description }}
 
                         </p>
-
                     @else
-
                         <p class="text-sm italic text-slate-400">
 
                             No description available.
 
                         </p>
-
                     @endif
 
                 </div>
 
 
                 {{-- Created At --}}
-                <div class="flex flex-col gap-2 px-5 py-5
+                <div
+                    class="flex flex-col gap-2 px-5 py-5
                             sm:flex-row sm:items-center
                             sm:justify-between sm:px-6">
 
                     <div>
 
-                        <p class="text-xs font-semibold uppercase
+                        <p
+                            class="text-xs font-semibold uppercase
                                   tracking-wide text-slate-400">
 
                             Created At
@@ -232,17 +260,13 @@
                         <i class="bi bi-calendar3 text-primary"></i>
 
                         @if ($course->created_at)
-
                             {{ $course->created_at->format('d M, Y') }}
 
                             <span class="text-slate-300">•</span>
 
                             {{ $course->created_at->format('h:i A') }}
-
                         @else
-
                             N/A
-
                         @endif
 
                     </div>
@@ -251,13 +275,15 @@
 
 
                 {{-- Updated At --}}
-                <div class="flex flex-col gap-2 px-5 py-5
+                <div
+                    class="flex flex-col gap-2 px-5 py-5
                             sm:flex-row sm:items-center
                             sm:justify-between sm:px-6">
 
                     <div>
 
-                        <p class="text-xs font-semibold uppercase
+                        <p
+                            class="text-xs font-semibold uppercase
                                   tracking-wide text-slate-400">
 
                             Last Updated
@@ -272,17 +298,13 @@
                         <i class="bi bi-clock-history text-primary"></i>
 
                         @if ($course->updated_at)
-
                             {{ $course->updated_at->format('d M, Y') }}
 
                             <span class="text-slate-300">•</span>
 
                             {{ $course->updated_at->format('h:i A') }}
-
                         @else
-
                             N/A
-
                         @endif
 
                     </div>
@@ -293,14 +315,14 @@
 
 
             {{-- Footer Actions --}}
-            <div class="flex flex-col-reverse gap-3
+            <div
+                class="flex flex-col-reverse gap-3
                         border-t border-slate-100
                         px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
 
 
                 {{-- Delete --}}
-                <form data-item="course" action="{{ route('courses.destroy', $course) }}"
-                    method="POST"
+                <form data-item="course" action="{{ route('courses.destroy', $course) }}" method="POST"
                     class="delete-form flex-1">
 
                     @csrf
@@ -340,12 +362,9 @@
         </div>
 
     </div>
-
 @endsection
 
 
 @push('scripts')
-
     <script src="{{ asset('/assets/js/deleteAlert.js') }}"></script>
-
 @endpush

@@ -11,26 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('competency_units', function (Blueprint $table) {
+        Schema::create('elements', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('module_id')
-                ->constrained('modules')
+            $table->foreignId('competency_unit_id')
+                ->constrained('competency_units')
                 ->cascadeOnDelete();
-            $table->string('name', 150);
+            $table->string('name');
             $table->text('description')->nullable();
-            $table->unsignedInteger('competency_unit_order')->nullable();
             $table->boolean('is_active')->default(true);
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
-
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('competency_units');
+        Schema::dropIfExists('elements');
     }
 };

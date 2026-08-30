@@ -123,6 +123,25 @@
             <div class="divide-y divide-slate-100">
 
 
+                {{-- Module Number --}}
+                <div class="px-5 py-5 sm:px-6">
+
+                    <p
+                        class="mb-2 text-xs font-semibold uppercase
+                              tracking-wide text-slate-400">
+
+                        Module Number
+
+                    </p>
+
+                    <p class="text-sm font-semibold text-slate-700">
+
+                        Module {{ sprintf('%02d', $module->module_number) }}
+
+                    </p>
+
+                </div>
+
                 {{-- Module Name --}}
                 <div class="px-5 py-5 sm:px-6">
 
@@ -136,7 +155,7 @@
 
                     <p class="text-sm font-semibold text-slate-700">
 
-                        {{ $module->name }}
+                       {{ $module->name ?: 'No name' }}
 
                     </p>
 
@@ -180,6 +199,37 @@
                         <p class="text-sm italic text-slate-400">
 
                             No course available.
+
+                        </p>
+                    @endif
+
+                </div>
+
+                {{-- Round --}}
+                <div class="px-5 py-5 sm:px-6">
+
+                    <p
+                        class="mb-2 text-xs font-semibold uppercase
+                              tracking-wide text-slate-400">
+
+                        Round
+
+                    </p>
+
+                    @if ($module->course->round)
+                        <div class="flex flex-wrap items-center gap-2">
+
+                            <span class="text-sm font-semibold text-slate-700">
+
+                                Round {{ $module->course->round->round_number }}
+
+                            </span>
+
+                        </div>
+                    @else
+                        <p class="text-sm italic text-slate-400">
+
+                            No round available.
 
                         </p>
                     @endif

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
+use App\Models\Round;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CourseController extends Controller
 {
@@ -26,6 +28,16 @@ class CourseController extends Controller
                     if (is_numeric($search)) {
                         $q->orWhere('id', $search);
                     }
+
+                    // Search by Round ID / Round Number
+                    $q->orWhereHas('round', function ($roundQuery) use ($search) {
+                        if (is_numeric($search)) {
+                            $roundQuery->where('id', $search)
+                                ->orWhere('round_number', $search);
+                        } else {
+                            $roundQuery->where('round_number', 'like', "%{$search}%");
+                        }
+                    });
                 });
             })
             ->orderByDesc('id')
@@ -40,7 +52,8 @@ class CourseController extends Controller
     public function create()
     {
         //
-        return view('courses.create');
+        $rounds = Round::where("is_active", true)->get();
+        return view('courses.create', compact('rounds'));
     }
 
     /**
@@ -50,9 +63,10 @@ class CourseController extends Controller
     {
         //
         $request->merge([
-            'name' => preg_replace('/\s+/', ' ', trim($request->name))
+            'name' => preg_replace('/\s+/', ' ', trim($request->name)),
         ]);
         $request->validate([
+            "round_id"          => ["required", "integer", Rule::exists('rounds', 'id')->where('is_active', true)],
             "name"              => ["required", "string", "max:150"],
             "code"              => ["required", "string", "max:50", "unique:courses,code"],
             "description"       => ["nullable", "string"],
@@ -60,6 +74,7 @@ class CourseController extends Controller
         ]);
 
         $course = new Course();
+        $course->round_id = $request->round_id;
         $course->name = $request->name;
         $course->code = $request->code;
         $course->description = $request->description;
@@ -83,7 +98,8 @@ class CourseController extends Controller
     public function edit(Course $course)
     {
         //
-        return view('courses.edit', compact('course'));
+        $rounds = Round::where('is_active', true)->get();
+        return view('courses.edit', compact('course', 'rounds'));
     }
 
     /**
@@ -93,12 +109,18 @@ class CourseController extends Controller
     {
         //
         $request->validate([
+            "round_id" => [
+                "required",
+                "integer",
+                Rule::exists('rounds', 'id')->where('is_active', true)
+            ],
             "name"              => ["required", "string", "max:150"],
             "code"              => ["required", "string", "max:50", "unique:courses,code," . $course->id],
             "description"       => ["nullable", "string"],
             "is_active"         => ["nullable", "boolean"]
         ]);
 
+        $course->round_id = $request->round_id;
         $course->name = $request->name;
         $course->code = $request->code;
         $course->description = $request->description;

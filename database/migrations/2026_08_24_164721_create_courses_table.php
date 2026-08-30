@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('round_id')
+                ->constrained('rounds')
+                ->cascadeOnUpdate()
+                ->restrictOnDelete();
             $table->string('name', 150);
             $table->string('code', 50)->nullable()->unique();
             $table->text('description')->nullable();
