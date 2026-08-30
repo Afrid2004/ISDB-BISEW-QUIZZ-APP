@@ -1,9 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     const courseSelect = document.getElementById("course_id");
     const moduleSelect = document.getElementById("module_id");
-    const competencyUnitSelect = document.getElementById(
-        "competency_unit_id"
-    );
+    const competencyUnitSelect = document.getElementById("competency_unit_id");
 
     // ---------------------------------------------------------
     // Check Elements
@@ -15,49 +13,52 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ---------------------------------------------------------
+    // Current values from Blade
+    // ---------------------------------------------------------
+
+    const currentModuleId = moduleSelect.dataset.currentModuleId || "";
+
+    const currentCompetencyUnitId =
+        competencyUnitSelect.dataset.currentCompetencyUnitId || "";
+
+    // ---------------------------------------------------------
     // Initial State
     // ---------------------------------------------------------
 
-    // প্রথমে শুধু Course enabled থাকবে
     moduleSelect.disabled = true;
     competencyUnitSelect.disabled = true;
 
-    // ---------------------------------------------------------
-    // Course → Module
-    // ---------------------------------------------------------
+    // =========================================================
+    // Load Modules
+    // =========================================================
 
-    courseSelect.addEventListener("change", async function () {
-        const courseId = this.value;
-
-        // Reset Module
+    async function loadModules(courseId, selectedModuleId = "") {
+        // Reset module
         moduleSelect.innerHTML = `
             <option value="">Select a module</option>
         `;
 
-        // Reset Competency Unit
+        // Reset competency unit
         competencyUnitSelect.innerHTML = `
             <option value="">Select a competency unit</option>
         `;
 
-        // Competency Unit disabled
+        moduleSelect.disabled = true;
         competencyUnitSelect.disabled = true;
 
-        // Course select না করলে Module disabled
+        // No course
         if (!courseId) {
-            moduleSelect.disabled = true;
             return;
         }
 
         try {
             console.log("Loading modules for course:", courseId);
 
-            const response = await fetch(
-                `/elements/modules/${courseId}`
-            );
+            const response = await fetch(`/elements/modules/${courseId}`);
 
             if (!response.ok) {
                 throw new Error(
-                    `Failed to fetch modules. Status: ${response.status}`
+                    `Failed to fetch modules. Status: ${response.status}`,
                 );
             }
 
@@ -65,17 +66,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
             console.log("Modules:", modules);
 
-            // যদি কোনো module না থাকে
+            // No modules
             if (!modules.length) {
                 moduleSelect.innerHTML = `
-                    <option value="">No modules available</option>
+                    <option value="">
+                        No modules available
+                    </option>
                 `;
 
                 moduleSelect.disabled = true;
+
                 return;
             }
 
-            // Add Modules
+            // Add modules
             modules.forEach(function (module) {
                 const option = document.createElement("option");
 
@@ -85,66 +89,88 @@ document.addEventListener("DOMContentLoaded", function () {
                     ? `Module ${module.module_number} - ${module.name}`
                     : module.name;
 
+                // IMPORTANT
+                // Edit page হলে current module select হবে
+
+                if (
+                    selectedModuleId &&
+                    String(selectedModuleId) === String(module.id)
+                ) {
+                    option.selected = true;
+                }
+
                 moduleSelect.appendChild(option);
             });
 
-            // Enable Module
+            // Enable module
             moduleSelect.disabled = false;
+
+            console.log("Selected module:", moduleSelect.value);
+
+            // -------------------------------------------------
+            // If edit page has current module
+            // automatically load competency units
+            // -------------------------------------------------
+
+            if (selectedModuleId && moduleSelect.value) {
+                await loadCompetencyUnits(
+                    moduleSelect.value,
+                    currentCompetencyUnitId,
+                );
+            }
         } catch (error) {
             console.error("Error loading modules:", error);
 
             moduleSelect.innerHTML = `
-                <option value="">Failed to load modules</option>
+                <option value="">
+                    Failed to load modules
+                </option>
             `;
 
             moduleSelect.disabled = true;
         }
-    });
+    }
 
-    // ---------------------------------------------------------
-    // Module → Competency Unit
-    // ---------------------------------------------------------
+    // =========================================================
+    // Load Competency Units
+    // =========================================================
 
-    moduleSelect.addEventListener("change", async function () {
-        const moduleId = this.value;
-
-        // Reset Competency Unit
+    async function loadCompetencyUnits(
+        moduleId,
+        selectedCompetencyUnitId = "",
+    ) {
+        // Reset
         competencyUnitSelect.innerHTML = `
-            <option value="">Select a competency unit</option>
+            <option value="">
+                Select a competency unit
+            </option>
         `;
 
-        // Competency Unit disabled
         competencyUnitSelect.disabled = true;
 
-        // Module select না করলে
+        // No module
         if (!moduleId) {
             return;
         }
 
         try {
-            console.log(
-                "Loading competency units for module:",
-                moduleId
-            );
+            console.log("Loading competency units for module:", moduleId);
 
             const response = await fetch(
-                `/elements/competency-units/${moduleId}`
+                `/elements/competency-units/${moduleId}`,
             );
 
             if (!response.ok) {
                 throw new Error(
-                    `Failed to fetch competency units. Status: ${response.status}`
+                    `Failed to fetch competency units. Status: ${response.status}`,
                 );
             }
 
             const competencyUnits = await response.json();
 
-            console.log(
-                "Competency Units:",
-                competencyUnits
-            );
+            console.log("Competency Units:", competencyUnits);
 
-            // যদি কোনো competency unit না থাকে
+            // No competency units
             if (!competencyUnits.length) {
                 competencyUnitSelect.innerHTML = `
                     <option value="">
@@ -153,10 +179,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 `;
 
                 competencyUnitSelect.disabled = true;
+
                 return;
             }
 
-            // Add Competency Units
+            // -------------------------------------------------
+            // Add competency units
+            // -------------------------------------------------
+
             competencyUnits.forEach(function (competencyUnit) {
                 const option = document.createElement("option");
 
@@ -164,31 +194,40 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 /*
                 |--------------------------------------------------------------------------
-                | Competency Unit Name
+                | IMPORTANT
                 |--------------------------------------------------------------------------
                 |
-                | তোমার database-এ যদি name থাকে → name দেখাবে
-                | title থাকলে → title দেখাবে
-                | code থাকলে → code দেখাবে
+                | তোমার competency_units table-এ name নেই।
+                | তোমার code আছে।
                 |
                 */
 
                 option.textContent =
-                    competencyUnit.name ??
-                    competencyUnit.title ??
-                    competencyUnit.code ??
+                    competencyUnit.code ||
                     `Competency Unit #${competencyUnit.id}`;
+
+                // Edit page হলে current CU select হবে
+
+                if (
+                    selectedCompetencyUnitId &&
+                    String(selectedCompetencyUnitId) ===
+                        String(competencyUnit.id)
+                ) {
+                    option.selected = true;
+                }
 
                 competencyUnitSelect.appendChild(option);
             });
 
-            // Enable Competency Unit
+            // Enable competency unit
             competencyUnitSelect.disabled = false;
-        } catch (error) {
-            console.error(
-                "Error loading competency units:",
-                error
+
+            console.log(
+                "Selected competency unit:",
+                competencyUnitSelect.value,
             );
+        } catch (error) {
+            console.error("Error loading competency units:", error);
 
             competencyUnitSelect.innerHTML = `
                 <option value="">
@@ -198,5 +237,55 @@ document.addEventListener("DOMContentLoaded", function () {
 
             competencyUnitSelect.disabled = true;
         }
+    }
+
+    // =========================================================
+    // Course Change
+    // =========================================================
+
+    courseSelect.addEventListener("change", function () {
+        const courseId = this.value;
+
+        // যখন user নতুন course select করবে
+        // তখন পুরাতন edit values আর ব্যবহার হবে না
+
+        loadModules(courseId, "");
     });
+
+    // =========================================================
+    // Module Change
+    // =========================================================
+
+    moduleSelect.addEventListener("change", function () {
+        const moduleId = this.value;
+
+        // নতুন module হলে current CU select করার দরকার নেই
+
+        loadCompetencyUnits(moduleId, "");
+    });
+
+    // =========================================================
+    // Edit Page Initial Load
+    // =========================================================
+
+    if (courseSelect.value) {
+        console.log("Edit/Create initial course:", courseSelect.value);
+
+        /*
+        |--------------------------------------------------------------------------
+        | এখানে আসল fix
+        |--------------------------------------------------------------------------
+        |
+        | Blade থেকে currentModuleId নেওয়া হচ্ছে।
+        |
+        | তারপর course অনুযায়ী modules load হবে।
+        |
+        | তারপর সেই module automatically selected হবে।
+        |
+        | তারপর competency units automatically load হবে।
+        |
+        */
+
+        loadModules(courseSelect.value, currentModuleId);
+    }
 });

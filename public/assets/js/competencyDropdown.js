@@ -4,17 +4,48 @@ document.addEventListener("DOMContentLoaded", function () {
     const module = document.getElementById("module_id");
     const preview = document.getElementById("competency_unit_preview");
 
-    // Load modules
+    // ---------------------------------------------------------
+    // Existing Competency Unit ID
+    // ---------------------------------------------------------
+    // Edit page হলে HTML থেকে ID নেওয়া হবে
+    const competencyUnitId =
+        document.getElementById("competency_unit_id")?.value || null;
+
+    // ---------------------------------------------------------
+    // Check Elements
+    // ---------------------------------------------------------
+
+    if (!prefix || !course || !module || !preview) {
+        console.error("Competency Unit form elements not found.");
+        return;
+    }
+
+    // ---------------------------------------------------------
+    // Load Modules
+    // ---------------------------------------------------------
+
     function loadModules(courseId, selectedModuleId = null) {
-        module.innerHTML = '<option value="">Select Module</option>';
+        module.innerHTML = `
+            <option value="">Select Module</option>
+        `;
+
         module.disabled = true;
 
         if (!courseId) {
+            preview.textContent = "-";
             return;
         }
 
         fetch(`/competency-units/modules/${courseId}`)
-            .then((response) => response.json())
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(
+                        `Failed to load modules. Status: ${response.status}`,
+                    );
+                }
+
+                return response.json();
+            })
             .then((data) => {
                 data.forEach((item) => {
                     const option = document.createElement("option");
@@ -23,7 +54,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     option.textContent = `Module ${item.module_number} - ${item.name}`;
 
-                    if (selectedModuleId == item.id) {
+                    // Edit page existing module
+                    if (
+                        selectedModuleId !== null &&
+                        String(selectedModuleId) === String(item.id)
+                    ) {
                         option.selected = true;
                     }
 
@@ -31,62 +66,158 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
 
                 module.disabled = false;
+
+                // -------------------------------------------------
+                // Generate code after module is selected
+                // -------------------------------------------------
+
+                if (module.value) {
+                    generateCode();
+                }
+            })
+            .catch((error) => {
+                console.error("Error loading modules:", error);
+
+                module.innerHTML = `
+                    <option value="">
+                        Failed to load modules
+                    </option>
+                `;
+
+                module.disabled = true;
+
+                preview.textContent = "-";
             });
     }
 
-    // Generate code
+    // ---------------------------------------------------------
+    // Generate Competency Unit Code
+    // ---------------------------------------------------------
+
     function generateCode() {
+        // Course / Module না থাকলে
         if (!course.value || !module.value) {
             preview.textContent = "-";
+
             return;
         }
 
-        const courseCode = course.options[course.selectedIndex].text
-            .split(" - ")[0]
-            .trim();
+        // -----------------------------------------------------
+        // Course Code
+        // -----------------------------------------------------
 
-        const moduleNumber =
-            module.options[module.selectedIndex].textContent.match(/\d+/)[0];
+        const courseText = course.options[course.selectedIndex].textContent;
+
+        const courseCode = courseText.split(" - ")[0].trim();
+
+        // -----------------------------------------------------
+        // Module Number
+        // -----------------------------------------------------
+
+        const moduleText = module.options[module.selectedIndex].textContent;
+
+        const moduleMatch = moduleText.match(/\d+/);
+
+        if (!moduleMatch) {
+            console.error("Module number not found:", moduleText);
+
+            preview.textContent = "-";
+
+            return;
+        }
+
+        const moduleNumber = moduleMatch[0];
+
+        // -----------------------------------------------------
+        // API URL
+        // -----------------------------------------------------
 
         let url = `/competency-units/next-serial/${module.value}`;
 
-        // Edit page হলে
+        // -----------------------------------------------------
+        // Edit Page
+        // -----------------------------------------------------
+
         if (competencyUnitId) {
             url = `/competency-units/edit-next-serial/${module.value}/${competencyUnitId}`;
         }
 
+        console.log("Generating competency unit code...");
+        console.log("Course Code:", courseCode);
+        console.log("Module Number:", moduleNumber);
+        console.log("API URL:", url);
+
+        // -----------------------------------------------------
+        // Get Next Serial
+        // -----------------------------------------------------
+
         fetch(url)
-            .then((response) => response.json())
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(
+                        `Failed to generate serial. Status: ${response.status}`,
+                    );
+                }
+
+                return response.json();
+            })
             .then((data) => {
+                console.log("Serial Response:", data);
+
                 const serial = String(data.serial).padStart(2, "0");
 
-                preview.textContent = `${prefix.value.toUpperCase()}${courseCode}${moduleNumber}${serial}`;
+                // -------------------------------------------------
+                // Final Code
+                // -------------------------------------------------
+
+                const finalCode = `${prefix.value.toUpperCase()}${courseCode}${moduleNumber}${serial}`;
+
+                preview.textContent = finalCode;
+
+                console.log("Generated Code:", finalCode);
+            })
+            .catch((error) => {
+                console.error("Error generating competency unit code:", error);
+
+                preview.textContent = "-";
             });
     }
 
-    // Course change
+    // ---------------------------------------------------------
+    // Course Change
+    // ---------------------------------------------------------
+
     course.addEventListener("change", function () {
+        // Reset preview
         preview.textContent = "-";
 
+        // Course change করলে নতুন module load হবে
         loadModules(this.value);
     });
 
-    // Module change
+    // ---------------------------------------------------------
+    // Module Change
+    // ---------------------------------------------------------
+
     module.addEventListener("change", function () {
         generateCode();
     });
 
-    // Prefix change
+    // ---------------------------------------------------------
+    // Prefix Change
+    // ---------------------------------------------------------
+
     prefix.addEventListener("input", function () {
         generateCode();
     });
 
-    // Edit page
-    if (course.value) {
-        const selectedModuleId = module.value;
+    // ---------------------------------------------------------
+    // Edit Page Initial Load
+    // ---------------------------------------------------------
 
-        // শুধু modules load করবে
-        // existing code change করবে না
+    if (course.value) {
+        const selectedModuleId = module.dataset.selectedModule || null;
+
         loadModules(course.value, selectedModuleId);
     }
 });

@@ -16,47 +16,71 @@ class ElementController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        $search = trim($request->input('search', ''));
 
         $elements = Element::query()
             ->with('competencyUnit.module.course')
-            ->when($search, function ($query, $search) {
+
+            ->when($search !== '', function ($query) use ($search) {
 
                 $query->where(function ($q) use ($search) {
 
-                    $q->where('name', 'like', "%{$search}%");
+                    // Element Name
+                    $q->where('elements.name', 'like', "%{$search}%");
 
+                    // Element ID - Only Element ID
                     if (is_numeric($search)) {
-                        $q->orWhere('id', $search);
+                        $q->orWhere('elements.id', $search);
                     }
 
-                    $q->orWhereHas('competencyUnit', function ($competencyQuery) use ($search) {
+                    // Competency Unit
+                    $q->orWhereHas('competencyUnit', function ($cq) use ($search) {
 
-                        $competencyQuery->where('name', 'like', "%{$search}%");
+                        // Full code: STCPWAD101
+                        $cq->where(
+                            'competency_units.code',
+                            'like',
+                            "%{$search}%"
+                        );
 
-                        if (is_numeric($search)) {
-                            $competencyQuery->orWhere('id', $search);
-                        }
+                        // Module
+                        $cq->orWhereHas('module', function ($mq) use ($search) {
 
-                        $competencyQuery->orWhereHas('module', function ($moduleQuery) use ($search) {
+                            $mq->where(
+                                'modules.name',
+                                'like',
+                                "%{$search}%"
+                            );
 
-                            $moduleQuery->where('name', 'like', "%{$search}%");
+                            // Course
+                            $mq->orWhereHas('course', function ($courseQuery) use ($search) {
 
-                            $moduleQuery->orWhereHas('course', function ($courseQuery) use ($search) {
+                                $courseQuery->where(
+                                    'courses.name',
+                                    'like',
+                                    "%{$search}%"
+                                );
 
-                                $courseQuery->where('name', 'like', "%{$search}%")
-                                    ->orWhere('code', 'like', "%{$search}%");
-
+                                $courseQuery->orWhere(
+                                    'courses.code',
+                                    'like',
+                                    "%{$search}%"
+                                );
                             });
-
                         });
-
                     });
-
                 });
-
             })
-            ->orderByDesc('id')
+
+            ->join(
+                'competency_units',
+                'elements.competency_unit_id',
+                '=',
+                'competency_units.id'
+            )
+
+            ->orderBy('competency_units.code', 'asc')
+            ->select('elements.*')
             ->paginate(10)
             ->withQueryString();
 
@@ -73,22 +97,26 @@ class ElementController extends Controller
             ->whereNull('deleted_at')
             ->orderBy('name')
             ->get();
-
-        $modules = Module::where('is_active', true)
-            ->whereNull('deleted_at')
-            ->orderBy('module_number')
-            ->get();
-
-        $competencyUnits = CompetencyUnit::with('module.course')
-            ->where('is_active', true)
-            ->whereNull('deleted_at')
-            ->get();
+        /*
+        |--------------------------------------------------------------------------
+        | Create page-এ কোনো current value নেই
+        |--------------------------------------------------------------------------
+        */
+        $currentCourse = null;
+        $currentModule = null;
+        $currentCompetencyUnit = null;
 
         return view(
             'elements.create',
-            compact('courses', 'modules', 'competencyUnits')
+            compact(
+                'courses',
+                'currentCourse',
+                'currentModule',
+                'currentCompetencyUnit'
+            )
         );
     }
+
 
 
     /**
@@ -158,33 +186,52 @@ class ElementController extends Controller
      */
     public function edit(Element $element)
     {
+        /*
+        |--------------------------------------------------------------------------
+        | Load complete relationship
+        |--------------------------------------------------------------------------
+        */
+
+        $element->load('competencyUnit.module.course');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Courses
+        |--------------------------------------------------------------------------
+        */
+
         $courses = Course::where('is_active', true)
             ->whereNull('deleted_at')
             ->orderBy('name')
             ->get();
 
-        $modules = Module::where('is_active', true)
-            ->whereNull('deleted_at')
-            ->orderBy('module_number')
-            ->get();
 
-        $competencyUnits = CompetencyUnit::with('module.course')
-            ->where('is_active', true)
-            ->whereNull('deleted_at')
-            ->get();
+        /*
+        |--------------------------------------------------------------------------
+        | Current selected values
+        |--------------------------------------------------------------------------
+        */
 
-        $element->load('competencyUnit.module.course');
+        $currentCompetencyUnit = $element->competencyUnit;
+
+        $currentModule = $currentCompetencyUnit?->module;
+
+        $currentCourse = $currentModule?->course;
+
 
         return view(
             'elements.edit',
             compact(
                 'element',
                 'courses',
-                'modules',
-                'competencyUnits'
+                'currentCourse',
+                'currentModule',
+                'currentCompetencyUnit'
             )
         );
     }
+
 
 
     /**
@@ -275,59 +322,105 @@ class ElementController extends Controller
         $competencyUnits = CompetencyUnit::where('module_id', $moduleId)
             ->where('is_active', true)
             ->whereNull('deleted_at')
-            ->get();
+            ->orderBy('id')
+            ->get([
+                'id',
+                'code',
+                'module_id'
+            ]);
 
         return response()->json($competencyUnits);
     }
-
 
     /**
      * All deleted elements.
      */
     public function deletedElements(Request $request)
     {
-        $search = $request->input('search');
+        $search = trim($request->input('search', ''));
 
         $elements = Element::onlyTrashed()
             ->with('competencyUnit.module.course')
-            ->when($search, function ($query, $search) {
+
+            ->when($search !== '', function ($query) use ($search) {
 
                 $query->where(function ($q) use ($search) {
 
-                    $q->where('name', 'like', "%{$search}%");
+                    // Element Name
+                    $q->where(
+                        'elements.name',
+                        'like',
+                        "%{$search}%"
+                    );
 
+                    // Element ID - Only Element ID
                     if (is_numeric($search)) {
-                        $q->orWhere('id', $search);
+                        $q->orWhere(
+                            'elements.id',
+                            $search
+                        );
                     }
 
-                    $q->orWhereHas('competencyUnit', function ($competencyQuery) use ($search) {
+                    // Competency Unit
+                    $q->orWhereHas('competencyUnit', function ($cq) use ($search) {
 
-                        $competencyQuery->where('name', 'like', "%{$search}%");
+                        // Competency Unit Code
+                        // Example: STCPWAD101
+                        $cq->where(
+                            'competency_units.code',
+                            'like',
+                            "%{$search}%"
+                        );
 
-                        if (is_numeric($search)) {
-                            $competencyQuery->orWhere('id', $search);
-                        }
+                        // Module
+                        $cq->orWhereHas('module', function ($mq) use ($search) {
 
-                        $competencyQuery->orWhereHas('module', function ($moduleQuery) use ($search) {
+                            // Module Name
+                            $mq->where(
+                                'modules.name',
+                                'like',
+                                "%{$search}%"
+                            );
 
-                            $moduleQuery->where('name', 'like', "%{$search}%");
+                            // Course
+                            $mq->orWhereHas('course', function ($courseQuery) use ($search) {
 
-                            $moduleQuery->orWhereHas('course', function ($courseQuery) use ($search) {
+                                // Course Name
+                                $courseQuery->where(
+                                    'courses.name',
+                                    'like',
+                                    "%{$search}%"
+                                );
 
-                                $courseQuery->where('name', 'like', "%{$search}%")
-                                    ->orWhere('code', 'like', "%{$search}%");
-
+                                // Course Code
+                                $courseQuery->orWhere(
+                                    'courses.code',
+                                    'like',
+                                    "%{$search}%"
+                                );
                             });
-
                         });
-
                     });
-
                 });
-
             })
-            ->orderByDesc('id')
+
+            // Order by Competency Unit Code
+            ->join(
+                'competency_units',
+                'elements.competency_unit_id',
+                '=',
+                'competency_units.id'
+            )
+
+            ->orderBy(
+                'competency_units.code',
+                'asc'
+            )
+
+            ->select('elements.*')
+
             ->paginate(10)
+
             ->withQueryString();
 
         return view(
