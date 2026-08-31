@@ -1,8 +1,6 @@
 @extends('layouts.backend.app')
 
 @section('content')
-
-
     <div class="min-h-screen bg-[#f7f8fc]">
 
         {{-- Page Header --}}
@@ -177,14 +175,8 @@
                                         <div class="min-w-0">
 
                                             <p class="truncate text-sm text-slate-700">
-                                                {{ $exam->batch->batch_number ?? 'Batch #' . $exam->batch->id }}
+                                                {{ $exam->batch->name ?? 'Batch #' . $exam->batch->id }}
                                             </p>
-
-                                            @if ($exam->batch->name)
-                                                <p class="mt-1 truncate text-xs text-slate-400">
-                                                    {{ $exam->batch->name }}
-                                                </p>
-                                            @endif
 
                                         </div>
                                     @else
@@ -556,8 +548,6 @@
         </div>
 
     </div>
-
-
 @endsection
 
 @push('scripts')
