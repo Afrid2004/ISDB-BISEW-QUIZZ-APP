@@ -23,6 +23,7 @@ return new class extends Migration
                 ->constrained('batches')
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
+            $table->boolean('is_active')->default(true);
             $table->softDeletes();
             $table->timestamps();
         });

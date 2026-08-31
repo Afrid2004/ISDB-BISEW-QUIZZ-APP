@@ -82,6 +82,13 @@
                                 Batch
                             </th>
 
+                            {{-- Status --}}
+                            <th
+                                class="px-5 py-3 text-[11px] font-bold
+                                  uppercase tracking-wide text-slate-400">
+                                Status
+                            </th>
+
                             {{-- Created --}}
                             <th
                                 class="px-5 py-3 text-[11px] font-bold
@@ -186,6 +193,30 @@
                                     @endif
 
                                 </td>
+
+
+                                {{-- Status --}}
+                                <td class="px-5 py-4">
+                                    @if ($exam->is_active)
+                                        <span
+                                            class="inline-flex items-center gap-1.5 rounded-full
+                   bg-emerald-50 px-2.5 py-1 text-xs font-semibold
+                   text-emerald-600">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                            Active
+                                        </span>
+                                    @else
+                                        <span
+                                            class="inline-flex items-center gap-1.5 rounded-full
+                   bg-slate-100 px-2.5 py-1 text-xs font-semibold
+                   text-slate-500">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                                            Inactive
+                                        </span>
+                                    @endif
+                                </td>
+
+
 
                                 {{-- Created --}}
                                 <td class="px-5 py-4">

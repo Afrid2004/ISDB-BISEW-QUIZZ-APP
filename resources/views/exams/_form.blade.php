@@ -72,8 +72,6 @@
     </div>
 
 
-
-
     {{-- Description --}}
     <div>
         <label for="description" class="mb-2 block text-sm font-semibold text-slate-700">
@@ -89,6 +87,39 @@
         <p class="mt-1.5 text-xs text-slate-400">
             Provide a brief description or instruction for this exam.
         </p>
+    </div>
+
+
+    {{-- Active --}}
+    <div class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-4">
+        <div class="flex items-center justify-between gap-4">
+
+            <div>
+                <label for="is_active" class="block text-sm font-semibold text-slate-700">
+                    Active
+                </label>
+
+                <p class="mt-1 text-xs text-slate-400">
+                    Make this exam available for students.
+                </p>
+            </div>
+
+            <label class="relative inline-flex cursor-pointer items-center">
+                <input type="checkbox" name="is_active" id="is_active" value="1" class="peer sr-only"
+                    {{ old('is_active', $exam->is_active ?? true) ? 'checked' : '' }}>
+
+                <div
+                    class="h-6 w-11 rounded-full bg-slate-300 transition peer-checked:bg-primary
+                        after:absolute after:left-[2px] after:top-[2px]
+                        after:h-5 after:w-5 after:rounded-full
+                        after:border after:border-slate-300 after:bg-white
+                        after:transition-all
+                        peer-checked:after:translate-x-full
+                        peer-checked:after:border-white">
+                </div>
+            </label>
+
+        </div>
     </div>
 
 

@@ -133,6 +133,22 @@
                 </x-sidebar.sub-link>
             </x-sidebar.dropdown>
 
+            {{-- Exam Sets Dropdown --}}
+            <x-sidebar.dropdown title="Exam Sets" route="exam-sets.*" icon="bi-collection">
+                <x-sidebar.sub-link route="exam-sets.index">
+                    All Exam Sets
+                </x-sidebar.sub-link>
+
+                <x-sidebar.sub-link route="exam-sets.create">
+                    Create Exam Set
+                </x-sidebar.sub-link>
+
+                <x-sidebar.sub-link route="exam-sets.deleted">
+                    Deleted Exam Sets
+                </x-sidebar.sub-link>
+
+            </x-sidebar.dropdown>
+
             {{-- Training Centers Dropdown --}}
             <x-sidebar.dropdown title="Training Centers" route="training-centers.*" icon="bi-building">
 

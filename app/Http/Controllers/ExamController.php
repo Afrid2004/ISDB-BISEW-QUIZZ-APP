@@ -27,18 +27,22 @@ class ExamController extends Controller
                     } else {
                         $q->where('title', 'like', "%{$search}%")
                             ->orWhere('description', 'like', "%{$search}%")
+
                             ->orWhereHas('course', function ($courseQuery) use ($search) {
-                                $courseQuery->where('name', 'like', "%{$search}%")
+                                $courseQuery
+                                    ->where('name', 'like', "%{$search}%")
                                     ->orWhere('code', 'like', "%{$search}%");
                             })
+
                             ->orWhereHas('batch', function ($batchQuery) use ($search) {
-                                $batchQuery->where('name', 'like', "%{$search}%")
+                                $batchQuery
+                                    ->where('name', 'like', "%{$search}%")
                                     ->orWhere('batch_number', 'like', "%{$search}%");
                             });
                     }
                 });
             })
-            ->orderBy('id')
+            ->orderByDesc('id')
             ->paginate(10)
             ->withQueryString();
 
@@ -53,6 +57,7 @@ class ExamController extends Controller
         $courses = Course::query()
             ->where('is_active', true)
             ->whereNull('deleted_at')
+            ->orderBy('name')
             ->get();
 
         return view('exams.create', compact('courses'));
@@ -63,7 +68,7 @@ class ExamController extends Controller
      */
     public function store(Request $request)
     {
-        // Removing extra spaces
+        // Remove extra spaces from title
         $request->merge([
             'title' => preg_replace('/\s+/', ' ', trim($request->title)),
         ]);
@@ -92,6 +97,11 @@ class ExamController extends Controller
             'description' => [
                 'nullable',
                 'string',
+            ],
+
+            'is_active' => [
+                'nullable',
+                'boolean',
             ],
         ]);
 
@@ -118,6 +128,9 @@ class ExamController extends Controller
         $exam->title = $request->title;
         $exam->description = $request->description;
 
+        // Checkbox checked = true, unchecked = false
+        $exam->is_active = $request->boolean('is_active');
+
         $exam->save();
 
         return redirect()
@@ -130,7 +143,10 @@ class ExamController extends Controller
      */
     public function show(Exam $exam)
     {
-        $exam->load(['course', 'batch']);
+        $exam->load([
+            'course',
+            'batch',
+        ]);
 
         return view('exams.show', compact('exam'));
     }
@@ -143,6 +159,7 @@ class ExamController extends Controller
         $courses = Course::query()
             ->where('is_active', true)
             ->whereNull('deleted_at')
+            ->orderBy('name')
             ->get();
 
         $batches = Batch::query()
@@ -152,7 +169,11 @@ class ExamController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('exams.edit', compact('exam', 'courses', 'batches'));
+        return view('exams.edit', compact(
+            'exam',
+            'courses',
+            'batches'
+        ));
     }
 
     /**
@@ -160,7 +181,7 @@ class ExamController extends Controller
      */
     public function update(Request $request, Exam $exam)
     {
-        // Removing extra spaces
+        // Remove extra spaces from title
         $request->merge([
             'title' => preg_replace('/\s+/', ' ', trim($request->title)),
         ]);
@@ -190,6 +211,11 @@ class ExamController extends Controller
                 'nullable',
                 'string',
             ],
+
+            'is_active' => [
+                'nullable',
+                'boolean',
+            ],
         ]);
 
         // Make sure selected batch belongs to selected course
@@ -213,6 +239,9 @@ class ExamController extends Controller
         $exam->title = $request->title;
         $exam->description = $request->description;
 
+        // Checkbox checked = true, unchecked = false
+        $exam->is_active = $request->boolean('is_active');
+
         $exam->update();
 
         return redirect()
@@ -220,6 +249,9 @@ class ExamController extends Controller
             ->with('success', 'Exam updated successfully.');
     }
 
+    /**
+     * Get batches by course.
+     */
     public function getBatchesByCourse($courseId)
     {
         $batches = Batch::query()
@@ -252,29 +284,31 @@ class ExamController extends Controller
         $search = $request->input('search');
 
         $exams = Exam::query()
+            ->onlyTrashed()
             ->with(['course', 'batch'])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
 
-                    $q->where('title', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%");
-
                     if (is_numeric($search)) {
-                        $q->orWhere('id', $search);
+                        $q->where('id', $search);
                     }
 
-                    $q->orWhereHas('course', function ($courseQuery) use ($search) {
-                        $courseQuery->where('name', 'like', "%{$search}%")
-                            ->orWhere('code', 'like', "%{$search}%");
-                    });
+                    $q->orWhere('title', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%")
 
-                    $q->orWhereHas('batch', function ($batchQuery) use ($search) {
-                        $batchQuery->where('name', 'like', "%{$search}%")
-                            ->orWhere('batch_number', 'like', "%{$search}%");
-                    });
+                        ->orWhereHas('course', function ($courseQuery) use ($search) {
+                            $courseQuery
+                                ->where('name', 'like', "%{$search}%")
+                                ->orWhere('code', 'like', "%{$search}%");
+                        })
+
+                        ->orWhereHas('batch', function ($batchQuery) use ($search) {
+                            $batchQuery
+                                ->where('name', 'like', "%{$search}%")
+                                ->orWhere('batch_number', 'like', "%{$search}%");
+                        });
                 });
             })
-            ->onlyTrashed()
             ->orderByDesc('id')
             ->paginate(10)
             ->withQueryString();

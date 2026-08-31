@@ -10,6 +10,7 @@ use App\Http\Controllers\BatchController;
 use App\Http\Controllers\CompetencyUnitController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\ExamController;
+use App\Http\Controllers\ExamSetController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -61,6 +62,11 @@ Route::patch('/exams/{id}/restore', [ExamController::class, 'restoreExams'])->na
 Route::delete('/exams/{id}/delete', [ExamController::class, 'forceDelete'])->name('exams.forceDelete');
 Route::resource('/exams', ExamController::class);
 
+// Exam Set Controller
+Route::get('/exam-sets/deleted', [ExamSetController::class, 'deletedSets'])->name('exam-sets.deleted');
+Route::patch('/exam-sets/{id}/restore', [ExamSetController::class, 'restoreSet'])->name('exam-sets.restore');
+Route::delete('/exam-sets/{id}/force-delete', [ExamSetController::class, 'forceDelete'])->name('exam-sets.forceDelete');
+Route::resource('/exam-sets', ExamSetController::class)->names('exam-sets');
 
 /*
 |--------------------------------------------------------------------------
