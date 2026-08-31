@@ -9,6 +9,7 @@ use App\Http\Controllers\TrainingCenterController;
 use App\Http\Controllers\BatchController;
 use App\Http\Controllers\CompetencyUnitController;
 use App\Http\Controllers\ElementController;
+use App\Http\Controllers\ExamController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -52,6 +53,13 @@ Route::get('/questions/modules/{courseId}', [QuestionController::class, 'getModu
 Route::get('/questions/competency-units/{moduleId}', [QuestionController::class, 'getCompetencyUnits'])
     ->name('questions.competency-units');
 Route::resource("/questions", QuestionController::class);
+
+// Exam Controller
+Route::get('/exams/batches/{courseId}', [ExamController::class, 'getBatchesByCourse'])->name('exams.batches');
+Route::get('/exams/deleted', [ExamController::class, 'deletedExams'])->name('exams.deleted');
+Route::patch('/exams/{id}/restore', [ExamController::class, 'restoreExams'])->name('exams.restore');
+Route::delete('/exams/{id}/delete', [ExamController::class, 'forceDelete'])->name('exams.forceDelete');
+Route::resource('/exams', ExamController::class);
 
 
 /*

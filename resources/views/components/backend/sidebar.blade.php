@@ -118,6 +118,21 @@
                 </x-sidebar.sub-link>
             </x-sidebar.dropdown>
 
+            {{-- Exams Dropdown --}}
+            <x-sidebar.dropdown title="Exams" route="exams.*" icon="bi-file-earmark-text">
+                <x-sidebar.sub-link route="exams.index">
+                    All Exams
+                </x-sidebar.sub-link>
+
+                <x-sidebar.sub-link route="exams.create">
+                    Create Exam
+                </x-sidebar.sub-link>
+
+                <x-sidebar.sub-link route="exams.deleted">
+                    Deleted Exams
+                </x-sidebar.sub-link>
+            </x-sidebar.dropdown>
+
             {{-- Training Centers Dropdown --}}
             <x-sidebar.dropdown title="Training Centers" route="training-centers.*" icon="bi-building">
 
