@@ -10,6 +10,7 @@ use App\Http\Controllers\BatchController;
 use App\Http\Controllers\CompetencyUnitController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\ExamController;
+use App\Http\Controllers\ExamSetCompetencyUnitController;
 use App\Http\Controllers\ExamSetController;
 use Illuminate\Support\Facades\Route;
 
@@ -67,6 +68,12 @@ Route::get('/exam-sets/deleted', [ExamSetController::class, 'deletedSets'])->nam
 Route::patch('/exam-sets/{id}/restore', [ExamSetController::class, 'restoreSet'])->name('exam-sets.restore');
 Route::delete('/exam-sets/{id}/force-delete', [ExamSetController::class, 'forceDelete'])->name('exam-sets.forceDelete');
 Route::resource('/exam-sets', ExamSetController::class)->names('exam-sets');
+
+// Exam Set Competency Unit Controller
+Route::get('/exam-set-competency-units/deleted', [ExamSetCompetencyUnitController::class, 'deleted'])->name('exam-set-competency-units.deleted');
+Route::patch('/exam-set-competency-units/{id}/restore', [ExamSetCompetencyUnitController::class, 'restore'])->name('exam-set-competency-units.restore');
+Route::delete('/exam-set-competency-units/{id}/force-delete', [ExamSetCompetencyUnitController::class, 'forceDelete'])->name('exam-set-competency-units.forceDelete');
+Route::resource('/exam-set-competency-units', ExamSetCompetencyUnitController::class)->names('exam-set-competency-units');
 
 /*
 |--------------------------------------------------------------------------

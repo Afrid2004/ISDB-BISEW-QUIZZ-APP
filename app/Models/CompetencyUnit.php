@@ -20,4 +20,10 @@ class CompetencyUnit extends Model
     {
         return $this->hasMany(Element::class);
     }
+    public function examSets()
+    {
+        return $this->belongsToMany(ExamSet::class, 'exam_set_competency_units')
+            ->withPivot('question_count')
+            ->withTimestamps();
+    }
 }

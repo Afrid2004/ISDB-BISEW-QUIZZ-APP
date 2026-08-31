@@ -21,22 +21,17 @@ class ExamController extends Controller
             ->with(['course', 'batch'])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
-
                     if (is_numeric($search)) {
                         $q->where('id', $search);
                     } else {
                         $q->where('title', 'like', "%{$search}%")
                             ->orWhere('description', 'like', "%{$search}%")
-
                             ->orWhereHas('course', function ($courseQuery) use ($search) {
-                                $courseQuery
-                                    ->where('name', 'like', "%{$search}%")
+                                $courseQuery->where('name', 'like', "%{$search}%")
                                     ->orWhere('code', 'like', "%{$search}%");
                             })
-
                             ->orWhereHas('batch', function ($batchQuery) use ($search) {
-                                $batchQuery
-                                    ->where('name', 'like', "%{$search}%")
+                                $batchQuery->where('name', 'like', "%{$search}%")
                                     ->orWhere('batch_number', 'like', "%{$search}%");
                             });
                     }
@@ -76,29 +71,21 @@ class ExamController extends Controller
         $request->validate([
             'course_id' => [
                 'required',
-                Rule::exists('courses', 'id')
-                    ->where('is_active', true)
-                    ->whereNull('deleted_at'),
+                Rule::exists('courses', 'id')->where('is_active', true)->whereNull('deleted_at'),
             ],
-
             'batch_id' => [
                 'required',
-                Rule::exists('batches', 'id')
-                    ->where('is_active', true)
-                    ->whereNull('deleted_at'),
+                Rule::exists('batches', 'id')->where('is_active', true)->whereNull('deleted_at'),
             ],
-
             'title' => [
                 'required',
                 'string',
                 'max:255',
             ],
-
             'description' => [
                 'nullable',
                 'string',
             ],
-
             'is_active' => [
                 'nullable',
                 'boolean',
@@ -106,36 +93,22 @@ class ExamController extends Controller
         ]);
 
         // Make sure selected batch belongs to selected course
-        $batchExists = Batch::query()
-            ->where('id', $request->batch_id)
-            ->where('course_id', $request->course_id)
-            ->where('is_active', true)
-            ->whereNull('deleted_at')
-            ->exists();
+        $batchExists = Batch::query()->where('id', $request->batch_id)->where('course_id', $request->course_id)->where('is_active', true)->whereNull('deleted_at')->exists();
 
         if (!$batchExists) {
-            return back()
-                ->withErrors([
-                    'batch_id' => 'The selected batch does not belong to the selected course.',
-                ])
-                ->withInput();
+            return back()->withErrors(['batch_id' => 'The selected batch does not belong to the selected course.'])->withInput();
         }
 
         $exam = new Exam();
-
         $exam->course_id = $request->course_id;
         $exam->batch_id = $request->batch_id;
         $exam->title = $request->title;
         $exam->description = $request->description;
-
         // Checkbox checked = true, unchecked = false
         $exam->is_active = $request->boolean('is_active');
-
         $exam->save();
 
-        return redirect()
-            ->route('exams.index')
-            ->with('success', 'Exam created successfully.');
+        return redirect()->route('exams.index')->with('success', 'Exam created successfully.');
     }
 
     /**
@@ -143,10 +116,7 @@ class ExamController extends Controller
      */
     public function show(Exam $exam)
     {
-        $exam->load([
-            'course',
-            'batch',
-        ]);
+        $exam->load(['course', 'batch']);
 
         return view('exams.show', compact('exam'));
     }
@@ -169,11 +139,7 @@ class ExamController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('exams.edit', compact(
-            'exam',
-            'courses',
-            'batches'
-        ));
+        return view('exams.edit', compact('exam', 'courses', 'batches'));
     }
 
     /**
@@ -189,29 +155,21 @@ class ExamController extends Controller
         $request->validate([
             'course_id' => [
                 'required',
-                Rule::exists('courses', 'id')
-                    ->where('is_active', true)
-                    ->whereNull('deleted_at'),
+                Rule::exists('courses', 'id')->where('is_active', true)->whereNull('deleted_at'),
             ],
-
             'batch_id' => [
                 'required',
-                Rule::exists('batches', 'id')
-                    ->where('is_active', true)
-                    ->whereNull('deleted_at'),
+                Rule::exists('batches', 'id')->where('is_active', true)->whereNull('deleted_at'),
             ],
-
             'title' => [
                 'required',
                 'string',
                 'max:255',
             ],
-
             'description' => [
                 'nullable',
                 'string',
             ],
-
             'is_active' => [
                 'nullable',
                 'boolean',
@@ -219,34 +177,21 @@ class ExamController extends Controller
         ]);
 
         // Make sure selected batch belongs to selected course
-        $batchExists = Batch::query()
-            ->where('id', $request->batch_id)
-            ->where('course_id', $request->course_id)
-            ->where('is_active', true)
-            ->whereNull('deleted_at')
-            ->exists();
+        $batchExists = Batch::query()->where('id', $request->batch_id)->where('course_id', $request->course_id)->where('is_active', true)->whereNull('deleted_at')->exists();
 
         if (!$batchExists) {
-            return back()
-                ->withErrors([
-                    'batch_id' => 'The selected batch does not belong to the selected course.',
-                ])
-                ->withInput();
+            return back()->withErrors(['batch_id' => 'The selected batch does not belong to the selected course.'])->withInput();
         }
 
         $exam->course_id = $request->course_id;
         $exam->batch_id = $request->batch_id;
         $exam->title = $request->title;
         $exam->description = $request->description;
-
         // Checkbox checked = true, unchecked = false
         $exam->is_active = $request->boolean('is_active');
-
         $exam->update();
 
-        return redirect()
-            ->route('exams.index')
-            ->with('success', 'Exam updated successfully.');
+        return redirect()->route('exams.index')->with('success', 'Exam updated successfully.');
     }
 
     /**
@@ -254,12 +199,7 @@ class ExamController extends Controller
      */
     public function getBatchesByCourse($courseId)
     {
-        $batches = Batch::query()
-            ->where('course_id', $courseId)
-            ->where('is_active', true)
-            ->whereNull('deleted_at')
-            ->orderBy('name')
-            ->get();
+        $batches = Batch::query()->where('course_id', $courseId)->where('is_active', true)->whereNull('deleted_at')->orderBy('name')->get();
 
         return response()->json($batches);
     }
@@ -271,9 +211,7 @@ class ExamController extends Controller
     {
         $exam->delete();
 
-        return redirect()
-            ->route('exams.index')
-            ->with('success', 'Exam deleted successfully.');
+        return redirect()->route('exams.index')->with('success', 'Exam deleted successfully.');
     }
 
     /**
@@ -288,23 +226,18 @@ class ExamController extends Controller
             ->with(['course', 'batch'])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
-
                     if (is_numeric($search)) {
                         $q->where('id', $search);
                     }
 
                     $q->orWhere('title', 'like', "%{$search}%")
                         ->orWhere('description', 'like', "%{$search}%")
-
                         ->orWhereHas('course', function ($courseQuery) use ($search) {
-                            $courseQuery
-                                ->where('name', 'like', "%{$search}%")
+                            $courseQuery->where('name', 'like', "%{$search}%")
                                 ->orWhere('code', 'like', "%{$search}%");
                         })
-
                         ->orWhereHas('batch', function ($batchQuery) use ($search) {
-                            $batchQuery
-                                ->where('name', 'like', "%{$search}%")
+                            $batchQuery->where('name', 'like', "%{$search}%")
                                 ->orWhere('batch_number', 'like', "%{$search}%");
                         });
                 });
@@ -322,12 +255,9 @@ class ExamController extends Controller
     public function restoreExams(int $id)
     {
         $exam = Exam::withTrashed()->findOrFail($id);
-
         $exam->restore();
 
-        return redirect()
-            ->route('exams.deleted')
-            ->with('success', 'Exam restored successfully.');
+        return redirect()->route('exams.deleted')->with('success', 'Exam restored successfully.');
     }
 
     /**
@@ -336,11 +266,8 @@ class ExamController extends Controller
     public function forceDelete(int $id)
     {
         $exam = Exam::withTrashed()->findOrFail($id);
-
         $exam->forceDelete();
 
-        return redirect()
-            ->route('exams.deleted')
-            ->with('success', 'Exam permanently deleted.');
+        return redirect()->route('exams.deleted')->with('success', 'Exam permanently deleted.');
     }
 }

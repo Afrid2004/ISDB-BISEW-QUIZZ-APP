@@ -1,0 +1,128 @@
+<div class="space-y-6">
+
+    {{-- Exam Set --}}
+    <div>
+        <label for="exam_set_id" class="mb-2 block text-sm font-semibold text-slate-700">
+            Exam Set
+            <span class="text-red-500">*</span>
+        </label>
+
+        <select name="exam_set_id" id="exam_set_id"
+            class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">
+            <option value="">
+                Select an exam set
+            </option>
+
+            @foreach ($examSets ?? [] as $examSetItem)
+                <option value="{{ $examSetItem->id }}"
+                    {{ old('exam_set_id', $examSetCompetencyUnit->exam_set_id ?? '') == $examSetItem->id ? 'selected' : '' }}>
+                    {{ $examSetItem->name }}
+                    @if ($examSetItem->exam)
+                        — {{ $examSetItem->exam->title }}
+                    @endif
+                </option>
+            @endforeach
+        </select>
+
+        <p class="mt-1.5 text-xs text-slate-400">
+            Select the exam set to which this competency unit belongs.
+        </p>
+
+        @error('exam_set_id')
+            <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
+        @enderror
+    </div>
+
+
+    {{-- Competency Unit --}}
+    <div>
+        <label for="competency_unit_id" class="mb-2 block text-sm font-semibold text-slate-700">
+            Competency Unit
+            <span class="text-red-500">*</span>
+        </label>
+
+        <select name="competency_unit_id" id="competency_unit_id"
+            class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">
+            <option value="">
+                Select a competency unit
+            </option>
+
+            @foreach ($competencyUnits ?? [] as $competencyUnit)
+                <option value="{{ $competencyUnit->id }}"
+                    {{ old('competency_unit_id', $examSetCompetencyUnit->competency_unit_id ?? '') == $competencyUnit->id ? 'selected' : '' }}>
+                    {{ $competencyUnit->code }} — {{ $competencyUnit->name }}
+                    @if ($competencyUnit->module)
+                        ({{ $competencyUnit->module->name }})
+                    @endif
+                </option>
+            @endforeach
+        </select>
+
+        <p class="mt-1.5 text-xs text-slate-400">
+            Select the competency unit for this exam set.
+        </p>
+
+        @error('competency_unit_id')
+            <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
+        @enderror
+    </div>
+
+
+    {{-- Question Count --}}
+    <div>
+        <label for="question_count" class="mb-2 block text-sm font-semibold text-slate-700">
+            Question Count
+            <span class="text-red-500">*</span>
+        </label>
+
+        <input type="number" name="question_count" id="question_count" min="1"
+            value="{{ old('question_count', $examSetCompetencyUnit->question_count ?? '') }}" placeholder="e.g. 10"
+            class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">
+
+        <p class="mt-1.5 text-xs text-slate-400">
+            Enter the number of questions to be taken from this competency unit.
+        </p>
+
+        @error('question_count')
+            <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
+        @enderror
+    </div>
+
+
+    {{-- Active --}}
+    <div class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-4">
+        <div class="flex items-center justify-between gap-4">
+
+            <div>
+                <label for="is_active" class="block text-sm font-semibold text-slate-700">
+                    Active
+                </label>
+
+                <p class="mt-1 text-xs text-slate-400">
+                    Make this competency unit assignment active.
+                </p>
+            </div>
+
+            <label class="relative inline-flex cursor-pointer items-center">
+
+                <input type="hidden" name="is_active" value="0">
+
+                <input type="checkbox" name="is_active" id="is_active" value="1" class="peer sr-only"
+                    {{ old('is_active', $examSetCompetencyUnit->is_active ?? true) ? 'checked' : '' }}>
+
+                <div
+                    class="h-6 w-11 rounded-full bg-slate-300 transition peer-checked:bg-primary
+                        after:absolute after:left-[2px] after:top-[2px]
+                        after:h-5 after:w-5 after:rounded-full
+                        after:border after:border-slate-300 after:bg-white
+                        after:transition-all
+                        peer-checked:after:translate-x-full
+                        peer-checked:after:border-white">
+                </div>
+
+            </label>
+
+        </div>
+    </div>
+
+</div>

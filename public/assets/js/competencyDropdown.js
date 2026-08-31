@@ -4,31 +4,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const module = document.getElementById("module_id");
     const preview = document.getElementById("competency_unit_preview");
 
-    // ---------------------------------------------------------
     // Existing Competency Unit ID
-    // ---------------------------------------------------------
-    // Edit page হলে HTML থেকে ID নেওয়া হবে
     const competencyUnitId =
         document.getElementById("competency_unit_id")?.value || null;
 
-    // ---------------------------------------------------------
-    // Check Elements
-    // ---------------------------------------------------------
-
+    // Check elements
     if (!prefix || !course || !module || !preview) {
         console.error("Competency Unit form elements not found.");
         return;
     }
 
-    // ---------------------------------------------------------
-    // Load Modules
-    // ---------------------------------------------------------
-
+    // Load modules
     function loadModules(courseId, selectedModuleId = null) {
-        module.innerHTML = `
-            <option value="">Select Module</option>
-        `;
-
+        module.innerHTML = `<option value="">Select Module</option>`;
         module.disabled = true;
 
         if (!courseId) {
@@ -43,15 +31,12 @@ document.addEventListener("DOMContentLoaded", function () {
                         `Failed to load modules. Status: ${response.status}`,
                     );
                 }
-
                 return response.json();
             })
             .then((data) => {
                 data.forEach((item) => {
                     const option = document.createElement("option");
-
                     option.value = item.id;
-
                     option.textContent = `Module ${item.module_number} - ${item.name}`;
 
                     // Edit page existing module
@@ -67,77 +52,41 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 module.disabled = false;
 
-                // -------------------------------------------------
-                // Generate code after module is selected
-                // -------------------------------------------------
-
                 if (module.value) {
                     generateCode();
                 }
             })
             .catch((error) => {
                 console.error("Error loading modules:", error);
-
-                module.innerHTML = `
-                    <option value="">
-                        Failed to load modules
-                    </option>
-                `;
-
+                module.innerHTML = `<option value="">Failed to load modules</option>`;
                 module.disabled = true;
-
                 preview.textContent = "-";
             });
     }
 
-    // ---------------------------------------------------------
-    // Generate Competency Unit Code
-    // ---------------------------------------------------------
-
+    // Generate competency unit code
     function generateCode() {
-        // Course / Module না থাকলে
         if (!course.value || !module.value) {
             preview.textContent = "-";
-
             return;
         }
 
-        // -----------------------------------------------------
-        // Course Code
-        // -----------------------------------------------------
-
         const courseText = course.options[course.selectedIndex].textContent;
-
         const courseCode = courseText.split(" - ")[0].trim();
 
-        // -----------------------------------------------------
-        // Module Number
-        // -----------------------------------------------------
-
         const moduleText = module.options[module.selectedIndex].textContent;
-
         const moduleMatch = moduleText.match(/\d+/);
 
         if (!moduleMatch) {
             console.error("Module number not found:", moduleText);
-
             preview.textContent = "-";
-
             return;
         }
 
         const moduleNumber = moduleMatch[0];
-
-        // -----------------------------------------------------
-        // API URL
-        // -----------------------------------------------------
-
         let url = `/competency-units/next-serial/${module.value}`;
 
-        // -----------------------------------------------------
-        // Edit Page
-        // -----------------------------------------------------
-
+        // Edit page
         if (competencyUnitId) {
             url = `/competency-units/edit-next-serial/${module.value}/${competencyUnitId}`;
         }
@@ -147,10 +96,6 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("Module Number:", moduleNumber);
         console.log("API URL:", url);
 
-        // -----------------------------------------------------
-        // Get Next Serial
-        // -----------------------------------------------------
-
         fetch(url)
             .then((response) => {
                 if (!response.ok) {
@@ -158,66 +103,40 @@ document.addEventListener("DOMContentLoaded", function () {
                         `Failed to generate serial. Status: ${response.status}`,
                     );
                 }
-
                 return response.json();
             })
             .then((data) => {
                 console.log("Serial Response:", data);
-
                 const serial = String(data.serial).padStart(2, "0");
-
-                // -------------------------------------------------
-                // Final Code
-                // -------------------------------------------------
-
                 const finalCode = `${prefix.value.toUpperCase()}${courseCode}${moduleNumber}${serial}`;
-
                 preview.textContent = finalCode;
-
                 console.log("Generated Code:", finalCode);
             })
             .catch((error) => {
                 console.error("Error generating competency unit code:", error);
-
                 preview.textContent = "-";
             });
     }
 
-    // ---------------------------------------------------------
-    // Course Change
-    // ---------------------------------------------------------
-
+    // Course change
     course.addEventListener("change", function () {
-        // Reset preview
         preview.textContent = "-";
-
-        // Course change করলে নতুন module load হবে
         loadModules(this.value);
     });
 
-    // ---------------------------------------------------------
-    // Module Change
-    // ---------------------------------------------------------
-
+    // Module change
     module.addEventListener("change", function () {
         generateCode();
     });
 
-    // ---------------------------------------------------------
-    // Prefix Change
-    // ---------------------------------------------------------
-
+    // Prefix change
     prefix.addEventListener("input", function () {
         generateCode();
     });
 
-    // ---------------------------------------------------------
-    // Edit Page Initial Load
-    // ---------------------------------------------------------
-
+    // Edit page initial load
     if (course.value) {
         const selectedModuleId = module.dataset.selectedModule || null;
-
         loadModules(course.value, selectedModuleId);
     }
 });
