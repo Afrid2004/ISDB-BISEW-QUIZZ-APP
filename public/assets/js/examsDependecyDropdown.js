@@ -2,28 +2,30 @@ document.addEventListener("DOMContentLoaded", function () {
     const dependencies = [
         {
             source: "course_id",
-            target: "module_id",
-            url: (id) => `/questions/modules/${id}`,
-            placeholder: "Select Module",
-        },
-        {
-            source: "module_id",
-            target: "competency_unit_id",
-            url: (id) => `/questions/competency-units/${id}`,
-            placeholder: "Select Competency Unit",
+            target: "batch_id",
+            url: (id) => `/exams/batches/${id}`,
+            placeholder: "Select Batch",
         },
     ];
 
     dependencies.forEach(function (dependency) {
         const sourceSelect = document.getElementById(dependency.source);
         const targetSelect = document.getElementById(dependency.target);
+
         if (!sourceSelect || !targetSelect) {
             return;
         }
+
         sourceSelect.addEventListener("change", async function () {
             const selectedId = this.value;
-            // Reset target select
-            targetSelect.innerHTML = `<option value="">${dependency.placeholder}</option>`;
+
+            // Reset batch dropdown
+            targetSelect.innerHTML = `
+                <option value="">${dependency.placeholder}</option>
+            `;
+
+            // Disable if no course selected
+            targetSelect.disabled = true;
 
             if (!selectedId) {
                 return;
@@ -33,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const response = await fetch(dependency.url(selectedId));
 
                 if (!response.ok) {
-                    throw new Error("Failed to fetch data.");
+                    throw new Error("Failed to fetch batches.");
                 }
 
                 const data = await response.json();
@@ -46,8 +48,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     targetSelect.appendChild(option);
                 });
+
+                // Enable batch dropdown
+                targetSelect.disabled = false;
             } catch (error) {
-                console.error("Error loading data:", error);
+                console.error("Error loading batches:", error);
             }
         });
     });

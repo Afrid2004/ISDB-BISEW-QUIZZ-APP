@@ -9,6 +9,9 @@ use App\Http\Controllers\TrainingCenterController;
 use App\Http\Controllers\BatchController;
 use App\Http\Controllers\CompetencyUnitController;
 use App\Http\Controllers\ElementController;
+use App\Http\Controllers\ExamController;
+use App\Http\Controllers\ExamSetCompetencyUnitController;
+use App\Http\Controllers\ExamSetController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -53,6 +56,24 @@ Route::get('/questions/competency-units/{moduleId}', [QuestionController::class,
     ->name('questions.competency-units');
 Route::resource("/questions", QuestionController::class);
 
+// Exam Controller
+Route::get('/exams/batches/{courseId}', [ExamController::class, 'getBatchesByCourse'])->name('exams.batches');
+Route::get('/exams/deleted', [ExamController::class, 'deletedExams'])->name('exams.deleted');
+Route::patch('/exams/{id}/restore', [ExamController::class, 'restoreExams'])->name('exams.restore');
+Route::delete('/exams/{id}/delete', [ExamController::class, 'forceDelete'])->name('exams.forceDelete');
+Route::resource('/exams', ExamController::class);
+
+// Exam Set Controller
+Route::get('/exam-sets/deleted', [ExamSetController::class, 'deletedSets'])->name('exam-sets.deleted');
+Route::patch('/exam-sets/{id}/restore', [ExamSetController::class, 'restoreSet'])->name('exam-sets.restore');
+Route::delete('/exam-sets/{id}/force-delete', [ExamSetController::class, 'forceDelete'])->name('exam-sets.forceDelete');
+Route::resource('/exam-sets', ExamSetController::class)->names('exam-sets');
+
+// Exam Set Competency Unit Controller
+Route::get('/exam-set-competency-units/deleted', [ExamSetCompetencyUnitController::class, 'deleted'])->name('exam-set-competency-units.deleted');
+Route::patch('/exam-set-competency-units/{id}/restore', [ExamSetCompetencyUnitController::class, 'restore'])->name('exam-set-competency-units.restore');
+Route::delete('/exam-set-competency-units/{id}/force-delete', [ExamSetCompetencyUnitController::class, 'forceDelete'])->name('exam-set-competency-units.forceDelete');
+Route::resource('/exam-set-competency-units', ExamSetCompetencyUnitController::class)->names('exam-set-competency-units');
 
 /*
 |--------------------------------------------------------------------------
