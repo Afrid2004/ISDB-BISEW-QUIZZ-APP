@@ -1,31 +1,108 @@
-<div class="space-y-6">
+<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 
-    {{-- Exam Set --}}
+    {{-- Batch --}}
     <div>
-        <label for="exam_set_id" class="mb-2 block text-sm font-semibold text-slate-700">
-            Exam Set
-            <span class="text-red-500">*</span>
+        <label for="batch_id" class="mb-2 block text-sm font-semibold text-slate-700">
+            Batch <span class="text-red-500">*</span>
         </label>
 
-        <select name="exam_set_id" id="exam_set_id"
-            class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">
-            <option value="">
-                Select an exam set
-            </option>
+        <select
+            name="batch_id"
+            id="batch_id"
+            class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+        >
+            <option value="">Select Batch</option>
 
-            @foreach ($examSets ?? [] as $examSetItem)
-                <option value="{{ $examSetItem->id }}"
-                    {{ old('exam_set_id', $examSetCompetencyUnit->exam_set_id ?? '') == $examSetItem->id ? 'selected' : '' }}>
-                    {{ $examSetItem->name }}
-                    @if ($examSetItem->exam)
-                        — {{ $examSetItem->exam->title }}
-                    @endif
+            @foreach ($batches ?? [] as $batch)
+                <option
+                    value="{{ $batch->id }}"
+                    {{ old('batch_id', $examSetCompetencyUnit->examSet->exam->batch_id ?? '') == $batch->id ? 'selected' : '' }}
+                >
+                    {{ $batch->name }}
                 </option>
             @endforeach
         </select>
 
         <p class="mt-1.5 text-xs text-slate-400">
-            Select the exam set to which this competency unit belongs.
+            Select the batch for the exam and module.
+        </p>
+
+        @error('batch_id')
+            <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
+        @enderror
+    </div>
+
+
+    {{-- Module --}}
+    <div>
+        <label for="module_id" class="mb-2 block text-sm font-semibold text-slate-700">
+            Module <span class="text-red-500">*</span>
+        </label>
+
+        <select
+            name="module_id"
+            id="module_id"
+            disabled
+            data-selected="{{ old('module_id', $examSetCompetencyUnit->competencyUnit->module_id ?? '') }}"
+            class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+        >
+            <option value="">Select Module</option>
+        </select>
+
+        <p class="mt-1.5 text-xs text-slate-400">
+            Modules will be loaded based on the selected batch course.
+        </p>
+
+        @error('module_id')
+            <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
+        @enderror
+    </div>
+
+
+    {{-- Exam --}}
+    <div>
+        <label for="exam_id" class="mb-2 block text-sm font-semibold text-slate-700">
+            Exam <span class="text-red-500">*</span>
+        </label>
+
+        <select
+            name="exam_id"
+            id="exam_id"
+            disabled
+            data-selected="{{ old('exam_id', $examSetCompetencyUnit->examSet->exam_id ?? '') }}"
+            class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+        >
+            <option value="">Select Exam</option>
+        </select>
+
+        <p class="mt-1.5 text-xs text-slate-400">
+            Exams will be loaded based on the selected batch.
+        </p>
+
+        @error('exam_id')
+            <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
+        @enderror
+    </div>
+
+
+    {{-- Exam Set --}}
+    <div>
+        <label for="exam_set_id" class="mb-2 block text-sm font-semibold text-slate-700">
+            Exam Set <span class="text-red-500">*</span>
+        </label>
+
+        <select
+            name="exam_set_id"
+            id="exam_set_id"
+            disabled
+            data-selected="{{ old('exam_set_id', $examSetCompetencyUnit->exam_set_id ?? '') }}"
+            class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+        >
+            <option value="">Select Exam Set</option>
+        </select>
+
+        <p class="mt-1.5 text-xs text-slate-400">
+            Exam sets will be loaded after selecting an exam.
         </p>
 
         @error('exam_set_id')
@@ -37,29 +114,21 @@
     {{-- Competency Unit --}}
     <div>
         <label for="competency_unit_id" class="mb-2 block text-sm font-semibold text-slate-700">
-            Competency Unit
-            <span class="text-red-500">*</span>
+            Competency Unit <span class="text-red-500">*</span>
         </label>
 
-        <select name="competency_unit_id" id="competency_unit_id"
-            class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">
-            <option value="">
-                Select a competency unit
-            </option>
-
-            @foreach ($competencyUnits ?? [] as $competencyUnit)
-                <option value="{{ $competencyUnit->id }}"
-                    {{ old('competency_unit_id', $examSetCompetencyUnit->competency_unit_id ?? '') == $competencyUnit->id ? 'selected' : '' }}>
-                    {{ $competencyUnit->code }} — {{ $competencyUnit->name }}
-                    @if ($competencyUnit->module)
-                        ({{ $competencyUnit->module->name }})
-                    @endif
-                </option>
-            @endforeach
+        <select
+            name="competency_unit_id"
+            id="competency_unit_id"
+            disabled
+            data-selected="{{ old('competency_unit_id', $examSetCompetencyUnit->competency_unit_id ?? '') }}"
+            class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+        >
+            <option value="">Select Competency Unit</option>
         </select>
 
         <p class="mt-1.5 text-xs text-slate-400">
-            Select the competency unit for this exam set.
+            Competency units will be loaded based on the selected module.
         </p>
 
         @error('competency_unit_id')
@@ -71,13 +140,18 @@
     {{-- Question Count --}}
     <div>
         <label for="question_count" class="mb-2 block text-sm font-semibold text-slate-700">
-            Question Count
-            <span class="text-red-500">*</span>
+            Question Count <span class="text-red-500">*</span>
         </label>
 
-        <input type="number" name="question_count" id="question_count" min="1"
-            value="{{ old('question_count', $examSetCompetencyUnit->question_count ?? '') }}" placeholder="e.g. 10"
-            class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">
+        <input
+            type="number"
+            name="question_count"
+            id="question_count"
+            min="1"
+            value="{{ old('question_count', $examSetCompetencyUnit->question_count ?? '') }}"
+            placeholder="e.g. 10"
+            class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+        >
 
         <p class="mt-1.5 text-xs text-slate-400">
             Enter the number of questions to be taken from this competency unit.
@@ -105,20 +179,22 @@
 
             <label class="relative inline-flex cursor-pointer items-center">
 
-                <input type="hidden" name="is_active" value="0">
+                <input
+                    type="hidden"
+                    name="is_active"
+                    value="0"
+                >
 
-                <input type="checkbox" name="is_active" id="is_active" value="1" class="peer sr-only"
-                    {{ old('is_active', $examSetCompetencyUnit->is_active ?? true) ? 'checked' : '' }}>
+                <input
+                    type="checkbox"
+                    name="is_active"
+                    id="is_active"
+                    value="1"
+                    class="peer sr-only"
+                    {{ old('is_active', $examSetCompetencyUnit->is_active ?? true) ? 'checked' : '' }}
+                >
 
-                <div
-                    class="h-6 w-11 rounded-full bg-slate-300 transition peer-checked:bg-primary
-                        after:absolute after:left-[2px] after:top-[2px]
-                        after:h-5 after:w-5 after:rounded-full
-                        after:border after:border-slate-300 after:bg-white
-                        after:transition-all
-                        peer-checked:after:translate-x-full
-                        peer-checked:after:border-white">
-                </div>
+                <div class="h-6 w-11 rounded-full bg-slate-300 transition peer-checked:bg-primary after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-slate-300 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
 
             </label>
 
