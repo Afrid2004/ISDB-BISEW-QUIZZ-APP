@@ -181,7 +181,7 @@ class ExamSetController extends Controller
     /**
      * Display all deleted exam sets.
      */
-    public function deleted(Request $request)
+    public function deletedSets(Request $request)
     {
         $search = $request->input('search');
         $examSets = ExamSet::query()->onlyTrashed()->with('exam')->when($search, function ($query, $search) {
@@ -201,20 +201,28 @@ class ExamSetController extends Controller
     /**
      * Restore deleted exam set.
      */
-    public function restore(ExamSet $examSet)
+    public function restoreSet($id)
     {
+        $examSet = ExamSet::withTrashed()->findOrFail($id);
+
         $examSet->restore();
 
-        return redirect()->route('exam-sets.deleted')->with('success', 'Exam set restored successfully.');
+        return redirect()
+            ->route('exam-sets.deleted')
+            ->with('success', 'Exam set restored successfully.');
     }
 
     /**
      * Permanently delete exam set.
      */
-    public function forceDelete(ExamSet $examSet)
+    public function forceDelete($id)
     {
+        $examSet = ExamSet::withTrashed()->findOrFail($id);
+
         $examSet->forceDelete();
 
-        return redirect()->route('exam-sets.deleted')->with('success', 'Exam set permanently deleted.');
+        return redirect()
+            ->route('exam-sets.deleted')
+            ->with('success', 'Exam set permanently deleted.');
     }
 }

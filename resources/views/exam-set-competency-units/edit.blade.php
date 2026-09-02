@@ -112,3 +112,7 @@
 
     </div>
 @endsection
+
+@push('scripts')
+    <script src="{{ asset('assets/js/examSetCompetencyUnit.js') }}"></script>
+@endpush

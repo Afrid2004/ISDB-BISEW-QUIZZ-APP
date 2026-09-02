@@ -3,13 +3,13 @@
 @section('content')
     <div class="min-h-screen bg-[#f7f8fc]">
 
-
         {{-- Page Header --}}
         <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-2xl font-bold text-slate-800">
                     Deleted Competency Units
                 </h1>
+
                 <p class="mt-1 text-sm text-slate-500">
                     Manage your deleted competency units and restore or permanently remove them.
                 </p>
@@ -17,8 +17,10 @@
 
             {{-- Back Button --}}
             <a href="{{ route('exam-set-competency-units.index') }}"
-                class="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-primary/30 hover:bg-primary/10 hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer">
+                class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-primary/30 hover:bg-primary/10 hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+
                 <i class="bi bi-arrow-left text-sm"></i>
+
                 Back to Competency Units
             </a>
         </div>
@@ -27,22 +29,33 @@
         <div class="overflow-hidden rounded-xl border border-slate-200 bg-white">
 
             {{-- Card Header --}}
-            <x-backend.card-header title="Deleted Items" :count="$competencyUnits->total()" singular="deleted competency unit"
-                plural="deleted competency units" action="{{ route('exam-set-competency-units.deleted') }}"
-                placeholder="Search deleted competency units..." />
+            <x-backend.card-header
+                title="Deleted Items"
+                :count="$examSetCompetencyUnits->total()"
+                singular="deleted competency unit"
+                plural="deleted competency units"
+                action="{{ route('exam-set-competency-units.deleted') }}"
+                placeholder="Search deleted competency units..."
+            />
 
             {{-- Alerts --}}
             <x-_alerts class="m-3" />
 
             {{-- Desktop Table --}}
             <div class="hidden overflow-x-auto md:block">
+
                 <table class="w-full min-w-[1100px] text-left">
 
                     {{-- Table Header --}}
                     <thead class="border-b border-slate-100 bg-slate-50/60">
                         <tr>
+
                             <th class="px-5 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">
                                 Competency Unit
+                            </th>
+
+                            <th class="px-5 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">
+                                Module
                             </th>
 
                             <th class="px-5 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">
@@ -50,7 +63,11 @@
                             </th>
 
                             <th class="px-5 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">
-                                Description
+                                Exam
+                            </th>
+
+                            <th class="px-5 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">
+                                Question Count
                             </th>
 
                             <th class="px-5 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">
@@ -64,72 +81,155 @@
                             <th class="px-5 py-3 text-center text-[11px] font-bold uppercase tracking-wide text-slate-400">
                                 Actions
                             </th>
+
                         </tr>
                     </thead>
 
                     {{-- Table Body --}}
                     <tbody class="divide-y divide-slate-100">
 
-                        @forelse ($competencyUnits as $competencyUnit)
+                        @forelse ($examSetCompetencyUnits as $assignment)
+
                             <tr class="transition hover:bg-red-50/30">
 
                                 {{-- Competency Unit --}}
                                 <td class="px-5 py-4">
+
                                     <div class="flex items-center gap-3">
 
                                         <div
-                                            class="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50 text-sm font-bold text-red-500">
+                                            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-50 text-sm font-bold text-red-500">
+
                                             <i class="bi bi-diagram-3"></i>
+
                                         </div>
 
-                                        <span class="text-sm font-semibold text-slate-700">
-                                            {{ $competencyUnit->title }}
-                                        </span>
+                                        <div>
+                                            <p class="text-sm font-semibold text-slate-700">
+                                                {{ $assignment->competencyUnit?->code ?? 'N/A' }}
+                                            </p>
+
+                                            @if ($assignment->competencyUnit)
+                                                <p class="mt-1 text-xs text-slate-400">
+                                                    {{ $assignment->competencyUnit->prefix ?? '' }}
+                                                    @if ($assignment->competencyUnit->serial)
+                                                        - {{ $assignment->competencyUnit->serial }}
+                                                    @endif
+                                                </p>
+                                            @endif
+                                        </div>
 
                                     </div>
+
                                 </td>
 
-                                {{-- Exam Set --}}
+                                {{-- Module --}}
                                 <td class="px-5 py-4">
 
-                                    @if ($competencyUnit->examSet)
+                                    @if ($assignment->competencyUnit?->module)
                                         <div>
                                             <p class="text-sm font-medium text-slate-600">
-                                                {{ $competencyUnit->examSet->title }}
+                                                {{ $assignment->competencyUnit->module->name }}
                                             </p>
+
+                                            @if ($assignment->competencyUnit->module->module_number)
+                                                <p class="mt-1 text-xs text-slate-400">
+                                                    Module {{ $assignment->competencyUnit->module->module_number }}
+                                                </p>
+                                            @endif
                                         </div>
                                     @else
                                         <p class="text-sm italic text-slate-400">
-                                            No Exam Set
+                                            No Module
                                         </p>
                                     @endif
 
                                 </td>
 
-                                {{-- Description --}}
-                                <td class="max-w-md px-5 py-4">
-                                    <p class="truncate text-sm text-slate-500">
-                                        {{ $competencyUnit->description ?? 'No description available' }}
-                                    </p>
+                                {{-- Exam Set --}}
+                                <td class="px-5 py-4">
+
+                                    @if ($assignment->examSet)
+
+                                        <div>
+                                            <p class="text-sm font-medium text-slate-600">
+                                                {{ $assignment->examSet->name }}
+                                            </p>
+
+                                            @if ($assignment->examSet->set_number)
+                                                <p class="mt-1 text-xs text-slate-400">
+                                                    Set {{ $assignment->examSet->set_number }}
+                                                </p>
+                                            @endif
+                                        </div>
+
+                                    @else
+
+                                        <p class="text-sm italic text-slate-400">
+                                            No Exam Set
+                                        </p>
+
+                                    @endif
+
+                                </td>
+
+                                {{-- Exam --}}
+                                <td class="px-5 py-4">
+
+                                    @if ($assignment->examSet?->exam)
+
+                                        <p class="max-w-[220px] truncate text-sm font-medium text-slate-600"
+                                            title="{{ $assignment->examSet->exam->title }}">
+
+                                            {{ $assignment->examSet->exam->title }}
+
+                                        </p>
+
+                                    @else
+
+                                        <p class="text-sm italic text-slate-400">
+                                            No Exam
+                                        </p>
+
+                                    @endif
+
+                                </td>
+
+                                {{-- Question Count --}}
+                                <td class="px-5 py-4">
+
+                                    <span
+                                        class="inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+
+                                        {{ $assignment->question_count }}
+
+                                    </span>
+
                                 </td>
 
                                 {{-- Deleted At --}}
                                 <td class="px-5 py-4">
 
-                                    @if ($competencyUnit->deleted_at)
+                                    @if ($assignment->deleted_at)
+
                                         <div class="flex items-center gap-2 text-sm text-slate-500">
+
                                             <i class="bi bi-calendar3 text-red-400"></i>
 
-                                            {{ $competencyUnit->deleted_at->format('d M, Y') }}
+                                            {{ $assignment->deleted_at->format('d M, Y') }}
+
                                         </div>
 
                                         <p class="mt-1 text-xs text-slate-400">
-                                            {{ $competencyUnit->deleted_at->format('h:i A') }}
+                                            {{ $assignment->deleted_at->format('h:i A') }}
                                         </p>
+
                                     @else
+
                                         <span class="text-sm text-slate-400">
                                             N/A
                                         </span>
+
                                     @endif
 
                                 </td>
@@ -143,6 +243,7 @@
                                         <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>
 
                                         Deleted
+
                                     </span>
 
                                 </td>
@@ -153,13 +254,16 @@
                                     <div class="flex items-center justify-center gap-2">
 
                                         {{-- Restore --}}
-                                        <form action="{{ route('exam-set-competency-units.restore', $competencyUnit->id) }}"
+                                        <form
+                                            action="{{ route('exam-set-competency-units.restore', $assignment->id) }}"
                                             method="POST">
 
                                             @csrf
                                             @method('PATCH')
 
-                                            <button type="submit" title="Restore Competency Unit"
+                                            <button
+                                                type="submit"
+                                                title="Restore Competency Unit"
                                                 class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-emerald-100 bg-emerald-50 text-emerald-500 transition hover:bg-emerald-100 hover:text-emerald-600">
 
                                                 <i class="bi bi-arrow-counterclockwise text-sm"></i>
@@ -169,14 +273,18 @@
                                         </form>
 
                                         {{-- Permanent Delete --}}
-                                        <form method="POST"
-                                            action="{{ route('exam-set-competency-units.forceDelete', $competencyUnit->id) }}"
-                                            data-item="competency unit permanently" class="delete-form">
+                                        <form
+                                            method="POST"
+                                            action="{{ route('exam-set-competency-units.forceDelete', $assignment->id) }}"
+                                            data-item="competency unit permanently"
+                                            class="delete-form">
 
                                             @csrf
                                             @method('DELETE')
 
-                                            <button type="submit" title="Delete Permanently"
+                                            <button
+                                                type="submit"
+                                                title="Delete Permanently"
                                                 class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-red-100 bg-red-50 text-red-500 transition hover:bg-red-100 hover:text-red-600">
 
                                                 <i class="bi bi-trash3 text-sm"></i>
@@ -194,7 +302,8 @@
                         @empty
 
                             <tr>
-                                <td colspan="6" class="px-5 py-12 text-center">
+
+                                <td colspan="8" class="px-5 py-12 text-center">
 
                                     <div class="flex flex-col items-center">
 
@@ -216,17 +325,22 @@
                                     </div>
 
                                 </td>
+
                             </tr>
+
                         @endforelse
 
                     </tbody>
+
                 </table>
+
             </div>
 
             {{-- Mobile Cards --}}
             <div class="divide-y divide-slate-100 md:hidden">
 
-                @forelse ($competencyUnits as $competencyUnit)
+                @forelse ($examSetCompetencyUnits as $assignment)
+
                     <div class="p-4">
 
                         {{-- Top --}}
@@ -244,17 +358,25 @@
                                 <div class="min-w-0">
 
                                     <h3 class="truncate text-sm font-semibold text-slate-700">
-                                        {{ $competencyUnit->title }}
+
+                                        {{ $assignment->competencyUnit?->code ?? 'N/A' }}
+
                                     </h3>
 
-                                    @if ($competencyUnit->examSet)
+                                    @if ($assignment->competencyUnit?->module)
+
                                         <p class="mt-1 truncate text-xs text-slate-400">
-                                            {{ $competencyUnit->examSet->title }}
+
+                                            {{ $assignment->competencyUnit->module->name }}
+
                                         </p>
+
                                     @else
+
                                         <p class="mt-1 text-xs italic text-slate-400">
-                                            No Exam Set
+                                            No Module
                                         </p>
+
                                     @endif
 
                                 </div>
@@ -273,6 +395,29 @@
 
                         </div>
 
+                        {{-- Module --}}
+                        <div class="mt-4">
+
+                            <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                Module
+                            </p>
+
+                            @if ($assignment->competencyUnit?->module)
+
+                                <p class="mt-1 text-sm font-medium text-slate-600">
+                                    {{ $assignment->competencyUnit->module->name }}
+                                </p>
+
+                            @else
+
+                                <p class="mt-1 text-sm italic text-slate-400">
+                                    No Module
+                                </p>
+
+                            @endif
+
+                        </div>
+
                         {{-- Exam Set --}}
                         <div class="mt-4">
 
@@ -280,49 +425,114 @@
                                 Exam Set
                             </p>
 
-                            @if ($competencyUnit->examSet)
+                            @if ($assignment->examSet)
+
                                 <p class="mt-1 text-sm font-medium text-slate-600">
-                                    {{ $competencyUnit->examSet->title }}
+                                    {{ $assignment->examSet->name }}
                                 </p>
+
+                                @if ($assignment->examSet->set_number)
+
+                                    <p class="mt-1 text-xs text-slate-400">
+                                        Set {{ $assignment->examSet->set_number }}
+                                    </p>
+
+                                @endif
+
                             @else
+
                                 <p class="mt-1 text-sm italic text-slate-400">
                                     No Exam Set
                                 </p>
+
                             @endif
 
                         </div>
 
-                        {{-- Description --}}
-                        @if ($competencyUnit->description)
-                            <p class="mt-4 text-sm leading-6 text-slate-500">
-                                {{ $competencyUnit->description }}
+                        {{-- Exam --}}
+                        <div class="mt-4">
+
+                            <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                Exam
                             </p>
-                        @else
-                            <p class="mt-4 text-sm italic text-slate-400">
-                                No description available
+
+                            @if ($assignment->examSet?->exam)
+
+                                <p class="mt-1 text-sm font-medium text-slate-600">
+                                    {{ $assignment->examSet->exam->title }}
+                                </p>
+
+                            @else
+
+                                <p class="mt-1 text-sm italic text-slate-400">
+                                    No Exam
+                                </p>
+
+                            @endif
+
+                        </div>
+
+                        {{-- Question Count --}}
+                        <div class="mt-4">
+
+                            <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                Question Count
                             </p>
-                        @endif
+
+                            <span
+                                class="mt-1 inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+
+                                {{ $assignment->question_count }}
+
+                            </span>
+
+                        </div>
 
                         {{-- Deleted At --}}
-                        <p class="mt-3 text-xs text-slate-400">
-                            Deleted
-                            {{ $competencyUnit->deleted_at?->format('d M, Y h:i A') }}
-                        </p>
+                        <div class="mt-4">
+
+                            <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                Deleted At
+                            </p>
+
+                            @if ($assignment->deleted_at)
+
+                                <p class="mt-1 flex items-center gap-2 text-xs text-slate-500">
+
+                                    <i class="bi bi-calendar3 text-red-400"></i>
+
+                                    {{ $assignment->deleted_at->format('d M, Y h:i A') }}
+
+                                </p>
+
+                            @else
+
+                                <p class="mt-1 text-xs text-slate-400">
+                                    N/A
+                                </p>
+
+                            @endif
+
+                        </div>
 
                         {{-- Mobile Actions --}}
                         <div class="mt-4 flex items-center gap-2 border-t border-slate-100 pt-4">
 
                             {{-- Restore --}}
-                            <form action="{{ route('exam-set-competency-units.restore', $competencyUnit->id) }}"
-                                method="POST" class="flex-1">
+                            <form
+                                action="{{ route('exam-set-competency-units.restore', $assignment->id) }}"
+                                method="POST"
+                                class="flex-1">
 
                                 @csrf
                                 @method('PATCH')
 
-                                <button type="submit"
+                                <button
+                                    type="submit"
                                     class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-600 transition hover:bg-emerald-100 hover:text-emerald-700">
 
                                     <i class="bi bi-arrow-counterclockwise"></i>
+
                                     Restore
 
                                 </button>
@@ -330,16 +540,21 @@
                             </form>
 
                             {{-- Permanent Delete --}}
-                            <form action="{{ route('exam-set-competency-units.forceDelete', $competencyUnit->id) }}"
-                                method="POST" data-item="competency unit permanently" class="delete-form flex-1">
+                            <form
+                                action="{{ route('exam-set-competency-units.forceDelete', $assignment->id) }}"
+                                method="POST"
+                                data-item="competency unit permanently"
+                                class="delete-form flex-1">
 
                                 @csrf
                                 @method('DELETE')
 
-                                <button type="submit"
+                                <button
+                                    type="submit"
                                     class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-xs font-semibold text-red-500 transition hover:bg-red-100 hover:text-red-600">
 
                                     <i class="bi bi-trash3"></i>
+
                                     Delete Permanently
 
                                 </button>
@@ -356,7 +571,8 @@
 
                         <div class="mb-3 flex justify-center">
 
-                            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
+                            <div
+                                class="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
 
                                 <i class="bi bi-trash3 text-xl text-slate-400"></i>
 
@@ -373,12 +589,14 @@
                         </p>
 
                     </div>
+
                 @endforelse
 
             </div>
 
             {{-- Pagination --}}
-            @if ($competencyUnits->hasPages())
+            @if ($examSetCompetencyUnits->hasPages())
+
                 <div
                     class="flex flex-col gap-4 border-t border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
 
@@ -388,19 +606,19 @@
                         Showing
 
                         <span class="font-semibold text-slate-700">
-                            {{ $competencyUnits->firstItem() }}
+                            {{ $examSetCompetencyUnits->firstItem() }}
                         </span>
 
                         <span class="px-0.5 text-slate-400">–</span>
 
                         <span class="font-semibold text-slate-700">
-                            {{ $competencyUnits->lastItem() }}
+                            {{ $examSetCompetencyUnits->lastItem() }}
                         </span>
 
                         of
 
                         <span class="font-semibold text-slate-700">
-                            {{ $competencyUnits->total() }}
+                            {{ $examSetCompetencyUnits->total() }}
                         </span>
 
                         deleted competency units
@@ -409,13 +627,15 @@
 
                     {{-- Pagination --}}
                     <div class="overflow-x-auto">
-                        {{ $competencyUnits->onEachSide(1)->links() }}
+                        {{ $examSetCompetencyUnits->onEachSide(1)->links() }}
                     </div>
 
                 </div>
+
             @endif
 
         </div>
+
     </div>
 @endsection
 
