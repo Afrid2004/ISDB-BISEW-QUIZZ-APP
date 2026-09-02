@@ -70,11 +70,22 @@ Route::delete('/exam-sets/{id}/force-delete', [ExamSetController::class, 'forceD
 Route::resource('/exam-sets', ExamSetController::class)->names('exam-sets');
 
 // Exam Set Competency Unit Controller
+
 Route::get('/exam-set-competency-units/deleted', [ExamSetCompetencyUnitController::class, 'deleted'])->name('exam-set-competency-units.deleted');
 Route::patch('/exam-set-competency-units/{id}/restore', [ExamSetCompetencyUnitController::class, 'restore'])->name('exam-set-competency-units.restore');
 Route::delete('/exam-set-competency-units/{id}/force-delete', [ExamSetCompetencyUnitController::class, 'forceDelete'])->name('exam-set-competency-units.forceDelete');
-Route::resource('/exam-set-competency-units', ExamSetCompetencyUnitController::class)->names('exam-set-competency-units');
 
+// Dependency Routes
+Route::get('/exam-set-competency-units/exams', [ExamSetCompetencyUnitController::class, 'getExamsByBatch'])
+    ->name('exam-set-competency-units.exams');
+Route::get('/exam-set-competency-units/modules', [ExamSetCompetencyUnitController::class, 'getModulesByBatch'])
+    ->name('exam-set-competency-units.modules');
+Route::get('/exam-set-competency-units/exam-sets/{examId}', [ExamSetCompetencyUnitController::class, 'getExamSetsByExam'])
+    ->name('exam-set-competency-units.exam-sets');
+Route::get('/exam-set-competency-units/competency-units/{moduleId}', [ExamSetCompetencyUnitController::class, 'getCompetencyUnitsByModule'])
+    ->name('exam-set-competency-units.competency-units');
+Route::resource('/exam-set-competency-units', ExamSetCompetencyUnitController::class)
+    ->names('exam-set-competency-units');
 /*
 |--------------------------------------------------------------------------
 | Application Dashboard Route
