@@ -116,7 +116,9 @@ class ExamController extends Controller
      */
     public function show(Exam $exam)
     {
-        $exam->load(['course', 'batch']);
+        $exam->load(['course', 'batch', 'examSets' => function ($query) {
+            $query->orderBy('type')->orderBy('set_number');
+        }]);
 
         return view('exams.show', compact('exam'));
     }

@@ -28,7 +28,7 @@ class Exam extends Model
         return $this->belongsTo(Batch::class);
     }
 
-    public function sets()
+    public function examSets()
     {
         return $this->hasMany(ExamSet::class);
     }
