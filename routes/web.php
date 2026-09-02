@@ -64,10 +64,14 @@ Route::delete('/exams/{id}/delete', [ExamController::class, 'forceDelete'])->nam
 Route::resource('/exams', ExamController::class);
 
 // Exam Set Controller
-Route::get('/exam-sets/deleted', [ExamSetController::class, 'deletedSets'])->name('exam-sets.deleted');
-Route::patch('/exam-sets/{id}/restore', [ExamSetController::class, 'restoreSet'])->name('exam-sets.restore');
-Route::delete('/exam-sets/{id}/force-delete', [ExamSetController::class, 'forceDelete'])->name('exam-sets.forceDelete');
-Route::resource('/exam-sets', ExamSetController::class)->names('exam-sets');
+Route::get('/exam-sets/deleted', [ExamSetController::class, 'deletedSets'])
+    ->name('exam-sets.deleted');
+Route::patch('/exam-sets/{examSet}/restore', [ExamSetController::class, 'restoreSet'])
+    ->name('exam-sets.restore');
+Route::delete('/exam-sets/{examSet}/force-delete', [ExamSetController::class, 'forceDelete'])
+    ->name('exam-sets.forceDelete');
+Route::resource('/exam-sets', ExamSetController::class)
+    ->names('exam-sets');
 
 // Exam Set Competency Unit Controller
 
