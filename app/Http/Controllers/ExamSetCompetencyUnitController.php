@@ -9,17 +9,21 @@ use App\Models\ExamSet;
 use App\Models\ExamSetCompetencyUnit;
 use App\Models\Module;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class ExamSetCompetencyUnitController extends Controller
 {
-    // Display all exam set competency units
     public function index(Request $request)
     {
         $search = $request->input('search');
 
         $examSetCompetencyUnits = ExamSetCompetencyUnit::query()
-            ->with(['examSet.exam.course', 'examSet.exam.batch', 'competencyUnit.module.course'])
+            ->with([
+                'examSet.exam.course',
+                'examSet.exam.batch',
+                'competencyUnit.module.course',
+            ])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     if (is_numeric($search)) {
@@ -28,15 +32,27 @@ class ExamSetCompetencyUnitController extends Controller
                     }
 
                     $q->orWhereHas('examSet', function ($examSetQuery) use ($search) {
-                        $examSetQuery->where('name', 'like', "%{$search}%");
+                        $examSetQuery->where(
+                            'name',
+                            'like',
+                            "%{$search}%"
+                        );
                     });
 
                     $q->orWhereHas('examSet.exam', function ($examQuery) use ($search) {
-                        $examQuery->where('title', 'like', "%{$search}%");
+                        $examQuery->where(
+                            'title',
+                            'like',
+                            "%{$search}%"
+                        );
                     });
 
                     $q->orWhereHas('competencyUnit', function ($competencyUnitQuery) use ($search) {
-                        $competencyUnitQuery->where('code', 'like', "%{$search}%");
+                        $competencyUnitQuery->where(
+                            'code',
+                            'like',
+                            "%{$search}%"
+                        );
                     });
                 });
             })
@@ -44,10 +60,12 @@ class ExamSetCompetencyUnitController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('exam-set-competency-units.index', compact('examSetCompetencyUnits'));
+        return view(
+            'exam-set-competency-units.index',
+            compact('examSetCompetencyUnits')
+        );
     }
 
-    // Get exams by batch
     public function getExamsByBatch(Request $request)
     {
         $request->validate([
@@ -65,12 +83,16 @@ class ExamSetCompetencyUnitController extends Controller
             ->where('is_active', true)
             ->whereNull('deleted_at')
             ->orderBy('title')
-            ->get(['id', 'title', 'course_id', 'batch_id']);
+            ->get([
+                'id',
+                'title',
+                'course_id',
+                'batch_id',
+            ]);
 
         return response()->json($exams);
     }
 
-    // Get modules by batch course
     public function getModulesByBatch(Request $request)
     {
         $request->validate([
@@ -88,12 +110,16 @@ class ExamSetCompetencyUnitController extends Controller
             ->where('is_active', true)
             ->whereNull('deleted_at')
             ->orderBy('module_number')
-            ->get(['id', 'name', 'module_number', 'course_id']);
+            ->get([
+                'id',
+                'name',
+                'module_number',
+                'course_id',
+            ]);
 
         return response()->json($modules);
     }
 
-    // Get exam sets by exam
     public function getExamSetsByExam($examId)
     {
         $exam = Exam::query()
@@ -107,12 +133,16 @@ class ExamSetCompetencyUnitController extends Controller
             ->where('is_active', true)
             ->whereNull('deleted_at')
             ->orderBy('set_number')
-            ->get(['id', 'name', 'set_number', 'exam_id']);
+            ->get([
+                'id',
+                'name',
+                'set_number',
+                'exam_id',
+            ]);
 
         return response()->json($examSets);
     }
 
-    // Get competency units by module
     public function getCompetencyUnitsByModule($moduleId)
     {
         $module = Module::query()
@@ -126,12 +156,17 @@ class ExamSetCompetencyUnitController extends Controller
             ->where('is_active', true)
             ->whereNull('deleted_at')
             ->orderBy('serial')
-            ->get(['id', 'code', 'prefix', 'serial', 'module_id']);
+            ->get([
+                'id',
+                'code',
+                'prefix',
+                'serial',
+                'module_id',
+            ]);
 
         return response()->json($competencyUnits);
     }
 
-    // Show create form
     public function create()
     {
         $batches = Batch::query()
@@ -140,161 +175,83 @@ class ExamSetCompetencyUnitController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('exam-set-competency-units.create', compact('batches'));
+        return view(
+            'exam-set-competency-units.create',
+            compact('batches')
+        );
     }
 
-    // Store exam set competency unit
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'batch_id' => [
-                'required',
-                'integer',
-                Rule::exists('batches', 'id')
-                    ->where('is_active', true)
-                    ->whereNull('deleted_at'),
-            ],
-            'module_id' => [
-                'required',
-                'integer',
-                Rule::exists('modules', 'id')
-                    ->where('is_active', true)
-                    ->whereNull('deleted_at'),
-            ],
-            'exam_id' => [
-                'required',
-                'integer',
-                Rule::exists('exams', 'id')
-                    ->where('is_active', true)
-                    ->whereNull('deleted_at'),
-            ],
-            'exam_set_id' => [
-                'required',
-                'integer',
-                Rule::exists('exam_sets', 'id')
-                    ->where('is_active', true)
-                    ->whereNull('deleted_at'),
-            ],
-            'competency_unit_id' => [
-                'required',
-                'integer',
-                Rule::exists('competency_units', 'id')
-                    ->where('is_active', true)
-                    ->whereNull('deleted_at'),
-            ],
-            'question_count' => ['required', 'integer', 'min:1'],
-        ]);
+        $validated = $this->validateAssignment($request);
 
-        $batch = Batch::query()
-            ->where('id', $validated['batch_id'])
-            ->where('is_active', true)
-            ->whereNull('deleted_at')
-            ->firstOrFail();
+        $batch = $this->getBatch($validated['batch_id']);
+        $exam = $this->getExam($validated['exam_id']);
+        $examSet = $this->getExamSet($validated['exam_set_id']);
+        $module = $this->getModule($validated['module_id']);
 
-        $exam = Exam::query()
-            ->where('id', $validated['exam_id'])
-            ->where('is_active', true)
-            ->whereNull('deleted_at')
-            ->firstOrFail();
+        $this->validateRelationships(
+            $batch,
+            $exam,
+            $examSet,
+            $module
+        );
 
-        $examSet = ExamSet::query()
-            ->where('id', $validated['exam_set_id'])
-            ->where('is_active', true)
-            ->whereNull('deleted_at')
-            ->firstOrFail();
+        $selectedCompetencyUnits = $this->getSelectedCompetencyUnits(
+            $validated['competency_units']
+        );
 
-        $module = Module::query()
-            ->where('id', $validated['module_id'])
-            ->where('is_active', true)
-            ->whereNull('deleted_at')
-            ->firstOrFail();
-
-        $competencyUnit = CompetencyUnit::query()
-            ->where('id', $validated['competency_unit_id'])
-            ->where('is_active', true)
-            ->whereNull('deleted_at')
-            ->firstOrFail();
-
-        // Make sure exam belongs to selected batch
-        if ($exam->batch_id != $batch->id) {
+        if ($selectedCompetencyUnits->isEmpty()) {
             return back()
                 ->withErrors([
-                    'exam_id' => 'The selected exam does not belong to the selected batch.',
+                    'competency_units' => 'Please select at least one competency unit.',
                 ])
                 ->withInput();
         }
 
-        // Make sure exam course belongs to selected batch course
-        if ($exam->course_id != $batch->course_id) {
-            return back()
-                ->withErrors([
-                    'exam_id' => 'The selected exam does not belong to the selected batch course.',
-                ])
-                ->withInput();
-        }
+        $this->validateCompetencyUnits(
+            $selectedCompetencyUnits,
+            $module
+        );
 
-        // Make sure exam set belongs to selected exam
-        if ($examSet->exam_id != $exam->id) {
-            return back()
-                ->withErrors([
-                    'exam_set_id' => 'The selected exam set does not belong to the selected exam.',
-                ])
-                ->withInput();
-        }
+        DB::transaction(function () use (
+            $selectedCompetencyUnits,
+            $examSet
+        ) {
+            foreach ($selectedCompetencyUnits as $competencyUnitId => $unit) {
+                $mapping = ExamSetCompetencyUnit::withTrashed()
+                    ->where('exam_set_id', $examSet->id)
+                    ->where('competency_unit_id', $competencyUnitId)
+                    ->first();
 
-        // Make sure module belongs to batch course
-        if ($module->course_id != $batch->course_id) {
-            return back()
-                ->withErrors([
-                    'module_id' => 'The selected module does not belong to the selected batch course.',
-                ])
-                ->withInput();
-        }
+                if ($mapping) {
+                    $mapping->question_count = $unit['question_count'];
+                    $mapping->is_active = true;
 
-        // Make sure competency unit belongs to selected module
-        if ($competencyUnit->module_id != $module->id) {
-            return back()
-                ->withErrors([
-                    'competency_unit_id' => 'The selected competency unit does not belong to the selected module.',
-                ])
-                ->withInput();
-        }
+                    if ($mapping->trashed()) {
+                        $mapping->restore();
+                    }
 
-        // Make sure exam course and module course are same
-        if ($exam->course_id != $module->course_id) {
-            return back()
-                ->withErrors([
-                    'module_id' => 'The selected module does not belong to the selected exam course.',
-                ])
-                ->withInput();
-        }
-
-        // Check duplicate assignment
-        $exists = ExamSetCompetencyUnit::query()
-            ->where('exam_set_id', $validated['exam_set_id'])
-            ->where('competency_unit_id', $validated['competency_unit_id'])
-            ->exists();
-
-        if ($exists) {
-            return back()
-                ->withErrors([
-                    'competency_unit_id' => 'This competency unit is already assigned to the selected exam set.',
-                ])
-                ->withInput();
-        }
-
-        $examSetCompetencyUnit = new ExamSetCompetencyUnit();
-        $examSetCompetencyUnit->exam_set_id = $validated['exam_set_id'];
-        $examSetCompetencyUnit->competency_unit_id = $validated['competency_unit_id'];
-        $examSetCompetencyUnit->question_count = $validated['question_count'];
-        $examSetCompetencyUnit->save();
+                    $mapping->save();
+                } else {
+                    ExamSetCompetencyUnit::create([
+                        'exam_set_id' => $examSet->id,
+                        'competency_unit_id' => $competencyUnitId,
+                        'question_count' => $unit['question_count'],
+                        'is_active' => true,
+                    ]);
+                }
+            }
+        });
 
         return redirect()
             ->route('exam-set-competency-units.index')
-            ->with('success', 'Competency unit assigned to exam set successfully.');
+            ->with(
+                'success',
+                'Competency units assigned to exam set successfully.'
+            );
     }
 
-    // Display mapping details
     public function show(ExamSetCompetencyUnit $examSetCompetencyUnit)
     {
         $examSetCompetencyUnit->load([
@@ -309,7 +266,6 @@ class ExamSetCompetencyUnitController extends Controller
         );
     }
 
-    // Show edit form
     public function edit(ExamSetCompetencyUnit $examSetCompetencyUnit)
     {
         $examSetCompetencyUnit->load([
@@ -324,16 +280,236 @@ class ExamSetCompetencyUnitController extends Controller
             ->orderBy('name')
             ->get();
 
+        $moduleId = $examSetCompetencyUnit->competencyUnit->module_id;
+        $examSetId = $examSetCompetencyUnit->exam_set_id;
+
+        $existingMappings = ExamSetCompetencyUnit::query()
+            ->where('exam_set_id', $examSetId)
+            ->whereHas('competencyUnit', function ($query) use ($moduleId) {
+                $query->where('module_id', $moduleId);
+            })
+            ->get()
+            ->keyBy('competency_unit_id');
+
         return view(
             'exam-set-competency-units.edit',
-            compact('examSetCompetencyUnit', 'batches')
+            compact(
+                'examSetCompetencyUnit',
+                'batches',
+                'existingMappings'
+            )
         );
     }
 
-    // Update mapping
-    public function update(Request $request, ExamSetCompetencyUnit $examSetCompetencyUnit)
+    public function update(
+        Request $request,
+        ExamSetCompetencyUnit $examSetCompetencyUnit
+    ) {
+        $validated = $this->validateAssignment($request);
+
+        $batch = $this->getBatch($validated['batch_id']);
+        $exam = $this->getExam($validated['exam_id']);
+        $examSet = $this->getExamSet($validated['exam_set_id']);
+        $module = $this->getModule($validated['module_id']);
+
+        $this->validateRelationships(
+            $batch,
+            $exam,
+            $examSet,
+            $module
+        );
+
+        $selectedCompetencyUnits = $this->getSelectedCompetencyUnits(
+            $validated['competency_units']
+        );
+
+        if ($selectedCompetencyUnits->isEmpty()) {
+            return back()
+                ->withErrors([
+                    'competency_units' => 'Please select at least one competency unit.',
+                ])
+                ->withInput();
+        }
+
+        $this->validateCompetencyUnits(
+            $selectedCompetencyUnits,
+            $module
+        );
+
+        DB::transaction(function () use (
+            $selectedCompetencyUnits,
+            $examSet
+        ) {
+            $selectedIds = $selectedCompetencyUnits
+                ->keys()
+                ->map(fn($id) => (int) $id)
+                ->values()
+                ->toArray();
+
+            $existingMappings = ExamSetCompetencyUnit::withTrashed()
+                ->where('exam_set_id', $examSet->id)
+                ->get();
+
+            foreach ($existingMappings as $mapping) {
+                if (!in_array(
+                    (int) $mapping->competency_unit_id,
+                    $selectedIds,
+                    true
+                )) {
+                    if (!$mapping->trashed()) {
+                        $mapping->delete();
+                    }
+                }
+            }
+
+            foreach ($selectedCompetencyUnits as $competencyUnitId => $unit) {
+                $mapping = ExamSetCompetencyUnit::withTrashed()
+                    ->where('exam_set_id', $examSet->id)
+                    ->where('competency_unit_id', $competencyUnitId)
+                    ->first();
+
+                if ($mapping) {
+                    $mapping->question_count = $unit['question_count'];
+                    $mapping->is_active = true;
+
+                    if ($mapping->trashed()) {
+                        $mapping->restore();
+                    }
+
+                    $mapping->save();
+                } else {
+                    ExamSetCompetencyUnit::create([
+                        'exam_set_id' => $examSet->id,
+                        'competency_unit_id' => $competencyUnitId,
+                        'question_count' => $unit['question_count'],
+                        'is_active' => true,
+                    ]);
+                }
+            }
+        });
+
+        return redirect()
+            ->route('exam-set-competency-units.index')
+            ->with(
+                'success',
+                'Exam set competency units updated successfully.'
+            );
+    }
+
+    public function destroy(ExamSetCompetencyUnit $examSetCompetencyUnit)
     {
-        $validated = $request->validate([
+        $examSetCompetencyUnit->delete();
+
+        return redirect()
+            ->route('exam-set-competency-units.index')
+            ->with(
+                'success',
+                'Exam set competency unit deleted successfully.'
+            );
+    }
+
+    public function deleted(Request $request)
+    {
+        $search = $request->input('search');
+
+        $examSetCompetencyUnits = ExamSetCompetencyUnit::onlyTrashed()
+            ->with([
+                'examSet.exam.course',
+                'examSet.exam.batch',
+                'competencyUnit.module.course',
+            ])
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    if (is_numeric($search)) {
+                        $q->where('id', $search)
+                            ->orWhere('question_count', $search);
+                    }
+
+                    $q->orWhereHas('examSet', function ($examSetQuery) use ($search) {
+                        $examSetQuery->where(
+                            'name',
+                            'like',
+                            "%{$search}%"
+                        );
+                    });
+
+                    $q->orWhereHas('examSet.exam', function ($examQuery) use ($search) {
+                        $examQuery->where(
+                            'title',
+                            'like',
+                            "%{$search}%"
+                        );
+                    });
+
+                    $q->orWhereHas('competencyUnit', function ($competencyUnitQuery) use ($search) {
+                        $competencyUnitQuery->where(
+                            'code',
+                            'like',
+                            "%{$search}%"
+                        );
+                    });
+                });
+            })
+            ->orderByDesc('id')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view(
+            'exam-set-competency-units.deleted',
+            compact('examSetCompetencyUnits')
+        );
+    }
+
+    public function restore($id)
+    {
+        $mapping = ExamSetCompetencyUnit::withTrashed()
+            ->findOrFail($id);
+
+        $duplicate = ExamSetCompetencyUnit::query()
+            ->where('exam_set_id', $mapping->exam_set_id)
+            ->where('competency_unit_id', $mapping->competency_unit_id)
+            ->where('id', '!=', $mapping->id)
+            ->exists();
+
+        if ($duplicate) {
+            return redirect()
+                ->route('exam-set-competency-units.deleted')
+                ->with(
+                    'error',
+                    'This competency unit is already assigned to the exam set.'
+                );
+        }
+
+        $mapping->restore();
+        $mapping->is_active = true;
+        $mapping->save();
+
+        return redirect()
+            ->route('exam-set-competency-units.deleted')
+            ->with(
+                'success',
+                'Exam set competency unit restored successfully.'
+            );
+    }
+
+    public function forceDelete($id)
+    {
+        $mapping = ExamSetCompetencyUnit::withTrashed()
+            ->findOrFail($id);
+
+        $mapping->forceDelete();
+
+        return redirect()
+            ->route('exam-set-competency-units.deleted')
+            ->with(
+                'success',
+                'Exam set competency unit permanently deleted.'
+            );
+    }
+
+    private function validateAssignment(Request $request)
+    {
+        return $request->validate([
             'batch_id' => [
                 'required',
                 'integer',
@@ -362,209 +538,135 @@ class ExamSetCompetencyUnitController extends Controller
                     ->where('is_active', true)
                     ->whereNull('deleted_at'),
             ],
-            'competency_unit_id' => [
+            'competency_units' => [
                 'required',
-                'integer',
-                Rule::exists('competency_units', 'id')
-                    ->where('is_active', true)
-                    ->whereNull('deleted_at'),
+                'array',
+                'min:1',
             ],
-            'question_count' => ['required', 'integer', 'min:1'],
+            'competency_units.*.selected' => [
+                'nullable',
+                'boolean',
+            ],
+            'competency_units.*.question_count' => [
+                'nullable',
+                'integer',
+                'min:1',
+            ],
         ]);
-
-        $batch = Batch::query()
-            ->where('id', $validated['batch_id'])
-            ->where('is_active', true)
-            ->whereNull('deleted_at')
-            ->firstOrFail();
-
-        $exam = Exam::query()
-            ->where('id', $validated['exam_id'])
-            ->where('is_active', true)
-            ->whereNull('deleted_at')
-            ->firstOrFail();
-
-        $examSet = ExamSet::query()
-            ->where('id', $validated['exam_set_id'])
-            ->where('is_active', true)
-            ->whereNull('deleted_at')
-            ->firstOrFail();
-
-        $module = Module::query()
-            ->where('id', $validated['module_id'])
-            ->where('is_active', true)
-            ->whereNull('deleted_at')
-            ->firstOrFail();
-
-        $competencyUnit = CompetencyUnit::query()
-            ->where('id', $validated['competency_unit_id'])
-            ->where('is_active', true)
-            ->whereNull('deleted_at')
-            ->firstOrFail();
-
-        // Make sure exam belongs to selected batch
-        if ($exam->batch_id != $batch->id) {
-            return back()
-                ->withErrors([
-                    'exam_id' => 'The selected exam does not belong to the selected batch.',
-                ])
-                ->withInput();
-        }
-
-        // Make sure exam course belongs to selected batch course
-        if ($exam->course_id != $batch->course_id) {
-            return back()
-                ->withErrors([
-                    'exam_id' => 'The selected exam does not belong to the selected batch course.',
-                ])
-                ->withInput();
-        }
-
-        // Make sure exam set belongs to selected exam
-        if ($examSet->exam_id != $exam->id) {
-            return back()
-                ->withErrors([
-                    'exam_set_id' => 'The selected exam set does not belong to the selected exam.',
-                ])
-                ->withInput();
-        }
-
-        // Make sure module belongs to batch course
-        if ($module->course_id != $batch->course_id) {
-            return back()
-                ->withErrors([
-                    'module_id' => 'The selected module does not belong to the selected batch course.',
-                ])
-                ->withInput();
-        }
-
-        // Make sure competency unit belongs to selected module
-        if ($competencyUnit->module_id != $module->id) {
-            return back()
-                ->withErrors([
-                    'competency_unit_id' => 'The selected competency unit does not belong to the selected module.',
-                ])
-                ->withInput();
-        }
-
-        // Make sure exam course and module course are same
-        if ($exam->course_id != $module->course_id) {
-            return back()
-                ->withErrors([
-                    'module_id' => 'The selected module does not belong to the selected exam course.',
-                ])
-                ->withInput();
-        }
-
-        // Check duplicate assignment except current record
-        $exists = ExamSetCompetencyUnit::query()
-            ->where('exam_set_id', $validated['exam_set_id'])
-            ->where('competency_unit_id', $validated['competency_unit_id'])
-            ->where('id', '!=', $examSetCompetencyUnit->id)
-            ->exists();
-
-        if ($exists) {
-            return back()
-                ->withErrors([
-                    'competency_unit_id' => 'This competency unit is already assigned to the selected exam set.',
-                ])
-                ->withInput();
-        }
-
-        $examSetCompetencyUnit->exam_set_id = $validated['exam_set_id'];
-        $examSetCompetencyUnit->competency_unit_id = $validated['competency_unit_id'];
-        $examSetCompetencyUnit->question_count = $validated['question_count'];
-        $examSetCompetencyUnit->save();
-
-        return redirect()
-            ->route('exam-set-competency-units.index')
-            ->with('success', 'Exam set competency unit updated successfully.');
     }
 
-    // Delete mapping
-    public function destroy(ExamSetCompetencyUnit $examSetCompetencyUnit)
+    private function getSelectedCompetencyUnits(array $competencyUnits)
     {
-        $examSetCompetencyUnit->delete();
-
-        return redirect()
-            ->route('exam-set-competency-units.index')
-            ->with('success', 'Exam set competency unit deleted successfully.');
+        return collect($competencyUnits)
+            ->filter(fn($unit) => !empty($unit['selected']));
     }
 
-    // Display deleted mappings
-    public function deleted(Request $request)
+    private function getBatch($id)
     {
-        $search = $request->input('search');
-
-        $examSetCompetencyUnits = ExamSetCompetencyUnit::query()
-            ->onlyTrashed()
-            ->with([
-                'examSet.exam.course',
-                'examSet.exam.batch',
-                'competencyUnit.module.course',
-            ])
-            ->when($search, function ($query, $search) {
-                $query->where(function ($q) use ($search) {
-                    if (is_numeric($search)) {
-                        $q->where('id', $search);
-                    }
-
-                    $q->orWhereHas('examSet', function ($examSetQuery) use ($search) {
-                        $examSetQuery->where('name', 'like', "%{$search}%");
-                    });
-
-                    $q->orWhereHas('examSet.exam', function ($examQuery) use ($search) {
-                        $examQuery->where('title', 'like', "%{$search}%");
-                    });
-
-                    $q->orWhereHas('competencyUnit', function ($competencyUnitQuery) use ($search) {
-                        $competencyUnitQuery->where('code', 'like', "%{$search}%");
-                    });
-                });
-            })
-            ->orderByDesc('id')
-            ->paginate(10)
-            ->withQueryString();
-
-        return view(
-            'exam-set-competency-units.deleted',
-            compact('examSetCompetencyUnits')
-        );
+        return Batch::query()
+            ->where('id', $id)
+            ->where('is_active', true)
+            ->whereNull('deleted_at')
+            ->firstOrFail();
     }
 
-    // Restore deleted mapping
-    public function restore($id)
+    private function getExam($id)
     {
-        $examSetCompetencyUnit = ExamSetCompetencyUnit::withTrashed()->findOrFail($id);
+        return Exam::query()
+            ->where('id', $id)
+            ->where('is_active', true)
+            ->whereNull('deleted_at')
+            ->firstOrFail();
+    }
 
-        // Check if same assignment already exists
-        $exists = ExamSetCompetencyUnit::query()
-            ->where('exam_set_id', $examSetCompetencyUnit->exam_set_id)
-            ->where('competency_unit_id', $examSetCompetencyUnit->competency_unit_id)
-            ->exists();
+    private function getExamSet($id)
+    {
+        return ExamSet::query()
+            ->where('id', $id)
+            ->where('is_active', true)
+            ->whereNull('deleted_at')
+            ->firstOrFail();
+    }
 
-        if ($exists) {
-            return redirect()
-                ->route('exam-set-competency-units.deleted')
-                ->with('error', 'This competency unit is already assigned to the exam set.');
+    private function getModule($id)
+    {
+        return Module::query()
+            ->where('id', $id)
+            ->where('is_active', true)
+            ->whereNull('deleted_at')
+            ->firstOrFail();
+    }
+
+    private function validateRelationships(
+        Batch $batch,
+        Exam $exam,
+        ExamSet $examSet,
+        Module $module
+    ) {
+        if ((int) $exam->batch_id !== (int) $batch->id) {
+            abort(
+                422,
+                'The selected exam does not belong to the selected batch.'
+            );
         }
 
-        $examSetCompetencyUnit->restore();
+        if ((int) $exam->course_id !== (int) $batch->course_id) {
+            abort(
+                422,
+                'The selected exam does not belong to the selected batch course.'
+            );
+        }
 
-        return redirect()
-            ->route('exam-set-competency-units.deleted')
-            ->with('success', 'Exam set competency unit restored successfully.');
+        if ((int) $examSet->exam_id !== (int) $exam->id) {
+            abort(
+                422,
+                'The selected exam set does not belong to the selected exam.'
+            );
+        }
+
+        if ((int) $module->course_id !== (int) $batch->course_id) {
+            abort(
+                422,
+                'The selected module does not belong to the selected batch course.'
+            );
+        }
+
+        if ((int) $exam->course_id !== (int) $module->course_id) {
+            abort(
+                422,
+                'The selected module does not belong to the selected exam course.'
+            );
+        }
     }
 
-    // Permanently delete mapping
-    public function forceDelete($id)
-    {
-        $examSetCompetencyUnit = ExamSetCompetencyUnit::withTrashed()->findOrFail($id);
+    private function validateCompetencyUnits(
+        $selectedCompetencyUnits,
+        Module $module
+    ) {
+        foreach ($selectedCompetencyUnits as $competencyUnitId => $unit) {
+            $competencyUnit = CompetencyUnit::query()
+                ->where('id', $competencyUnitId)
+                ->where('module_id', $module->id)
+                ->where('is_active', true)
+                ->whereNull('deleted_at')
+                ->first();
 
-        $examSetCompetencyUnit->forceDelete();
+            if (!$competencyUnit) {
+                abort(
+                    422,
+                    'One or more selected competency units are invalid.'
+                );
+            }
 
-        return redirect()
-            ->route('exam-set-competency-units.deleted')
-            ->with('success', 'Exam set competency unit permanently deleted.');
+            if (
+                !isset($unit['question_count']) ||
+                (int) $unit['question_count'] < 1
+            ) {
+                abort(
+                    422,
+                    "Please enter question count for {$competencyUnit->code}."
+                );
+            }
+        }
     }
 }
