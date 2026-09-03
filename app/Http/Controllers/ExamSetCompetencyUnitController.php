@@ -47,6 +47,7 @@ class ExamSetCompetencyUnitController extends Controller
                 'nullable',
                 'array',
             ],
+
             'modules.*.module_id' => [
                 'required',
                 'integer',
@@ -54,19 +55,23 @@ class ExamSetCompetencyUnitController extends Controller
                     ->where('is_active', true)
                     ->whereNull('deleted_at'),
             ],
+
             'modules.*.competency_units' => [
                 'nullable',
                 'array',
             ],
+
             'modules.*.competency_units.*.selected' => [
                 'nullable',
                 'boolean',
             ],
+
             'modules.*.competency_units.*.question_count' => [
                 'nullable',
                 'integer',
                 'min:1',
             ],
+
             'is_active' => [
                 'required',
                 'boolean',
@@ -78,6 +83,9 @@ class ExamSetCompetencyUnitController extends Controller
         if (!$exam) {
             abort(422, 'Exam set exam not found.');
         }
+
+        $totalMarks = (float) $examSet->total_marks;
+        $totalQuestions = 0;
 
         $selectedCompetencyUnits = [];
         $selectedModules = [];
@@ -141,10 +149,23 @@ class ExamSetCompetencyUnitController extends Controller
                         ->withInput();
                 }
 
+                $questionCount = (int) $unit['question_count'];
+
+                $totalQuestions += $questionCount;
+
+                if ($totalQuestions > $totalMarks) {
+                   
+                    return back()
+                        ->withErrors([
+                            'modules' => "Total selected questions ({$totalQuestions}) cannot be greater than exam set total marks ({$totalMarks}).",
+                        ])
+                        ->withInput();
+                }
+
                 $selectedCompetencyUnits[] = [
                     'id' => $competencyUnit->id,
                     'module_id' => $module->id,
-                    'question_count' => (int) $unit['question_count'],
+                    'question_count' => $questionCount,
                 ];
             }
         }
@@ -165,11 +186,13 @@ class ExamSetCompetencyUnitController extends Controller
                 ->get();
 
             foreach ($existingMappings as $mapping) {
-                if (!in_array(
-                    (int) $mapping->competency_unit_id,
-                    $selectedIds,
-                    true
-                )) {
+                if (
+                    !in_array(
+                        (int) $mapping->competency_unit_id,
+                        $selectedIds,
+                        true
+                    )
+                ) {
                     if (!$mapping->trashed()) {
                         $mapping->delete();
                     }

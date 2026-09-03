@@ -7,10 +7,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     forms.forEach(function (form) {
         const dataElement = form.querySelector(".manage-questions-data");
-
         const moduleSections = form.querySelector(".module-sections");
-
         const addModuleBtn = form.querySelector(".add-module-btn");
+        const selectedTotalMarks = form.querySelector(".selected-total-marks");
 
         if (!dataElement || !moduleSections || !addModuleBtn) {
             return;
@@ -22,7 +21,26 @@ document.addEventListener("DOMContentLoaded", function () {
             dataElement.dataset.existingMappings || "{}",
         );
 
+        const totalExamMarks = parseFloat(dataElement.dataset.totalMarks || 0);
+
         let moduleIndex = 0;
+
+        let errorElement = form.querySelector(".selected-marks-error");
+
+        if (!errorElement && selectedTotalMarks) {
+            errorElement = document.createElement("p");
+
+            errorElement.className =
+                "selected-marks-error mt-2 text-sm text-red-500";
+
+            errorElement.classList.add("hidden");
+
+            const marksContainer = selectedTotalMarks.closest(".mt-3");
+
+            if (marksContainer) {
+                marksContainer.appendChild(errorElement);
+            }
+        }
 
         function fetchData(url) {
             return fetch(url).then(function (response) {
@@ -38,7 +56,6 @@ document.addEventListener("DOMContentLoaded", function () {
             container.innerHTML = `
                 <div class="flex items-center justify-center py-8">
                     <div class="h-6 w-6 animate-spin rounded-full border-2 border-slate-200 border-t-primary"></div>
-
                     <span class="ml-3 text-sm text-slate-400">
                         Loading competency units...
                     </span>
@@ -106,6 +123,48 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
         }
 
+        function updateTotalMarks() {
+            let totalMarks = 0;
+
+            form.querySelectorAll(".question-count-input").forEach(
+                function (input) {
+                    if (!input.disabled) {
+                        const questionCount = parseInt(input.value || 0);
+
+                        totalMarks += questionCount;
+                    }
+                },
+            );
+
+            if (selectedTotalMarks) {
+                selectedTotalMarks.textContent = totalMarks;
+
+                selectedTotalMarks.classList.remove(
+                    "text-primary",
+                    "text-red-500",
+                );
+
+                if (totalMarks > totalExamMarks) {
+                    selectedTotalMarks.classList.add("text-red-500");
+                } else {
+                    selectedTotalMarks.classList.add("text-primary");
+                }
+            }
+
+            if (errorElement) {
+                if (totalMarks > totalExamMarks) {
+                    errorElement.textContent = `The exam set allows a maximum of ${totalExamMarks} marks. Please reduce the question count.`;
+
+                    errorElement.classList.remove("hidden");
+                } else {
+                    errorElement.textContent = "";
+                    errorElement.classList.add("hidden");
+                }
+            }
+
+            return totalMarks;
+        }
+
         function setupCompetencyUnitEvents(container) {
             const checkboxes = container.querySelectorAll(
                 ".competency-unit-checkbox",
@@ -128,8 +187,18 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (!this.checked) {
                         input.value = "";
                     }
+
+                    updateTotalMarks();
                 });
             });
+
+            container
+                .querySelectorAll(".question-count-input")
+                .forEach(function (input) {
+                    input.addEventListener("input", function () {
+                        updateTotalMarks();
+                    });
+                });
         }
 
         function renderCompetencyUnits(container, data, index, moduleId) {
@@ -141,6 +210,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         No competency units found for this module.
                     </p>
                 `;
+
+                updateTotalMarks();
 
                 return;
             }
@@ -157,11 +228,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 const questionCount = savedData ? savedData.question_count : "";
 
                 row.className =
-                    "flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3";
+                    "competency-unit-row flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3";
 
                 row.innerHTML = `
                     <label class="flex min-w-0 flex-1 cursor-pointer items-center gap-3">
-
                         <input
                             type="checkbox"
                             name="modules[${index}][competency_units][${item.id}][selected]"
@@ -173,7 +243,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         <span class="text-sm font-medium text-slate-700">
                             ${item.code}
                         </span>
-
                     </label>
 
                     <input
@@ -183,7 +252,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         min="1"
                         placeholder="Questions"
                         data-question-input="${item.id}"
-                        class="w-28 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                        class="question-count-input w-28 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                         ${isSelected ? "" : "disabled"}>
                 `;
 
@@ -191,6 +260,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             setupCompetencyUnitEvents(container);
+            updateTotalMarks();
         }
 
         async function loadCompetencyUnits(moduleSelect) {
@@ -206,6 +276,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (!moduleSelect.value) {
                 resetCompetencyUnits(container);
+                updateTotalMarks();
+
                 return;
             }
 
@@ -238,6 +310,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         Failed to load competency units.
                     </p>
                 `;
+
+                updateTotalMarks();
             }
         }
 
@@ -251,26 +325,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
             section.innerHTML = `
                 <div class="flex items-center gap-3">
-
                     <select
                         name="modules[${index}][module_id]"
                         class="module-select w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">
-
                         <option value="">
                             Select Module
                         </option>
-
                     </select>
 
                     <button
                         type="button"
                         class="remove-module-btn inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-red-200 text-red-500 transition hover:bg-red-50"
                         title="Remove Module">
-
                         <i class="bi bi-trash"></i>
-
                     </button>
-
                 </div>
 
                 <p class="mt-1.5 text-xs text-slate-400">
@@ -279,11 +347,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 <div
                     class="competency-units-container mt-4 space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
-
                     <p class="text-sm text-slate-400">
                         Select a module to load competency units.
                     </p>
-
                 </div>
             `;
 
@@ -319,6 +385,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     section.remove();
 
                     updateModuleOptions();
+                    updateTotalMarks();
                 });
 
             moduleIndex++;
@@ -343,6 +410,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 createModuleSection(moduleId, true);
             });
         }
+
+        form.addEventListener("submit", function (event) {
+            const totalMarks = updateTotalMarks();
+
+            if (totalMarks > totalExamMarks) {
+                event.preventDefault();
+            }
+        });
 
         addModuleBtn.addEventListener("click", function () {
             createModuleSection();

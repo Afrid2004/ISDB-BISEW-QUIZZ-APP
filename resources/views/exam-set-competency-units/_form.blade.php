@@ -1,12 +1,45 @@
 <div
     class="manage-questions-data"
     data-existing-mappings='@json($existingMappings ?? [])'
-    data-modules='@json($modules ?? [])'>
+    data-modules='@json($modules ?? [])'
+    data-total-marks="{{ $examSet->total_marks }}">
 
     <div class="grid grid-cols-1 gap-6">
+
+        <div class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-4">
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <p class="text-sm font-semibold text-slate-700">
+                        Exam Set Marks
+                    </p>
+                    <p class="mt-1 text-xs text-slate-400">
+                        Total marks for this exam set.
+                    </p>
+                </div>
+
+                <span class="text-lg font-bold text-primary">
+                    {{ $examSet->total_marks }}
+                </span>
+            </div>
+
+            <div class="mt-3 border-t border-slate-200 pt-3">
+                <p class="text-sm text-slate-600">
+                    Selected Marks:
+                    <span class="selected-total-marks font-semibold text-primary">
+                        0
+                    </span>
+                    /
+                    <span class="total-exam-marks font-semibold">
+                        {{ $examSet->total_marks }}
+                    </span>
+                </p>
+            </div>
+        </div>
+
         <div>
             <label class="mb-2 block text-sm font-semibold text-slate-700">
-                Modules <span class="text-red-500">*</span>
+                Modules
+                <span class="text-red-500">*</span>
             </label>
 
             <div class="module-sections space-y-5"></div>
@@ -68,5 +101,6 @@
                 </label>
             </div>
         </div>
+
     </div>
 </div>
