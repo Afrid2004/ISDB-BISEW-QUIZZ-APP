@@ -14,4 +14,9 @@ class Question extends Model
     {
         return $this->hasMany(Option::class);
     }
+
+    public function element()
+    {
+        return $this->belongsTo(Element::class);
+    }
 }

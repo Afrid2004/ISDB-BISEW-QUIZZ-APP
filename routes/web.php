@@ -12,6 +12,7 @@ use App\Http\Controllers\ElementController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\ExamSetCompetencyUnitController;
 use App\Http\Controllers\ExamSetController;
+use App\Http\Controllers\ExamSetQuestionController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -83,6 +84,30 @@ Route::get('/exam-set-competency-units/competency-units/{moduleId}', [ExamSetCom
     ->name('exam-set-competency-units.competency-units');
 Route::resource('/exam-set-competency-units', ExamSetCompetencyUnitController::class)
     ->names('exam-set-competency-units');
+
+
+
+// exam set question controller
+Route::get('/exam-set-questions/deleted', [ExamSetQuestionController::class, 'deleted'])
+    ->name('exam-set-questions.deleted');
+
+Route::patch('/exam-set-questions/{id}/restore', [ExamSetQuestionController::class, 'restore'])
+    ->name('exam-set-questions.restore');
+
+Route::delete('/exam-set-questions/{id}/force-delete', [ExamSetQuestionController::class, 'forceDelete'])
+    ->name('exam-set-questions.forceDelete');
+
+Route::get('/exam-set-questions/exams', [ExamSetQuestionController::class, 'getExamsByBatch'])
+    ->name('exam-set-questions.exams');
+
+Route::get('/exam-set-questions/exam-sets/{examId}', [ExamSetQuestionController::class, 'getExamSetsByExam'])
+    ->name('exam-set-questions.exam-sets');
+
+Route::get('/exam-set-questions/{examSetId}/questions', [ExamSetQuestionController::class, 'getQuestionsByExamSet'])
+    ->name('exam-set-questions.questions');
+
+Route::resource('/exam-set-questions', ExamSetQuestionController::class)
+    ->names('exam-set-questions');
 /*
 |--------------------------------------------------------------------------
 | Application Dashboard Route

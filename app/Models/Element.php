@@ -15,4 +15,9 @@ class Element extends Model
     {
         return $this->belongsTo(CompetencyUnit::class);
     }
+
+    public function questions()
+    {
+        return $this->hasMany(Question::class);
+    }
 }
