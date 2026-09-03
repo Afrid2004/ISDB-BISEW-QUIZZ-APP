@@ -174,3 +174,8 @@ Route::delete('/batches/force-delete/{id}', [BatchController::class, 'forceDelet
 // RESOURCE: Generates standard CRUD routes (index, create, store, show, edit, update, destroy)
 Route::resource("batches", BatchController::class)
     ->names('batches');
+
+
+
+Route::get('/download-template', [QuestionController::class, 'exportTemplate'])->name('questions.export-template');
+Route::post('/questions/import', [QuestionController::class, 'import'])->name('questions.import');

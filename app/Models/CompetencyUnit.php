@@ -20,4 +20,6 @@ class CompetencyUnit extends Model
     {
         return $this->hasMany(Element::class);
     }
+
+    protected $guarded = [];
 }

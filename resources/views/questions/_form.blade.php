@@ -35,8 +35,8 @@
 
                     {{-- Course options will be added here --}}
                     @foreach ($courses as $course)
-                        <option value="{{$course->id}}">
-                            {{$course->name}}
+                        <option value="{{ $course->id }}">
+                            {{ $course->name }}
                         </option>
                     @endforeach
 
@@ -98,6 +98,35 @@
 
                     <option value="">
                         Select Competency unit
+                    </option>
+
+                    {{-- Competency unit options will be added here --}}
+
+                </select>
+
+            </div>
+            {{-- Elements --}}
+            <div>
+
+                <label class="mb-2 block text-xs font-semibold
+                               text-slate-600">
+
+                   Elements
+
+                    <span class="text-red-500">*</span>
+
+                </label>
+
+                <select id="elements" name="elements"
+                    class="w-full rounded-lg border border-slate-200
+                               bg-white px-3 py-2.5 text-sm
+                               text-slate-600 outline-none
+                               transition
+                               focus:border-primary
+                               focus:ring-2 focus:ring-primary/10">
+
+                    <option value="">
+                        Select Element
                     </option>
 
                     {{-- Competency unit options will be added here --}}

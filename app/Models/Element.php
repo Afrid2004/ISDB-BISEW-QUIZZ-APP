@@ -15,4 +15,5 @@ class Element extends Model
     {
         return $this->belongsTo(CompetencyUnit::class);
     }
+    protected $guarded = [];
 }

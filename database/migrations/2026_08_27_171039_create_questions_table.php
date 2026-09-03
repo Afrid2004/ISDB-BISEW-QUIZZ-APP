@@ -6,70 +6,26 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
-
-            // Relationships
-            $table->foreignId('course_id')
-                ->constrained('courses')
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
-
-            $table->foreignId('module_id')
-                ->constrained('modules')
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
-
-            $table->foreignId('competency_unit_id')
-                ->constrained('competency_units')
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
-
-            // Question
+            $table->string('course_code')->nullable();
+            $table->string('module_code')->nullable();
+            $table->string('module_name')->nullable();
+            $table->string('unit_code')->nullable();
+            $table->string('unit_name')->nullable();
+            $table->string('element_id')->nullable();
             $table->text('question_text');
-
-            // Marks
-            $table->decimal('marks', 8, 2)
-                ->default(2.00);
-
-            // Difficulty
-            $table->enum('difficulty_level', [
-                'easy',
-                'medium',
-                'hard',
-            ])->default('medium');
-
-            // Question Type
-            $table->enum('question_type', [
-                'single_choice',
-                'multiple_choice',
-            ])->default('single_choice');
-
-            // Status
-            $table->boolean('is_active')
-                ->default(true);
-
-            // Creator
-            $table->foreignId('created_by')
-                ->nullable()
-                ->constrained('users')
-                ->cascadeOnUpdate()
-                ->nullOnDelete();
-
-            // Soft Delete
-            $table->softDeletes();
+            $table->string('question_type')->default('mcq');
+            $table->decimal('marks', 8, 2)->default(1.00);
+            $table->enum('difficulty', ['easy', 'medium', 'hard'])->default('easy');
+            $table->text('explanation')->nullable();
+            $table->string('created_by', 123)->nullable();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('questions');
