@@ -1,10 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-    /*
-    |--------------------------------------------------------------------------
-    | Open Modal
-    |--------------------------------------------------------------------------
-    */
-
     function openModal(modal) {
         if (!modal) {
             return;
@@ -20,12 +14,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.body.classList.add("overflow-hidden");
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Close Modal
-    |--------------------------------------------------------------------------
-    */
 
     function closeModal(modal) {
         if (!modal) {
@@ -43,65 +31,45 @@ document.addEventListener("DOMContentLoaded", function () {
         document.body.classList.remove("overflow-hidden");
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Create Exam Set Modal
-    |--------------------------------------------------------------------------
-    */
-
     window.openExamSetCreateModal = function () {
         const modal = document.getElementById("examSetCreateModal");
-
         openModal(modal);
     };
 
     window.closeExamSetCreateModal = function () {
         const modal = document.getElementById("examSetCreateModal");
-
         closeModal(modal);
     };
 
-    /*
-    |--------------------------------------------------------------------------
-    | View Exam Set Modal
-    |--------------------------------------------------------------------------
-    */
-
     window.openExamSetViewModal = function (id) {
         const modal = document.getElementById(`examSetViewModal${id}`);
-
         openModal(modal);
     };
 
     window.closeExamSetViewModal = function (id) {
         const modal = document.getElementById(`examSetViewModal${id}`);
-
         closeModal(modal);
     };
 
-    /*
-    |--------------------------------------------------------------------------
-    | Edit Exam Set Modal
-    |--------------------------------------------------------------------------
-    */
+    window.openManageQuestionsModal = function (id) {
+        const modal = document.getElementById(`manageQuestionsModal${id}`);
+        openModal(modal);
+    };
+
+    window.closeManageQuestionsModal = function (id) {
+        const modal = document.getElementById(`manageQuestionsModal${id}`);
+        closeModal(modal);
+    };
 
     window.openExamSetEditModal = function (id) {
         const modal = document.getElementById(`examSetEditModal${id}`);
-
         openModal(modal);
     };
 
     window.closeExamSetEditModal = function (id) {
         const modal = document.getElementById(`examSetEditModal${id}`);
-
         closeModal(modal);
     };
-
-    /*
-    |--------------------------------------------------------------------------
-    | Close Modal By Clicking Backdrop
-    |--------------------------------------------------------------------------
-    */
 
     document.addEventListener("click", function (event) {
         const backdrop = event.target.closest(".exam-set-modal-backdrop");
@@ -110,12 +78,6 @@ document.addEventListener("DOMContentLoaded", function () {
             closeModal(backdrop);
         }
     });
-
-    /*
-    |--------------------------------------------------------------------------
-    | Close Modal With ESC
-    |--------------------------------------------------------------------------
-    */
 
     document.addEventListener("keydown", function (event) {
         if (event.key !== "Escape") {
@@ -131,15 +93,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    /*
-    |--------------------------------------------------------------------------
-    | Re-open Create Modal After Validation Error
-    |--------------------------------------------------------------------------
-    */
+    const validationModal = document.querySelector(
+        ".exam-set-modal-backdrop[data-validation-error='true']",
+    );
 
-    const createModal = document.getElementById("examSetCreateModal");
-
-    if (createModal && createModal.dataset.validationError === "true") {
-        openModal(createModal);
+    if (validationModal) {
+        openModal(validationModal);
     }
 });

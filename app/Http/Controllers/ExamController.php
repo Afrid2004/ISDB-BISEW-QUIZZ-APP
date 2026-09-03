@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Exam;
 use App\Models\Course;
 use App\Models\Batch;
+use App\Models\Module;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -116,11 +117,34 @@ class ExamController extends Controller
      */
     public function show(Exam $exam)
     {
-        $exam->load(['course', 'batch', 'examSets' => function ($query) {
-            $query->orderBy('type')->orderBy('set_number');
-        }]);
+        $exam->load([
+            'course',
+            'batch',
+            'examSets' => function ($query) {
+                $query->with([
+                    'competencyUnitMappings.competencyUnit',
+                ])
+                    ->orderBy('type')
+                    ->orderBy('set_number');
+            },
+        ]);
 
-        return view('exams.show', compact('exam'));
+        $modules = Module::query()
+            ->where('course_id', $exam->course_id)
+            ->where('is_active', true)
+            ->whereNull('deleted_at')
+            ->orderBy('module_number')
+            ->get([
+                'id',
+                'name',
+                'module_number',
+                'course_id',
+            ]);
+
+        return view('exams.show', compact(
+            'exam',
+            'modules'
+        ));
     }
 
     /**

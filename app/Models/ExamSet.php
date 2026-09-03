@@ -22,4 +22,9 @@ class ExamSet extends Model
             ->withPivot('question_count')
             ->withTimestamps();
     }
+
+    public function competencyUnitMappings()
+    {
+        return $this->hasMany(ExamSetCompetencyUnit::class);
+    }
 }

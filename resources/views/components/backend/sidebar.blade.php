@@ -134,7 +134,7 @@
             </x-sidebar.dropdown>
 
 
-            {{-- Exam Set Competency Units Dropdown --}}
+            {{-- Exam Set Competency Units Dropdown
             <x-sidebar.dropdown title="Exam Assignments" route="exam-set-competency-units.*" icon="bi-diagram-3">
 
                 <x-sidebar.sub-link route="exam-set-competency-units.index">
@@ -149,7 +149,7 @@
                     Deleted Assignments
                 </x-sidebar.sub-link>
 
-            </x-sidebar.dropdown>
+            </x-sidebar.dropdown> --}}
 
             {{-- Training Centers Dropdown --}}
             <x-sidebar.dropdown title="Training Centers" route="training-centers.*" icon="bi-building">
