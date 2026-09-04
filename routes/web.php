@@ -118,8 +118,24 @@ Route::get('/exam-set-questions/exam-sets/{examId}', [ExamSetQuestionController:
 Route::get('/exam-set-questions/{examSetId}/questions', [ExamSetQuestionController::class, 'getQuestionsByExamSet'])
     ->name('exam-set-questions.questions');
 
-Route::resource('/exam-set-questions', ExamSetQuestionController::class)
-    ->names('exam-set-questions');
+Route::get(
+    '/exam-sets/{examSet}/questions/generate',
+    [ExamSetQuestionController::class, 'generatePage']
+)->name('exam-set-questions.generate');
+
+Route::post(
+    '/exam-sets/{examSet}/questions/generate',
+    [ExamSetQuestionController::class, 'generate']
+)->name('exam-set-questions.generate.store');
+Route::get(
+    '/exam-sets/{examSet}/questions/generate/question-copy',
+    [ExamSetQuestionController::class, 'questionCopyPdf']
+)->name('exam-set-questions.question-copy-pdf');
+
+Route::get(
+    '/exam-sets/{examSet}/questions/generate/answer-copy',
+    [ExamSetQuestionController::class, 'answerCopyPdf']
+)->name('exam-set-questions.answer-copy-pdf');
 /*
 |--------------------------------------------------------------------------
 | Application Dashboard Route

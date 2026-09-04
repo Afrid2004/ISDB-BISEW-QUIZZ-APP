@@ -1,4 +1,3 @@
-
 @extends('layouts.backend.app')
 
 @section('content')
@@ -146,8 +145,7 @@
                 </div>
 
                 {{-- Created At --}}
-                <div
-                    class="flex flex-col gap-2 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                <div class="flex flex-col gap-2 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">
                             Created At
@@ -168,8 +166,7 @@
                 </div>
 
                 {{-- Updated At --}}
-                <div
-                    class="flex flex-col gap-2 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                <div class="flex flex-col gap-2 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">
                             Last Updated
@@ -192,13 +189,10 @@
             </div>
 
             {{-- Footer Actions --}}
-            <div
-                class="flex flex-col-reverse gap-3 border-t border-slate-100 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
+            <div class="flex flex-col-reverse gap-3 border-t border-slate-100 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
 
                 {{-- Delete --}}
-                <form data-item="exam"
-                    action="{{ route('exams.destroy', $exam) }}"
-                    method="POST"
+                <form data-item="exam" action="{{ route('exams.destroy', $exam) }}" method="POST"
                     class="delete-form flex-1">
 
                     @csrf
@@ -247,8 +241,7 @@
                 </div>
 
                 {{-- Create Button --}}
-                <button type="button"
-                    onclick="openExamSetCreateModal()"
+                <button type="button" onclick="openExamSetCreateModal()"
                     class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90">
                     <i class="bi bi-plus-lg"></i>
                     Create Exam Set
@@ -257,7 +250,6 @@
             </div>
 
             @if ($exam->examSets->count())
-
                 {{-- =================================================
                      DESKTOP TABLE
                 ================================================== --}}
@@ -307,7 +299,6 @@
                         <tbody class="divide-y divide-slate-100">
 
                             @foreach ($exam->examSets as $examSet)
-
                                 <tr class="transition hover:bg-slate-50">
 
                                     {{-- Number --}}
@@ -387,54 +378,64 @@
                                     {{-- Actions --}}
                                     <td class="px-5 py-4">
 
-                                        <div class="flex items-center justify-end gap-2">
 
-                                            {{-- View --}}
-                                            <button type="button"
-                                                onclick="openExamSetViewModal({{ $examSet->id }})"
-                                                class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
-                                                title="View">
+                                        <div class="flex items-center justify-end gap-2">
+                                            <button type="button" onclick="openExamSetViewModal({{ $examSet->id }})"
+                                                class="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 transition hover:border-primary hover:text-primary">
                                                 <i class="bi bi-eye"></i>
+                                                View
                                             </button>
 
-                                            {{-- Manage Questions --}}
                                             <button type="button"
                                                 onclick="openManageQuestionsModal({{ $examSet->id }})"
-                                                class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
-                                                title="Manage Questions">
+                                                class="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 transition hover:border-primary hover:text-primary">
                                                 <i class="bi bi-list-check"></i>
+                                                Questions
                                             </button>
 
-                                            {{-- Edit --}}
-                                            <button type="button"
-                                                onclick="openExamSetEditModal({{ $examSet->id }})"
-                                                class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
-                                                title="Edit">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </button>
+                                            <a href="{{ route('exam-set-questions.generate', $examSet->id) }}"
+                                                class="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-3 text-sm font-medium text-white transition hover:bg-primary/90">
+                                                <i class="bi bi-lightning-charge"></i>
+                                                Generate Exam
+                                            </a>
 
-                                            {{-- Delete --}}
-                                            <form
-                                                action="{{ route('exams.exam-sets.destroy', [$exam, $examSet]) }}"
-                                                method="POST"
-                                                class="delete-form">
+                                            <details class="relative">
+                                                <summary
+                                                    class="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-primary hover:text-primary">
+                                                    <i class="bi bi-three-dots-vertical text-lg"></i>
+                                                </summary>
 
-                                                @csrf
-                                                @method('DELETE')
+                                                <div
+                                                    class="absolute right-0 top-11 z-50 w-36 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
 
-                                                <button type="submit"
-                                                    class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-red-200 bg-white text-red-500 transition hover:bg-red-50"
-                                                    title="Delete">
-                                                    <i class="bi bi-trash3"></i>
-                                                </button>
+                                                    <button type="button"
+                                                        onclick="openExamSetEditModal({{ $examSet->id }})"
+                                                        class="flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-sm text-slate-600 hover:bg-slate-50">
+                                                        <i class="bi bi-pencil "></i>
+                                                        Edit
+                                                    </button>
 
-                                            </form>
+                                                    <form method="POST"
+                                                        action="{{ route('exams.exam-sets.destroy', [$exam, $examSet]) }}"
+                                                        class="delete-form">
+                                                        @csrf
+                                                        @method('DELETE')
 
+                                                        <button type="submit"
+                                                            class="flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50">
+                                                            <i class="bi bi-trash"></i>
+                                                            Delete
+                                                        </button>
+                                                    </form>
+
+                                                </div>
+                                            </details>
                                         </div>
+
+
                                     </td>
 
                                 </tr>
-
                             @endforeach
 
                         </tbody>
@@ -448,7 +449,6 @@
                 <div class="divide-y divide-slate-100 md:hidden">
 
                     @foreach ($exam->examSets as $examSet)
-
                         <div class="p-5">
 
                             <div class="mb-4 flex items-start justify-between gap-3">
@@ -559,59 +559,69 @@
                             </div>
 
                             {{-- Mobile Actions --}}
-                            <div class="mt-5 flex gap-2 border-t border-slate-100 pt-4">
+                            <div class="mt-5 grid grid-cols-2 gap-2 border-t border-slate-100 pt-4">
 
                                 {{-- View --}}
-                                <button type="button"
-                                    onclick="openExamSetViewModal({{ $examSet->id }})"
-                                    class="inline-flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+                                <button type="button" onclick="openExamSetViewModal({{ $examSet->id }})"
+                                    class="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
                                     <i class="bi bi-eye"></i>
                                     View
                                 </button>
 
                                 {{-- Manage Questions --}}
-                                <button type="button"
-                                    onclick="openManageQuestionsModal({{ $examSet->id }})"
-                                    class="inline-flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+                                <button type="button" onclick="openManageQuestionsModal({{ $examSet->id }})"
+                                    class="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
                                     <i class="bi bi-list-check"></i>
-                                    Manage Questions
+                                    Questions
                                 </button>
 
-                                {{-- Edit --}}
-                                <button type="button"
-                                    onclick="openExamSetEditModal({{ $examSet->id }})"
-                                    class="inline-flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
-                                    <i class="bi bi-pencil-square"></i>
-                                    Edit
-                                </button>
+                                {{-- Generate Exam --}}
+                                <a href="{{ route('exam-set-questions.generate', $examSet->id) }}"
+                                    class="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 text-sm font-semibold text-primary transition hover:bg-primary/10">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                    Generate Exam
+                                </a>
 
-                                {{-- Delete --}}
-                                <form
-                                    action="{{ route('exams.exam-sets.destroy', [$exam, $examSet]) }}"
-                                    method="POST"
-                                    class="delete-form flex-1">
+                                {{-- More --}}
+                                <details class="relative">
+                                    <summary
+                                        class="flex h-10 w-full cursor-pointer list-none items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50">
+                                        <i class="bi bi-three-dots-vertical text-lg"></i>
+                                    </summary>
 
-                                    @csrf
-                                    @method('DELETE')
+                                    <div
+                                        class="absolute bottom-12 right-0 z-50 w-36 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
 
-                                    <button type="submit"
-                                        class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-red-500 transition hover:bg-red-50">
-                                        <i class="bi bi-trash3"></i>
-                                        Delete
-                                    </button>
+                                        {{-- Edit --}}
+                                        <button type="button" onclick="openExamSetEditModal({{ $examSet->id }})"
+                                            class="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm font-medium text-slate-600 transition hover:bg-slate-50">
+                                            <i class="bi bi-pencil-square"></i>
+                                            Edit
+                                        </button>
 
-                                </form>
+                                        {{-- Delete --}}
+                                        <form action="{{ route('exams.exam-sets.destroy', [$exam, $examSet]) }}"
+                                            method="POST" class="delete-form">
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button type="submit"
+                                                class="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm font-medium text-red-500 transition hover:bg-red-50">
+                                                <i class="bi bi-trash3"></i>
+                                                Delete
+                                            </button>
+                                        </form>
+
+                                    </div>
+                                </details>
 
                             </div>
 
                         </div>
-
                     @endforeach
 
                 </div>
-
             @else
-
                 {{-- Empty State --}}
                 <div class="px-5 py-12 text-center sm:px-6">
 
@@ -628,15 +638,13 @@
                         This exam does not have any exam sets yet. Create an exam set to get started.
                     </p>
 
-                    <button type="button"
-                        onclick="openExamSetCreateModal()"
+                    <button type="button" onclick="openExamSetCreateModal()"
                         class="mt-5 inline-flex cursor-pointer items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90">
                         <i class="bi bi-plus-lg"></i>
                         Create Exam Set
                     </button>
 
                 </div>
-
             @endif
 
         </div>
@@ -645,16 +653,13 @@
     {{-- =============================================================
          CREATE EXAM SET MODAL
     ============================================================== --}}
-    <div
-        id="examSetCreateModal"
-        data-validation-error="{{ $errors->any() && !old('_method') ? 'true' : 'false' }}"
+    <div id="examSetCreateModal" data-validation-error="{{ $errors->any() && !old('_method') ? 'true' : 'false' }}"
         class="exam-set-modal-backdrop fixed inset-0 z-[9999] hidden items-center justify-center bg-slate-900/50 px-4 py-6 opacity-0 transition-opacity duration-200">
 
         <div class="max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-xl bg-white shadow-xl">
 
             {{-- Modal Header --}}
-            <div
-                class="flex shrink-0 items-center justify-between border-b border-slate-100 bg-white px-5 py-4 sm:px-6">
+            <div class="flex shrink-0 items-center justify-between border-b border-slate-100 bg-white px-5 py-4 sm:px-6">
 
                 <div>
                     <h2 class="text-base font-semibold text-slate-800">
@@ -666,8 +671,7 @@
                     </p>
                 </div>
 
-                <button type="button"
-                    onclick="closeExamSetCreateModal()"
+                <button type="button" onclick="closeExamSetCreateModal()"
                     class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600">
                     <i class="bi bi-x-lg"></i>
                 </button>
@@ -687,8 +691,7 @@
                     <div
                         class="flex flex-col-reverse gap-3 border-t border-slate-100 bg-white px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
 
-                        <button type="button"
-                            onclick="closeExamSetCreateModal()"
+                        <button type="button" onclick="closeExamSetCreateModal()"
                             class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
                             Cancel
                         </button>
@@ -712,9 +715,7 @@
          EDIT EXAM SET MODALS
     ============================================================== --}}
     @foreach ($exam->examSets as $examSet)
-
-        <div
-            id="examSetEditModal{{ $examSet->id }}"
+        <div id="examSetEditModal{{ $examSet->id }}"
             class="exam-set-modal-backdrop fixed inset-0 z-[9999] hidden items-center justify-center bg-slate-900/50 px-4 py-6 opacity-0 transition-opacity duration-200">
 
             <div class="max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-xl bg-white shadow-xl">
@@ -733,8 +734,7 @@
                         </p>
                     </div>
 
-                    <button type="button"
-                        onclick="closeExamSetEditModal({{ $examSet->id }})"
+                    <button type="button" onclick="closeExamSetEditModal({{ $examSet->id }})"
                         class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600">
                         <i class="bi bi-x-lg"></i>
                     </button>
@@ -755,8 +755,7 @@
                         <div
                             class="flex flex-col-reverse gap-3 border-t border-slate-100 bg-white px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
 
-                            <button type="button"
-                                onclick="closeExamSetEditModal({{ $examSet->id }})"
+                            <button type="button" onclick="closeExamSetEditModal({{ $examSet->id }})"
                                 class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
                                 Cancel
                             </button>
@@ -777,8 +776,7 @@
         </div>
 
         {{-- View Exam Set Modal --}}
-        <div
-            id="examSetViewModal{{ $examSet->id }}"
+        <div id="examSetViewModal{{ $examSet->id }}"
             class="exam-set-modal-backdrop fixed inset-0 z-[9999] hidden items-center justify-center bg-slate-900/50 px-4 py-6 opacity-0 transition-opacity duration-200">
 
             <div class="relative w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl">
@@ -795,8 +793,7 @@
                         </p>
                     </div>
 
-                    <button type="button"
-                        onclick="closeExamSetViewModal({{ $examSet->id }})"
+                    <button type="button" onclick="closeExamSetViewModal({{ $examSet->id }})"
                         class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600">
                         <i class="bi bi-x-lg text-sm"></i>
                     </button>
@@ -887,8 +884,7 @@
                         Edit
                     </button>
 
-                    <button type="button"
-                        onclick="closeExamSetViewModal({{ $examSet->id }})"
+                    <button type="button" onclick="closeExamSetViewModal({{ $examSet->id }})"
                         class="cursor-pointer rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
                         Close
                     </button>
@@ -899,8 +895,7 @@
         </div>
 
         {{-- Manage Questions Modal --}}
-        <div
-            id="manageQuestionsModal{{ $examSet->id }}"
+        <div id="manageQuestionsModal{{ $examSet->id }}"
             data-validation-error="{{ $errors->any() && old('_method') === 'PUT' && old('exam_set_id') == $examSet->id ? 'true' : 'false' }}"
             class="exam-set-modal-backdrop fixed inset-0 z-[9999] hidden items-center justify-center bg-slate-900/50 px-4 py-6 opacity-0 transition-opacity duration-200">
 
@@ -918,8 +913,7 @@
                         </p>
                     </div>
 
-                    <button type="button"
-                        onclick="closeManageQuestionsModal({{ $examSet->id }})"
+                    <button type="button" onclick="closeManageQuestionsModal({{ $examSet->id }})"
                         class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600">
                         <i class="bi bi-x-lg text-sm"></i>
                     </button>
@@ -928,23 +922,18 @@
 
                 <div class="max-h-[75vh] overflow-y-auto px-5 py-6 sm:px-6">
 
-                    <form
-                        action="{{ route('exam-sets.questions.update', $examSet->id) }}"
-                        method="POST"
+                    <form action="{{ route('exam-sets.questions.update', $examSet->id) }}" method="POST"
                         class="manage-questions-form">
 
                         @csrf
                         @method('PUT')
 
-                        <input type="hidden"
-                            name="exam_set_id"
-                            value="{{ $examSet->id }}">
+                        <input type="hidden" name="exam_set_id" value="{{ $examSet->id }}">
 
                         @php
                             $existingMappings = [];
 
                             foreach ($examSet->competencyUnitMappings as $mapping) {
-
                                 if (!$mapping->competencyUnit) {
                                     continue;
                                 }
@@ -976,8 +965,7 @@
 
                         <div class="mt-6 flex items-center justify-end gap-3">
 
-                            <button type="button"
-                                onclick="closeManageQuestionsModal({{ $examSet->id }})"
+                            <button type="button" onclick="closeManageQuestionsModal({{ $examSet->id }})"
                                 class="rounded-lg border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
                                 Cancel
                             </button>
@@ -996,7 +984,6 @@
 
             </div>
         </div>
-
     @endforeach
 
 @endsection
@@ -1025,4 +1012,3 @@
     @endif
 
 @endpush
-

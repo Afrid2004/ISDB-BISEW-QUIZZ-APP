@@ -118,8 +118,13 @@
                 </x-sidebar.sub-link>
             </x-sidebar.dropdown>
 
+            {{-- Exams --}}
+            <x-sidebar.link route="exams.index" icon="bi-file-earmark-text">
+                Exams
+            </x-sidebar.link>
+
             {{-- Exams Dropdown --}}
-            <x-sidebar.dropdown title="Exams" route="exams.*" icon="bi-file-earmark-text">
+            {{-- <x-sidebar.dropdown title="Exams" route="exams.*" icon="bi-file-earmark-text">
                 <x-sidebar.sub-link route="exams.index">
                     All Exams
                 </x-sidebar.sub-link>
@@ -131,24 +136,6 @@
                 <x-sidebar.sub-link route="exams.deleted">
                     Deleted Exams
                 </x-sidebar.sub-link>
-            </x-sidebar.dropdown>
-
-
-            {{-- Exam Set Competency Units Dropdown
-            <x-sidebar.dropdown title="Exam Assignments" route="exam-set-competency-units.*" icon="bi-diagram-3">
-
-                <x-sidebar.sub-link route="exam-set-competency-units.index">
-                    All Assignments
-                </x-sidebar.sub-link>
-
-                <x-sidebar.sub-link route="exam-set-competency-units.create">
-                    Assign Competency Unit
-                </x-sidebar.sub-link>
-
-                <x-sidebar.sub-link route="exam-set-competency-units.deleted">
-                    Deleted Assignments
-                </x-sidebar.sub-link>
-
             </x-sidebar.dropdown> --}}
 
             {{-- Training Centers Dropdown --}}

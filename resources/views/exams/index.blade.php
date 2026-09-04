@@ -232,20 +232,15 @@
 
                                     <div class="flex items-center justify-center gap-2">
 
-                                        {{-- View --}}
-                                        <a href="{{ route('exams.show', $exam) }}" title="View Exam"
-                                            class="inline-flex h-8 w-8 items-center
-                                               justify-center rounded-lg
-                                               border border-slate-200
-                                               bg-white text-slate-500
-                                               transition
-                                               hover:border-primary/30
-                                               hover:bg-primary/10
-                                               hover:text-primary">
 
-                                            <i class="bi bi-eye text-sm"></i>
-
+                                        {{-- Manage Exam Sets --}}
+                                        <a href="{{ route('exams.show', $exam) }}" title="Manage Exam Sets"
+                                            class="inline-flex h-8 items-center justify-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-white transition hover:bg-primary/90">
+                                            <span>Manage Exam Sets</span>
+                                            <i class="bi bi-arrow-right text-sm"></i>
                                         </a>
+
+
 
                                         {{-- Edit --}}
                                         <a href="{{ route('exams.edit', $exam) }}" title="Edit Exam"

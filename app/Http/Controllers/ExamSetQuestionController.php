@@ -8,12 +8,221 @@ use App\Models\ExamSet;
 use App\Models\ExamSetQuestion;
 use App\Models\ExamSetCompetencyUnit;
 use App\Models\Question;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class ExamSetQuestionController extends Controller
 {
+    public function generatePage(ExamSet $examSet)
+    {
+        if (!$examSet->is_active || $examSet->deleted_at !== null) {
+            abort(404);
+        }
+
+        $examSet->load([
+            'exam.course',
+            'exam.batch',
+            'competencyUnitMappings.competencyUnit.module',
+        ]);
+
+        $assignments = $examSet->competencyUnitMappings()
+            ->with('competencyUnit.module')
+            ->where('is_active', true)
+            ->whereNull('deleted_at')
+            ->get();
+
+        foreach ($assignments as $assignment) {
+            $assignment->available_questions = Question::query()
+                ->where('course_id', $examSet->exam->course_id)
+                ->whereHas('element', function ($query) use ($assignment) {
+                    $query->where(
+                        'competency_unit_id',
+                        $assignment->competency_unit_id
+                    );
+                })
+                ->where('is_active', true)
+                ->whereNull('deleted_at')
+                ->count();
+        }
+
+        $generatedQuestions = ExamSetQuestion::query()
+            ->with([
+                'question.element.competencyUnit',
+                'question.options',
+            ])
+            ->where('exam_set_id', $examSet->id)
+            ->where('is_active', true)
+            ->whereNull('deleted_at')
+            ->orderBy('question_order')
+            ->get();
+
+        return view(
+            'exam-set-questions.generate',
+            compact(
+                'examSet',
+                'assignments',
+                'generatedQuestions'
+            )
+        );
+    }
+
+    public function questionCopyPdf(ExamSet $examSet)
+    {
+        $generatedQuestions = ExamSetQuestion::with([
+            'question.element.competencyUnit',
+            'question.options',
+        ])
+            ->where('exam_set_id', $examSet->id)
+            ->where('is_active', true)
+            ->whereNull('deleted_at')
+            ->orderBy('question_order')
+            ->get();
+
+        $pdf = Pdf::loadView('exam-set-questions.question-copy-pdf', [
+            'examSet' => $examSet,
+            'generatedQuestions' => $generatedQuestions,
+        ]);
+
+        return $pdf->download(
+            $examSet->name . '-question-copy.pdf'
+        );
+    }
+
+    public function answerCopyPdf(ExamSet $examSet)
+    {
+        $generatedQuestions = ExamSetQuestion::with([
+            'question.element.competencyUnit',
+            'question.options',
+        ])
+            ->where('exam_set_id', $examSet->id)
+            ->where('is_active', true)
+            ->whereNull('deleted_at')
+            ->orderBy('question_order')
+            ->get();
+
+        $pdf = Pdf::loadView('exam-set-questions.answer-copy-pdf', [
+            'examSet' => $examSet,
+            'generatedQuestions' => $generatedQuestions,
+        ]);
+
+        return $pdf->download(
+            $examSet->name . '-answer-copy.pdf'
+        );
+    }
+
+    public function generate(Request $request, ExamSet $examSet)
+    {
+        if (!$examSet->is_active || $examSet->deleted_at !== null) {
+            abort(404);
+        }
+
+        $exam = $examSet->exam;
+
+        if (!$exam) {
+            throw ValidationException::withMessages([
+                'exam_set' => 'Exam set exam not found.',
+            ]);
+        }
+
+        $assignments = ExamSetCompetencyUnit::query()
+            ->with('competencyUnit')
+            ->where('exam_set_id', $examSet->id)
+            ->where('is_active', true)
+            ->whereNull('deleted_at')
+            ->get();
+
+        if ($assignments->isEmpty()) {
+            throw ValidationException::withMessages([
+                'exam_set' => 'No competency units are assigned to this exam set.',
+            ]);
+        }
+
+        DB::transaction(function () use (
+            $assignments,
+            $examSet,
+            $exam
+        ) {
+            foreach ($assignments as $assignment) {
+                $requiredCount = (int) $assignment->question_count;
+
+                if ($requiredCount <= 0) {
+                    continue;
+                }
+
+                $availableCount = Question::query()
+                    ->where('course_id', $exam->course_id)
+                    ->whereHas('element', function ($query) use ($assignment) {
+                        $query->where(
+                            'competency_unit_id',
+                            $assignment->competency_unit_id
+                        );
+                    })
+                    ->where('is_active', true)
+                    ->whereNull('deleted_at')
+                    ->count();
+
+                if ($availableCount < $requiredCount) {
+                    $code = $assignment->competencyUnit->code ?? 'Unknown';
+
+                    throw ValidationException::withMessages([
+                        'exam_set' =>
+                            "Not enough active questions available for competency unit {$code}. Required: {$requiredCount}, Available: {$availableCount}.",
+                    ]);
+                }
+            }
+
+            ExamSetQuestion::withTrashed()
+                ->where('exam_set_id', $examSet->id)
+                ->forceDelete();
+
+            $order = 1;
+
+            foreach ($assignments as $assignment) {
+                $requiredCount = (int) $assignment->question_count;
+
+                if ($requiredCount <= 0) {
+                    continue;
+                }
+
+                $questions = Question::query()
+                    ->where('course_id', $exam->course_id)
+                    ->whereHas('element', function ($query) use ($assignment) {
+                        $query->where(
+                            'competency_unit_id',
+                            $assignment->competency_unit_id
+                        );
+                    })
+                    ->where('is_active', true)
+                    ->whereNull('deleted_at')
+                    ->inRandomOrder()
+                    ->limit($requiredCount)
+                    ->get();
+
+                foreach ($questions as $question) {
+                    $examSetQuestion = new ExamSetQuestion();
+
+                    $examSetQuestion->exam_set_id = $examSet->id;
+                    $examSetQuestion->question_id = $question->id;
+                    $examSetQuestion->question_order = $order;
+                    $examSetQuestion->is_active = true;
+
+                    $examSetQuestion->save();
+
+                    $order++;
+                }
+            }
+        });
+
+        return redirect()
+            ->route('exam-set-questions.generate', $examSet->id)
+            ->with(
+                'success',
+                'Questions generated successfully.'
+            );
+    }
+
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -92,7 +301,8 @@ class ExamSetQuestionController extends Controller
 
         if (!$exam) {
             throw ValidationException::withMessages([
-                'exam_id' => 'The selected exam does not belong to the selected batch.',
+                'exam_id' =>
+                    'The selected exam does not belong to the selected batch.',
             ]);
         }
 
@@ -105,7 +315,8 @@ class ExamSetQuestionController extends Controller
 
         if (!$examSet) {
             throw ValidationException::withMessages([
-                'exam_set_id' => 'The selected exam set does not belong to the selected exam.',
+                'exam_set_id' =>
+                    'The selected exam set does not belong to the selected exam.',
             ]);
         }
 
@@ -118,11 +329,45 @@ class ExamSetQuestionController extends Controller
 
         if ($assignments->isEmpty()) {
             throw ValidationException::withMessages([
-                'exam_set_id' => 'No competency units are assigned to this exam set.',
+                'exam_set_id' =>
+                    'No competency units are assigned to this exam set.',
             ]);
         }
 
-        DB::transaction(function () use ($assignments, $examSet, $exam) {
+        DB::transaction(function () use (
+            $assignments,
+            $examSet,
+            $exam
+        ) {
+            foreach ($assignments as $assignment) {
+                $requiredCount = (int) $assignment->question_count;
+
+                if ($requiredCount <= 0) {
+                    continue;
+                }
+
+                $availableCount = Question::query()
+                    ->where('course_id', $exam->course_id)
+                    ->whereHas('element', function ($query) use ($assignment) {
+                        $query->where(
+                            'competency_unit_id',
+                            $assignment->competency_unit_id
+                        );
+                    })
+                    ->where('is_active', true)
+                    ->whereNull('deleted_at')
+                    ->count();
+
+                if ($availableCount < $requiredCount) {
+                    $code = $assignment->competencyUnit->code ?? 'Unknown';
+
+                    throw ValidationException::withMessages([
+                        'exam_set_id' =>
+                            "Not enough active questions available for competency unit {$code}. Required: {$requiredCount}, Available: {$availableCount}.",
+                    ]);
+                }
+            }
+
             ExamSetQuestion::withTrashed()
                 ->where('exam_set_id', $examSet->id)
                 ->forceDelete();
@@ -155,7 +400,7 @@ class ExamSetQuestionController extends Controller
 
                     throw ValidationException::withMessages([
                         'exam_set_id' =>
-                        "Not enough active questions available for competency unit {$code}. Required: {$requiredCount}, Available: {$questions->count()}.",
+                            "Not enough active questions available for competency unit {$code}. Required: {$requiredCount}, Available: {$questions->count()}.",
                     ]);
                 }
 
@@ -247,7 +492,7 @@ class ExamSetQuestionController extends Controller
             if ($newOrder > $totalQuestions) {
                 throw ValidationException::withMessages([
                     'question_order' =>
-                    "Question order cannot be greater than {$totalQuestions}.",
+                        "Question order cannot be greater than {$totalQuestions}.",
                 ]);
             }
 
@@ -268,12 +513,12 @@ class ExamSetQuestionController extends Controller
             foreach ($questions as $index => $question) {
                 $question->question_order =
                     $offset + $index + 1;
+
                 $question->save();
             }
 
             foreach ($questions as $index => $question) {
-                $question->question_order =
-                    $index + 1;
+                $question->question_order = $index + 1;
 
                 if ($question->id === $examSetQuestion->id) {
                     $question->is_active =
@@ -430,11 +675,11 @@ class ExamSetQuestionController extends Controller
             $result[] = [
                 'id' => $assignment->id,
                 'competency_unit_id' =>
-                $assignment->competency_unit_id,
+                    $assignment->competency_unit_id,
                 'competency_unit' =>
-                $assignment->competencyUnit,
+                    $assignment->competencyUnit,
                 'required_count' =>
-                $assignment->question_count,
+                    $assignment->question_count,
             ];
         }
 
@@ -444,3 +689,4 @@ class ExamSetQuestionController extends Controller
         ]);
     }
 }
+
