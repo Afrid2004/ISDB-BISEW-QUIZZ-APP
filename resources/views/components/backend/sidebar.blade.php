@@ -123,6 +123,11 @@
                 Exams
             </x-sidebar.link>
 
+            {{-- Exam Slots --}}
+            <x-sidebar.link route="exam-slots.index" icon="bi-calendar2-check">
+                Exam Slots
+            </x-sidebar.link>
+
             {{-- Exams Dropdown --}}
             {{-- <x-sidebar.dropdown title="Exams" route="exams.*" icon="bi-file-earmark-text">
                 <x-sidebar.sub-link route="exams.index">

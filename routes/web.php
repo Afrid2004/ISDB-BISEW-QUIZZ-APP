@@ -13,6 +13,7 @@ use App\Http\Controllers\ExamController;
 use App\Http\Controllers\ExamSetCompetencyUnitController;
 use App\Http\Controllers\ExamSetController;
 use App\Http\Controllers\ExamSetQuestionController;
+use App\Http\Controllers\ExamSlotController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -136,6 +137,22 @@ Route::get(
     '/exam-sets/{examSet}/questions/generate/answer-copy',
     [ExamSetQuestionController::class, 'answerCopyPdf']
 )->name('exam-set-questions.answer-copy-pdf');
+
+
+// exam slots
+Route::get('/exam-slots-deleted', [ExamSlotController::class, 'deletedSlots'])
+->name('exam-slots.deleted');
+Route::post('/exam-slots/{id}/restore', [ExamSlotController::class, 'restoreSlots'])
+->name('exam-slots.restore');
+Route::delete('/exam-slots/{id}/force-delete', [ExamSlotController::class, 'forceDelete'])
+->name('exam-slots.force-delete');
+Route::get('/exam-slots/exams/{batchId}', [ExamSlotController::class, 'getExams'])
+    ->name('exam-slots.exams');
+Route::get('/exam-slots/exam-sets/{examId}', [ExamSlotController::class, 'getExamSets'])
+    ->name('exam-slots.exam-sets');
+Route::resource('exam-slots', ExamSlotController::class);
+
+
 /*
 |--------------------------------------------------------------------------
 | Application Dashboard Route
