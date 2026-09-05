@@ -31,6 +31,26 @@
 @endif
 
 
+@if (session('error'))
+    <div x-data="{ show: true }"
+        x-init="setTimeout(() => show = false, 5000)"
+        x-show="show"
+        x-transition.duration.500ms
+        {{ $attributes->merge(['class' => 'mt-3 flex items-center justify-between rounded-lg border border-red-200 bg-red-50 px-4 py-3']) }}>
+
+        <div class="flex items-center gap-3">
+            <div class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-500 text-white">
+                <i class="bi bi-exclamation-lg text-xs"></i>
+            </div>
+
+            <p class="text-sm font-semibold text-red-800">
+                {{ session('error') }}
+            </p>
+        </div>
+
+    </div>
+@endif
+
 @if (session('success'))
     <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 5000)" x-show="show" x-transition.duration.500ms
         {{ $attributes->merge(['class' => 'mt-3 flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3']) }}>

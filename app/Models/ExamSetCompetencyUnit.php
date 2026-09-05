@@ -11,6 +11,17 @@ class ExamSetCompetencyUnit extends Model
     /** @use HasFactory<\Database\Factories\ExamSetCompetencyUnitFactory> */
     use HasFactory, SoftDeletes;
 
+    protected $fillable = [
+        'exam_set_id',
+        'competency_unit_id',
+        'question_count',
+        'is_active',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
     public function examSet()
     {
         return $this->belongsTo(ExamSet::class);

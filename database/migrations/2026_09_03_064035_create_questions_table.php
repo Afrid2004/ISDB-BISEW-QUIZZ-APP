@@ -30,6 +30,11 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
 
+            $table->foreignId('element_id')
+                ->constrained('elements')
+                ->cascadeOnUpdate()
+                ->restrictOnDelete();
+
             // Question
             $table->text('question_text');
 

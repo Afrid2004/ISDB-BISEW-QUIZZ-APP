@@ -12,6 +12,8 @@ use App\Http\Controllers\ElementController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\ExamSetCompetencyUnitController;
 use App\Http\Controllers\ExamSetController;
+use App\Http\Controllers\ExamSetQuestionController;
+use App\Http\Controllers\ExamSlotController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -61,35 +63,96 @@ Route::get('/exams/batches/{courseId}', [ExamController::class, 'getBatchesByCou
 Route::get('/exams/deleted', [ExamController::class, 'deletedExams'])->name('exams.deleted');
 Route::patch('/exams/{id}/restore', [ExamController::class, 'restoreExams'])->name('exams.restore');
 Route::delete('/exams/{id}/delete', [ExamController::class, 'forceDelete'])->name('exams.forceDelete');
+Route::post('exams/{exam}/exam-sets', [ExamSetController::class, 'store'])->name('exams.exam-sets.store');
+Route::patch('exams/{exam}/exam-sets/{examSet}', [ExamSetController::class, 'update'])->name('exams.exam-sets.update');
+Route::delete('exams/{exam}/exam-sets/{examSet}', [ExamSetController::class, 'destroy'])->name('exams.exam-sets.destroy');
 Route::resource('/exams', ExamController::class);
 
-// Exam Set Controller
-Route::get('/exam-sets/deleted', [ExamSetController::class, 'deletedSets'])
-    ->name('exam-sets.deleted');
-Route::patch('/exam-sets/{examSet}/restore', [ExamSetController::class, 'restoreSet'])
-    ->name('exam-sets.restore');
-Route::delete('/exam-sets/{examSet}/force-delete', [ExamSetController::class, 'forceDelete'])
-    ->name('exam-sets.forceDelete');
-Route::resource('/exam-sets', ExamSetController::class)
-    ->names('exam-sets');
-
 // Exam Set Competency Unit Controller
+Route::get(
+    '/exam-set-competency-units/deleted',
+    [ExamSetCompetencyUnitController::class, 'deleted']
+)->name('exam-set-competency-units.deleted');
 
-Route::get('/exam-set-competency-units/deleted', [ExamSetCompetencyUnitController::class, 'deleted'])->name('exam-set-competency-units.deleted');
-Route::patch('/exam-set-competency-units/{id}/restore', [ExamSetCompetencyUnitController::class, 'restore'])->name('exam-set-competency-units.restore');
-Route::delete('/exam-set-competency-units/{id}/force-delete', [ExamSetCompetencyUnitController::class, 'forceDelete'])->name('exam-set-competency-units.forceDelete');
+Route::patch(
+    '/exam-set-competency-units/{id}/restore',
+    [ExamSetCompetencyUnitController::class, 'restore']
+)->name('exam-set-competency-units.restore');
 
-// Dependency Routes
-Route::get('/exam-set-competency-units/exams', [ExamSetCompetencyUnitController::class, 'getExamsByBatch'])
-    ->name('exam-set-competency-units.exams');
-Route::get('/exam-set-competency-units/modules', [ExamSetCompetencyUnitController::class, 'getModulesByBatch'])
-    ->name('exam-set-competency-units.modules');
-Route::get('/exam-set-competency-units/exam-sets/{examId}', [ExamSetCompetencyUnitController::class, 'getExamSetsByExam'])
-    ->name('exam-set-competency-units.exam-sets');
-Route::get('/exam-set-competency-units/competency-units/{moduleId}', [ExamSetCompetencyUnitController::class, 'getCompetencyUnitsByModule'])
-    ->name('exam-set-competency-units.competency-units');
-Route::resource('/exam-set-competency-units', ExamSetCompetencyUnitController::class)
-    ->names('exam-set-competency-units');
+Route::delete(
+    '/exam-set-competency-units/{id}/force-delete',
+    [ExamSetCompetencyUnitController::class, 'forceDelete']
+)->name('exam-set-competency-units.forceDelete');
+
+// Dependency Route
+
+Route::get(
+    '/exam-set-competency-units/competency-units/{moduleId}',
+    [ExamSetCompetencyUnitController::class, 'getCompetencyUnitsByModule']
+)->name('exam-set-competency-units.competency-units');
+
+// Manage Questions
+
+Route::put(
+    '/exam-sets/{examSet}/questions',
+    [ExamSetCompetencyUnitController::class, 'updateQuestions']
+)->name('exam-sets.questions.update');
+
+
+
+// exam set question controller
+Route::get('/exam-set-questions/deleted', [ExamSetQuestionController::class, 'deleted'])
+    ->name('exam-set-questions.deleted');
+
+Route::patch('/exam-set-questions/{id}/restore', [ExamSetQuestionController::class, 'restore'])
+    ->name('exam-set-questions.restore');
+
+Route::delete('/exam-set-questions/{id}/force-delete', [ExamSetQuestionController::class, 'forceDelete'])
+    ->name('exam-set-questions.forceDelete');
+
+Route::get('/exam-set-questions/exams', [ExamSetQuestionController::class, 'getExamsByBatch'])
+    ->name('exam-set-questions.exams');
+
+Route::get('/exam-set-questions/exam-sets/{examId}', [ExamSetQuestionController::class, 'getExamSetsByExam'])
+    ->name('exam-set-questions.exam-sets');
+
+Route::get('/exam-set-questions/{examSetId}/questions', [ExamSetQuestionController::class, 'getQuestionsByExamSet'])
+    ->name('exam-set-questions.questions');
+
+Route::get(
+    '/exam-sets/{examSet}/questions/generate',
+    [ExamSetQuestionController::class, 'generatePage']
+)->name('exam-set-questions.generate');
+
+Route::post(
+    '/exam-sets/{examSet}/questions/generate',
+    [ExamSetQuestionController::class, 'generate']
+)->name('exam-set-questions.generate.store');
+Route::get(
+    '/exam-sets/{examSet}/questions/generate/question-copy',
+    [ExamSetQuestionController::class, 'questionCopyPdf']
+)->name('exam-set-questions.question-copy-pdf');
+
+Route::get(
+    '/exam-sets/{examSet}/questions/generate/answer-copy',
+    [ExamSetQuestionController::class, 'answerCopyPdf']
+)->name('exam-set-questions.answer-copy-pdf');
+
+
+// exam slots
+Route::get('/exam-slots-deleted', [ExamSlotController::class, 'deletedSlots'])
+->name('exam-slots.deleted');
+Route::post('/exam-slots/{id}/restore', [ExamSlotController::class, 'restoreSlots'])
+->name('exam-slots.restore');
+Route::delete('/exam-slots/{id}/force-delete', [ExamSlotController::class, 'forceDelete'])
+->name('exam-slots.force-delete');
+Route::get('/exam-slots/exams/{batchId}', [ExamSlotController::class, 'getExams'])
+    ->name('exam-slots.exams');
+Route::get('/exam-slots/exam-sets/{examId}', [ExamSlotController::class, 'getExamSets'])
+    ->name('exam-slots.exam-sets');
+Route::resource('exam-slots', ExamSlotController::class);
+
+
 /*
 |--------------------------------------------------------------------------
 | Application Dashboard Route
