@@ -101,24 +101,6 @@ Route::put(
 
 
 // exam set question controller
-Route::get('/exam-set-questions/deleted', [ExamSetQuestionController::class, 'deleted'])
-    ->name('exam-set-questions.deleted');
-
-Route::patch('/exam-set-questions/{id}/restore', [ExamSetQuestionController::class, 'restore'])
-    ->name('exam-set-questions.restore');
-
-Route::delete('/exam-set-questions/{id}/force-delete', [ExamSetQuestionController::class, 'forceDelete'])
-    ->name('exam-set-questions.forceDelete');
-
-Route::get('/exam-set-questions/exams', [ExamSetQuestionController::class, 'getExamsByBatch'])
-    ->name('exam-set-questions.exams');
-
-Route::get('/exam-set-questions/exam-sets/{examId}', [ExamSetQuestionController::class, 'getExamSetsByExam'])
-    ->name('exam-set-questions.exam-sets');
-
-Route::get('/exam-set-questions/{examSetId}/questions', [ExamSetQuestionController::class, 'getQuestionsByExamSet'])
-    ->name('exam-set-questions.questions');
-
 Route::get(
     '/exam-sets/{examSet}/questions/generate',
     [ExamSetQuestionController::class, 'generatePage']
@@ -128,6 +110,7 @@ Route::post(
     '/exam-sets/{examSet}/questions/generate',
     [ExamSetQuestionController::class, 'generate']
 )->name('exam-set-questions.generate.store');
+
 Route::get(
     '/exam-sets/{examSet}/questions/generate/question-copy',
     [ExamSetQuestionController::class, 'questionCopyPdf']

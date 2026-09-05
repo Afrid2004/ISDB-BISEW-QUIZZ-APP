@@ -380,21 +380,17 @@
 
 
                                         <div class="flex items-center justify-end gap-2">
-                                            <button type="button" onclick="openExamSetViewModal({{ $examSet->id }})"
-                                                class="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 transition hover:border-primary hover:text-primary">
-                                                <i class="bi bi-eye"></i>
-                                                View
-                                            </button>
+
 
                                             <button type="button"
                                                 onclick="openManageQuestionsModal({{ $examSet->id }})"
-                                                class="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 transition hover:border-primary hover:text-primary">
+                                                class="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 transition hover:border-primary hover:text-primary">
                                                 <i class="bi bi-list-check"></i>
                                                 Questions
                                             </button>
 
                                             <a href="{{ route('exam-set-questions.generate', $examSet->id) }}"
-                                                class="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-3 text-sm font-medium text-white transition hover:bg-primary/90">
+                                                class="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 text-sm font-medium text-white transition hover:bg-primary/90">
                                                 <i class="bi bi-lightning-charge"></i>
                                                 Generate Exam
                                             </a>
@@ -407,6 +403,13 @@
 
                                                 <div
                                                     class="absolute right-0 top-11 z-50 w-36 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
+
+                                                    <button type="button"
+                                                        onclick="openExamSetViewModal({{ $examSet->id }})"
+                                                        class="flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-sm text-slate-600 hover:bg-slate-50">
+                                                        <i class="bi bi-eye"></i>
+                                                        View
+                                                    </button>
 
                                                     <button type="button"
                                                         onclick="openExamSetEditModal({{ $examSet->id }})"

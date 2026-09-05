@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\CompetencyUnit;
 use App\Models\ExamSet;
 use App\Models\ExamSetCompetencyUnit;
+use App\Models\ExamSetQuestion;
 use App\Models\Module;
+use App\Models\Question;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -84,11 +86,9 @@ class ExamSetCompetencyUnitController extends Controller
             abort(422, 'Exam set exam not found.');
         }
 
-        $totalMarks = (float) $examSet->total_marks;
-        $totalQuestions = 0;
-
         $selectedCompetencyUnits = [];
         $selectedModules = [];
+        $minimumTotalMarks = 0;
 
         foreach ($validated['modules'] ?? [] as $moduleData) {
             $moduleId = (int) $moduleData['module_id'];
@@ -151,16 +151,39 @@ class ExamSetCompetencyUnitController extends Controller
 
                 $questionCount = (int) $unit['question_count'];
 
-                $totalQuestions += $questionCount;
+                $questions = Question::query()
+                    ->where('course_id', $exam->course_id)
+                    ->where('is_active', true)
+                    ->whereNull('deleted_at')
+                    ->whereHas('element', function ($query) use ($competencyUnit) {
+                        $query->where(
+                            'competency_unit_id',
+                            $competencyUnit->id
+                        );
+                    })
+                    ->orderBy('marks')
+                    ->get([
+                        'id',
+                        'marks',
+                    ]);
 
-                if ($totalQuestions > $totalMarks) {
-                   
+                if ($questions->count() < $questionCount) {
                     return back()
                         ->withErrors([
-                            'modules' => "Total selected questions ({$totalQuestions}) cannot be greater than exam set total marks ({$totalMarks}).",
+                            'modules' => "There are only {$questions->count()} questions available for {$competencyUnit->code}, but you selected {$questionCount}.",
                         ])
                         ->withInput();
                 }
+
+                $selectedQuestions = $questions->take($questionCount);
+
+                $competencyUnitMarks = 0;
+
+                foreach ($selectedQuestions as $question) {
+                    $competencyUnitMarks += (float) $question->marks;
+                }
+
+                $minimumTotalMarks += $competencyUnitMarks;
 
                 $selectedCompetencyUnits[] = [
                     'id' => $competencyUnit->id,
@@ -170,10 +193,19 @@ class ExamSetCompetencyUnitController extends Controller
             }
         }
 
+        if ($minimumTotalMarks > (float) $examSet->total_marks) {
+            return back()
+                ->withErrors([
+                    'modules' => "The selected questions require at least {$minimumTotalMarks} marks, but this exam set allows only {$examSet->total_marks} marks.",
+                ])
+                ->withInput();
+        }
+
         DB::transaction(function () use (
             $examSet,
             $selectedCompetencyUnits,
-            $validated
+            $validated,
+            $exam
         ) {
             $selectedIds = [];
 
@@ -225,13 +257,63 @@ class ExamSetCompetencyUnitController extends Controller
                     $mapping->save();
                 }
             }
+
+            ExamSetQuestion::withTrashed()
+                ->where('exam_set_id', $examSet->id)
+                ->forceDelete();
+
+            if ((bool) $validated['is_active'] === true) {
+                $assignments = ExamSetCompetencyUnit::query()
+                    ->with('competencyUnit')
+                    ->where('exam_set_id', $examSet->id)
+                    ->where('is_active', true)
+                    ->whereNull('deleted_at')
+                    ->get();
+
+                $order = 1;
+
+                foreach ($assignments as $assignment) {
+                    $questionCount = (int) $assignment->question_count;
+
+                    if ($questionCount <= 0) {
+                        continue;
+                    }
+
+                    $questions = Question::query()
+                        ->where('course_id', $exam->course_id)
+                        ->where('is_active', true)
+                        ->whereNull('deleted_at')
+                        ->whereHas('element', function ($query) use ($assignment) {
+                            $query->where(
+                                'competency_unit_id',
+                                $assignment->competency_unit_id
+                            );
+                        })
+                        ->inRandomOrder()
+                        ->limit($questionCount)
+                        ->get();
+
+                    foreach ($questions as $question) {
+                        $examSetQuestion = new ExamSetQuestion();
+
+                        $examSetQuestion->exam_set_id = $examSet->id;
+                        $examSetQuestion->question_id = $question->id;
+                        $examSetQuestion->question_order = $order;
+                        $examSetQuestion->is_active = true;
+
+                        $examSetQuestion->save();
+
+                        $order++;
+                    }
+                }
+            }
         });
 
         return redirect()
             ->route('exams.show', $exam->id)
             ->with(
                 'success',
-                'Questions assigned to exam set successfully.'
+                'Questions assigned and generated successfully.'
             );
     }
 
@@ -334,3 +416,4 @@ class ExamSetCompetencyUnitController extends Controller
             );
     }
 }
+
