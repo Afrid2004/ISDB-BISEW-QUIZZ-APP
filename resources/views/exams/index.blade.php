@@ -235,7 +235,7 @@
 
                                         {{-- Manage Exam Sets --}}
                                         <a href="{{ route('exams.show', $exam) }}" title="Manage Exam Sets"
-                                            class="inline-flex h-8 items-center justify-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-white transition hover:bg-primary/90">
+                                            class="inline-flex h-8 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-white transition hover:bg-primary/90">
                                             <span>Manage Exam Sets</span>
                                             <i class="bi bi-arrow-right text-sm"></i>
                                         </a>
@@ -245,7 +245,7 @@
                                         {{-- Edit --}}
                                         <a href="{{ route('exams.edit', $exam) }}" title="Edit Exam"
                                             class="inline-flex h-8 w-8 items-center
-                                               justify-center rounded-lg
+                                               justify-center rounded-lg  shrink-0
                                                border border-slate-200
                                                bg-white text-slate-500
                                                transition
@@ -266,7 +266,7 @@
 
                                             <button type="submit" title="Delete Exam"
                                                 class="inline-flex h-8 w-8 items-center
-                                                   justify-center rounded-lg
+                                                   justify-center rounded-lg  shrink-0
                                                    border border-red-100
                                                    bg-red-50 text-red-500
                                                    transition
@@ -436,20 +436,11 @@
                             class="mt-4 flex items-center gap-2
                                border-t border-slate-100 pt-4">
 
-                            {{-- View --}}
-                            <a href="{{ route('exams.show', $exam) }}"
-                                class="inline-flex flex-1 items-center
-                                   justify-center gap-2 rounded-lg
-                                   border border-slate-200 bg-white
-                                   px-3 py-2 text-xs font-semibold
-                                   text-slate-600 transition
-                                   hover:border-primary/30
-                                   hover:bg-primary/10
-                                   hover:text-primary">
-
-                                <i class="bi bi-eye"></i>
-                                View
-
+                            {{-- Manage Exam Sets --}}
+                            <a href="{{ route('exams.show', $exam) }}" title="Manage Exam Sets"
+                                class="inline-flex h-8 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-white transition hover:bg-primary/90">
+                                <span>Manage Exam Sets</span>
+                                <i class="bi bi-arrow-right text-sm"></i>
                             </a>
 
                             {{-- Edit --}}

@@ -1,3 +1,4 @@
+
 @extends('layouts.backend.app')
 
 @section('content')
@@ -45,40 +46,40 @@
         <x-_alerts class="m-3" />
 
         {{-- Desktop Table --}}
-        <div class="hidden overflow-x-auto md:block">
+        <div class="hidden overflow-x-auto lg:block">
 
-            <table class="w-full min-w-[1200px] text-left">
+            <table class="w-full min-w-[1050px] text-left xl:min-w-[1200px]">
 
                 {{-- Table Header --}}
                 <thead class="border-b border-slate-100 bg-slate-50/60">
 
                     <tr>
 
-                        <th class="px-5 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">
+                        <th class="whitespace-nowrap px-4 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400 xl:px-5">
                             Slot
                         </th>
 
-                        <th class="px-5 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">
+                        <th class="whitespace-nowrap px-4 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400 xl:px-5">
                             Batch
                         </th>
 
-                        <th class="px-5 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">
+                        <th class="whitespace-nowrap px-4 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400 xl:px-5">
                             Exam
                         </th>
 
-                        <th class="px-5 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">
+                        <th class="whitespace-nowrap px-4 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400 xl:px-5">
                             Exam Set
                         </th>
 
-                        <th class="px-5 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">
+                        <th class="whitespace-nowrap px-4 py-3 text-[11px] font-bold uppercase tracking-wide text-slate-400 xl:px-5">
                             Schedule
                         </th>
 
-                        <th class="px-5 py-3 text-center text-[11px] font-bold uppercase tracking-wide text-slate-400">
+                        <th class="whitespace-nowrap px-4 py-3 text-center text-[11px] font-bold uppercase tracking-wide text-slate-400 xl:px-5">
                             Status
                         </th>
 
-                        <th class="px-5 py-3 text-center text-[11px] font-bold uppercase tracking-wide text-slate-400">
+                        <th class="whitespace-nowrap px-4 py-3 text-center text-[11px] font-bold uppercase tracking-wide text-slate-400 xl:px-5">
                             Actions
                         </th>
 
@@ -94,21 +95,21 @@
                         <tr class="transition hover:bg-slate-50/70">
 
                             {{-- Slot --}}
-                            <td class="px-5 py-4">
+                            <td class="px-4 py-4 xl:px-5">
 
-                                <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-2.5 xl:gap-3">
 
-                                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary xl:h-9 xl:w-9">
                                         <i class="bi bi-calendar-event text-sm"></i>
                                     </div>
 
-                                    <div>
+                                    <div class="min-w-0">
 
-                                        <p class="text-sm font-semibold text-slate-700">
+                                        <p class="whitespace-nowrap text-sm font-semibold text-slate-700">
                                             Slot #{{ $examSlot->id }}
                                         </p>
 
-                                        <p class="mt-0.5 text-xs text-slate-400">
+                                        <p class="mt-0.5 whitespace-nowrap text-xs text-slate-400">
                                             {{ $examSlot->created_at?->format('d M, Y') }}
                                         </p>
 
@@ -119,7 +120,7 @@
                             </td>
 
                             {{-- Batch --}}
-                            <td class="max-w-xs px-5 py-4">
+                            <td class="max-w-[160px] px-4 py-4 xl:max-w-xs xl:px-5">
 
                                 @if ($examSlot->batch)
 
@@ -138,7 +139,7 @@
                             </td>
 
                             {{-- Exam --}}
-                            <td class="max-w-sm px-5 py-4">
+                            <td class="max-w-[190px] px-4 py-4 xl:max-w-sm xl:px-5">
 
                                 @if ($examSlot->examSet?->exam)
 
@@ -157,7 +158,7 @@
                             </td>
 
                             {{-- Exam Set --}}
-                            <td class="max-w-xs px-5 py-4">
+                            <td class="max-w-[160px] px-4 py-4 xl:max-w-xs xl:px-5">
 
                                 @if ($examSlot->examSet)
 
@@ -176,25 +177,25 @@
                             </td>
 
                             {{-- Schedule --}}
-                            <td class="px-5 py-4">
+                            <td class="px-4 py-4 xl:px-5">
 
                                 <div class="space-y-1.5">
 
-                                    <div class="flex items-center gap-2 text-xs text-slate-600">
+                                    <div class="flex items-center gap-1.5 text-xs text-slate-600 xl:gap-2">
 
-                                        <i class="bi bi-play-circle text-emerald-500"></i>
+                                        <i class="bi bi-play-circle shrink-0 text-emerald-500"></i>
 
-                                        <span class="font-medium">
+                                        <span class="whitespace-nowrap font-medium">
                                             {{ $examSlot->start_at?->format('d M, Y h:i A') }}
                                         </span>
 
                                     </div>
 
-                                    <div class="flex items-center gap-2 text-xs text-slate-500">
+                                    <div class="flex items-center gap-1.5 text-xs text-slate-500 xl:gap-2">
 
-                                        <i class="bi bi-stop-circle text-red-400"></i>
+                                        <i class="bi bi-stop-circle shrink-0 text-red-400"></i>
 
-                                        <span>
+                                        <span class="whitespace-nowrap">
                                             {{ $examSlot->end_at?->format('d M, Y h:i A') }}
                                         </span>
 
@@ -205,11 +206,11 @@
                             </td>
 
                             {{-- Status --}}
-                            <td class="px-5 py-4 text-center">
+                            <td class="px-4 py-4 text-center xl:px-5">
 
                                 @if ($examSlot->is_active)
 
-                                    <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-600">
+                                    <span class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-600">
 
                                         <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                                         Active
@@ -218,7 +219,7 @@
 
                                 @else
 
-                                    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-500">
+                                    <span class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-500">
 
                                         <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
                                         Inactive
@@ -230,14 +231,14 @@
                             </td>
 
                             {{-- Actions --}}
-                            <td class="px-5 py-4">
+                            <td class="px-4 py-4 xl:px-5">
 
-                                <div class="flex items-center justify-center gap-2">
+                                <div class="flex items-center justify-center gap-1.5 xl:gap-2">
 
                                     {{-- View --}}
                                     <a href="{{ route('exam-slots.show', $examSlot) }}"
                                         title="View Exam Slot"
-                                        class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:border-primary/30 hover:bg-primary/10 hover:text-primary">
+                                        class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:border-primary/30 hover:bg-primary/10 hover:text-primary">
 
                                         <i class="bi bi-eye text-sm"></i>
 
@@ -246,7 +247,7 @@
                                     {{-- Edit --}}
                                     <a href="{{ route('exam-slots.edit', $examSlot) }}"
                                         title="Edit Exam Slot"
-                                        class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:border-primary/30 hover:bg-primary/10 hover:text-primary">
+                                        class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:border-primary/30 hover:bg-primary/10 hover:text-primary">
 
                                         <i class="bi bi-pencil-square text-sm"></i>
 
@@ -263,7 +264,7 @@
 
                                         <button type="submit"
                                             title="Delete Exam Slot"
-                                            class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-red-100 bg-red-50 text-red-500 transition hover:bg-red-100 hover:text-red-600">
+                                            class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-red-100 bg-red-50 text-red-500 transition hover:bg-red-100 hover:text-red-600">
 
                                             <i class="bi bi-trash3 text-sm"></i>
 
@@ -312,7 +313,7 @@
         </div>
 
         {{-- Mobile Cards --}}
-        <div class="divide-y divide-slate-100 md:hidden">
+        <div class="divide-y divide-slate-100 lg:hidden">
 
             @forelse ($examSlots as $examSlot)
 
@@ -602,3 +603,4 @@
     <script src="{{ asset('/assets/js/deleteAlert.js') }}"></script>
 
 @endpush
+
