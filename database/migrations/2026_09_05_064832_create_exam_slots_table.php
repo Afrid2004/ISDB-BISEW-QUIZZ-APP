@@ -24,6 +24,15 @@ return new class extends Migration
             $table->dateTime('start_at');
             $table->dateTime('end_at');
 
+            $table->enum('status', [
+                'scheduled',
+                'start',
+                'ended',
+            ])->default('scheduled');
+
+            $table->dateTime('started_at')->nullable();
+            $table->dateTime('ended_at')->nullable();
+
             $table->boolean('is_active')->default(true);
 
             $table->softDeletes();

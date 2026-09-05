@@ -124,16 +124,21 @@ Route::get(
 
 // exam slots
 Route::get('/exam-slots-deleted', [ExamSlotController::class, 'deletedSlots'])
-->name('exam-slots.deleted');
+    ->name('exam-slots.deleted');
 Route::post('/exam-slots/{id}/restore', [ExamSlotController::class, 'restoreSlots'])
-->name('exam-slots.restore');
+    ->name('exam-slots.restore');
 Route::delete('/exam-slots/{id}/force-delete', [ExamSlotController::class, 'forceDelete'])
-->name('exam-slots.force-delete');
+    ->name('exam-slots.force-delete');
 Route::get('/exam-slots/exams/{batchId}', [ExamSlotController::class, 'getExams'])
     ->name('exam-slots.exams');
 Route::get('/exam-slots/exam-sets/{examId}', [ExamSlotController::class, 'getExamSets'])
     ->name('exam-slots.exam-sets');
+Route::post('/exam-slots/{examSlot}/start', [ExamSlotController::class, 'startExam'])
+    ->name('exam-slots.start');
+Route::post('/exam-slots/{examSlot}/end', [ExamSlotController::class, 'endExam'])
+    ->name('exam-slots.end');
 Route::resource('exam-slots', ExamSlotController::class);
+
 
 
 /*

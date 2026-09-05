@@ -7,6 +7,7 @@ use App\Models\Exam;
 use App\Models\ExamSet;
 use App\Models\ExamSlot;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class ExamSlotController extends Controller
@@ -61,7 +62,7 @@ class ExamSlotController extends Controller
             ->orderBy('id')
             ->get([
                 'id',
-                'title'
+                'title',
             ]);
 
         return response()->json($exams);
@@ -75,7 +76,7 @@ class ExamSlotController extends Controller
             ->orderBy('id')
             ->get([
                 'id',
-                'name'
+                'name',
             ]);
 
         return response()->json($examSets);
@@ -143,6 +144,7 @@ class ExamSlotController extends Controller
         }
 
         $existingSlot = ExamSlot::where('batch_id', $request->batch_id)
+            ->where('is_active', true)
             ->where(function ($query) use ($request) {
                 $query->where('start_at', '<', $request->end_at)
                     ->where('end_at', '>', $request->start_at);
@@ -161,6 +163,7 @@ class ExamSlotController extends Controller
         $examSlot->exam_set_id = $request->exam_set_id;
         $examSlot->start_at = $request->start_at;
         $examSlot->end_at = $request->end_at;
+        $examSlot->status = 'scheduled';
         $examSlot->is_active = $request->has('is_active');
 
         $examSlot->save();
@@ -174,7 +177,7 @@ class ExamSlotController extends Controller
     {
         $examSlot->load([
             'batch',
-            'examSet.exam'
+            'examSet.exam',
         ]);
 
         return view('exam-slots.show', compact('examSlot'));
@@ -261,6 +264,7 @@ class ExamSlotController extends Controller
 
         $existingSlot = ExamSlot::where('batch_id', $request->batch_id)
             ->where('id', '!=', $examSlot->id)
+            ->where('is_active', true)
             ->where(function ($query) use ($request) {
                 $query->where('start_at', '<', $request->end_at)
                     ->where('end_at', '>', $request->start_at);
@@ -277,13 +281,102 @@ class ExamSlotController extends Controller
         $examSlot->exam_set_id = $request->exam_set_id;
         $examSlot->start_at = $request->start_at;
         $examSlot->end_at = $request->end_at;
-        $examSlot->is_active = $request->has('is_active');
+
+        if ($examSlot->status === 'scheduled') {
+            $examSlot->is_active = $request->has('is_active');
+        }
 
         $examSlot->save();
 
         return redirect()
             ->route('exam-slots.index')
             ->with('success', 'Exam Slot updated successfully.');
+    }
+
+    public function startExam(ExamSlot $examSlot)
+    {
+        if ($examSlot->status !== 'scheduled') {
+            return back()
+                ->with('error', 'This exam cannot be started.');
+        }
+
+        if (!$examSlot->is_active || $examSlot->deleted_at !== null) {
+            return back()
+                ->with('error', 'This exam slot is not active.');
+        }
+
+        $now = now();
+
+        $conflict = ExamSlot::query()
+            ->where('batch_id', $examSlot->batch_id)
+            ->where('id', '!=', $examSlot->id)
+            ->where('is_active', true)
+            ->whereNull('deleted_at')
+            ->where(function ($query) use ($now) {
+                $query->where('status', 'start')
+                    ->orWhere(function ($query) use ($now) {
+                        $query->where('status', 'scheduled')
+                            ->where('start_at', '<=', $now)
+                            ->where('end_at', '>', $now);
+                    });
+            })
+            ->exists();
+
+        if ($conflict) {
+            return back()
+                ->with('error', 'Another exam is already scheduled or running for this batch at this time.');
+        }
+
+        DB::transaction(function () use ($examSlot, $now) {
+            $examSlot->status = 'start';
+            $examSlot->started_at = $now;
+            $examSlot->is_active = true;
+            $examSlot->save();
+
+            $examSet = $examSlot->examSet;
+
+            if ($examSet) {
+                $examSet->status = 'processing';
+                $examSet->save();
+            }
+        });
+
+        return redirect()
+            ->route('exam-slots.index')
+            ->with('success', 'Exam started successfully.');
+    }
+
+    public function endExam(ExamSlot $examSlot)
+    {
+        if ($examSlot->status !== 'start') {
+            return back()
+                ->with('error', 'This exam cannot be ended.');
+        }
+
+        if (!$examSlot->is_active || $examSlot->deleted_at !== null) {
+            return back()
+                ->with('error', 'This exam slot is not active.');
+        }
+
+        $now = now();
+
+        DB::transaction(function () use ($examSlot, $now) {
+            $examSlot->status = 'ended';
+            $examSlot->ended_at = $now;
+            $examSlot->is_active = false;
+            $examSlot->save();
+
+            $examSet = $examSlot->examSet;
+
+            if ($examSet) {
+                $examSet->status = 'completed';
+                $examSet->save();
+            }
+        });
+
+        return redirect()
+            ->route('exam-slots.index')
+            ->with('success', 'Exam ended successfully.');
     }
 
     public function destroy(ExamSlot $examSlot)
@@ -349,3 +442,4 @@ class ExamSlotController extends Controller
             ->with('success', 'Exam Slot permanently deleted.');
     }
 }
+
