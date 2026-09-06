@@ -26,4 +26,6 @@ class CompetencyUnit extends Model
             ->withPivot('question_count')
             ->withTimestamps();
     }
+
+    protected $guarded = [];
 }

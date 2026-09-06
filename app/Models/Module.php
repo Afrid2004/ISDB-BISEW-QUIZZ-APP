@@ -10,6 +10,7 @@ class Module extends Model
 {
     /** @use HasFactory<\Database\Factories\ModuleFactory> */
     use HasFactory, SoftDeletes;
+    protected $guarded = [];
 
     public function course()
     {

@@ -20,4 +20,5 @@ class Element extends Model
     {
         return $this->hasMany(Question::class);
     }
+    protected $guarded = [];
 }

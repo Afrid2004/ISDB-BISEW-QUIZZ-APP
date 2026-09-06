@@ -10,9 +10,71 @@ use App\Models\CompetencyUnit;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
-
+use App\Imports\QuestionsImport;
+use App\Exports\QuestionTemplateExport;
+use Maatwebsite\Excel\Facades\Excel;
 class QuestionController extends Controller
 {
+
+    /**
+     * Download sample CSV template.
+     */
+    public function exportTemplate()
+    {
+        return Excel::download(new QuestionTemplateExport, 'questions_template.csv');
+    }
+
+    /**
+     * Import questions with atomic database transaction.
+     * Downloads an error report if any validation fails.
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt,xlsx,xls|max:5120',
+        ]);
+
+        $import = new QuestionsImport;
+
+        // Start database transaction
+        DB::beginTransaction();
+
+        try {
+            Excel::import($import, $request->file('file'));
+
+            // Check if any row failed validation
+            if ($import->failures()->isNotEmpty()) {
+                // Roll back all changes so no invalid data enters the database
+                DB::rollBack();
+
+                $fileName = 'error_report_' . time() . '.csv';
+
+                // Stream and download the CSV error file directly
+                return response()->streamDownload(function () use ($import) {
+                    $handle = fopen('php://output', 'w');
+                    fputcsv($handle, ['Row', 'Field', 'Error Message']); // Headers
+
+                    foreach ($import->failures() as $failure) {
+                        fputcsv($handle, [
+                            $failure->row(),
+                            $failure->attribute(),
+                            implode(', ', $failure->errors())
+                        ]);
+                    }
+                    fclose($handle);
+                }, $fileName, ['Content-Type' => 'text/csv']);
+            }
+
+            // Commit transaction if all rows are valid
+            DB::commit();
+
+            return back()->with('success', 'All questions imported successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Import Failed: ' . $e->getMessage());
+        }
+    }
+
     /**
      * Display a listing of questions.
      */

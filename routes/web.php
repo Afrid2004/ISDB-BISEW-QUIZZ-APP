@@ -151,7 +151,8 @@ Route::post('/exam-slots/auto-start', [ExamSlotController::class, 'autoStartExam
     ->name('exam-slots.auto-start');
 Route::resource('exam-slots', ExamSlotController::class);
 
-
+Route::get('/download-template', [QuestionController::class, 'exportTemplate'])->name('questions.export-template');
+Route::post('/questions/import', [QuestionController::class, 'import'])->name('questions.import');
 
 /*
 |--------------------------------------------------------------------------

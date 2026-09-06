@@ -14,4 +14,13 @@ class Option extends Model
     {
         return $this->belongsTo(Question::class);
     }
+    protected $fillable = [
+        'question_id',
+        'option',
+        'is_correct'
+    ];
+
+    protected $casts = [
+        'is_correct' => 'boolean',
+    ];
 }

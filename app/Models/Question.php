@@ -9,6 +9,7 @@ class Question extends Model
 {
     /** @use HasFactory<\Database\Factories\QuestionFactory> */
     use HasFactory;
+    protected $guarded = [];
 
     public function options()
     {
@@ -19,4 +20,5 @@ class Question extends Model
     {
         return $this->belongsTo(Element::class);
     }
+    
 }
