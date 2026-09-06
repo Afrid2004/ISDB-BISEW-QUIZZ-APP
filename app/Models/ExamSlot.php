@@ -15,6 +15,9 @@ class ExamSlot extends Model
     protected $casts = [
         'start_at' => 'datetime',
         'end_at' => 'datetime',
+        'started_at' => 'datetime',
+        'ended_at' => 'datetime',
+        'is_active' => 'boolean',
     ];
 
     public function batch()
