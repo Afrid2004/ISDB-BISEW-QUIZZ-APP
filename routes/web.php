@@ -9,6 +9,7 @@ use App\Http\Controllers\TrainingCenterController;
 use App\Http\Controllers\BatchController;
 use App\Http\Controllers\CompetencyUnitController;
 use App\Http\Controllers\ElementController;
+use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -179,3 +180,11 @@ Route::resource("batches", BatchController::class)
 
 Route::get('/download-template', [QuestionController::class, 'exportTemplate'])->name('questions.export-template');
 Route::post('/questions/import', [QuestionController::class, 'import'])->name('questions.import');
+
+
+
+
+Route::post('/students/import',[StudentController::class,'import'])->name('students.import');
+Route::get('/students/export-template',[StudentController::class,'exportTemplate'])->name('students.export-template');
+Route::resource('/students', StudentController::class)->names('students');
+
