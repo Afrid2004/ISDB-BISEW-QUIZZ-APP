@@ -104,177 +104,232 @@
 
             <div id="csvSection" class="p-5 sm:p-6 lg:p-8">
 
-                {{-- Section Header --}}
-                <div class="mb-6">
+                <form action="{{ route('questions.import') }}" method="POST" enctype="multipart/form-data"
+                    >
+                    @csrf
 
-                    <div class="flex items-center gap-3">
+                    {{-- Validation Error Alerts / Skipped Rows --}}
+                    {{-- Standard Form / File Validation Errors --}}
+                    @if ($errors->any())
+                        <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                            <div class="font-semibold mb-1">Upload Validation Error:</div>
+                            <ul class="list-disc list-inside space-y-1 text-xs">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
 
-                        <div
-                            class="flex h-10 w-10 items-center justify-center
+                    {{-- Exception Error Alert --}}
+                    @if (session('error'))
+                        <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                            <i class="bi bi-exclamation-octagon-fill mr-1"></i> {{ session('error') }}
+                        </div>
+                    @endif
+                    @if (session('failures'))
+                        <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
+                            <div class="flex items-center gap-2 text-sm font-semibold text-red-800">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                <span>Some rows contain errors and were skipped:</span>
+                            </div>
+                            <ul class="mt-2 text-xs text-red-700 list-disc list-inside space-y-1">
+                                @foreach (session('failures') as $failure)
+                                    <li><strong>Row {{ $failure->row() }}:</strong> {{ implode(', ', $failure->errors()) }}
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    {{-- Success Alert --}}
+                    @if (session('success'))
+                        <div class="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+                            <div class="flex items-center gap-2 text-sm font-semibold text-emerald-800">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>{{ session('success') }}</span>
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- Section Header --}}
+                    <div class="mb-6">
+
+                        <div class="flex items-center gap-3">
+
+                            <div
+                                class="flex h-10 w-10 items-center justify-center
                                     rounded-lg bg-primary/10 text-primary">
 
-                            <i class="bi bi-file-earmark-spreadsheet text-lg"></i>
+                                <i class="bi bi-file-earmark-spreadsheet text-lg"></i>
 
-                        </div>
+                            </div>
 
-                        <div>
+                            <div>
 
-                            <h2 class="text-base font-semibold text-slate-800">
-                                Import Questions
-                            </h2>
+                                <h2 class="text-base font-semibold text-slate-800">
+                                    Import Questions
+                                </h2>
 
-                            <p class="mt-0.5 text-xs text-slate-400">
-                                Upload a CSV file to add multiple questions at once.
-                            </p>
+                                <p class="mt-0.5 text-xs text-slate-400">
+                                    Upload a CSV file to add multiple questions at once.
+                                </p>
+
+                            </div>
 
                         </div>
 
                     </div>
 
-                </div>
 
-
-                {{-- Upload Area --}}
-                <div
-                    class="rounded-xl border-2 border-dashed border-slate-200
+                    {{-- Upload Area --}}
+                    <div
+                        class="rounded-xl border-2 border-dashed border-slate-200
                            bg-slate-50/50 px-5 py-10 text-center
                            transition hover:border-primary/30
                            hover:bg-primary/[0.02] sm:px-8">
 
 
-                    {{-- Icon --}}
-                    <div
-                        class="mx-auto mb-4 flex h-14 w-14 items-center
+                        {{-- Icon --}}
+                        <div
+                            class="mx-auto mb-4 flex h-14 w-14 items-center
                                 justify-center rounded-xl bg-primary/10
                                 text-primary">
 
-                        <i class="bi bi-cloud-arrow-up text-2xl"></i>
+                            <i class="bi bi-cloud-arrow-up text-2xl"></i>
 
-                    </div>
-
-
-                    <h3 class="text-sm font-semibold text-slate-700">
-                        Upload your CSV file
-                    </h3>
-
-                    <p class="mx-auto mt-1 max-w-md text-xs leading-5 text-slate-400">
-                        Upload a CSV file containing your questions, options,
-                        answers and related information.
-                    </p>
+                        </div>
 
 
-                    {{-- File Input --}}
-                    <div class="mt-5">
+                        <h3 class="text-sm font-semibold text-slate-700">
+                            Upload your CSV file
+                        </h3>
 
-                        <label
-                            class="inline-flex cursor-pointer items-center gap-2
+                        <p class="mx-auto mt-1 max-w-md text-xs leading-5 text-slate-400">
+                            Upload a CSV file containing your questions, options,
+                            answers and related information.
+                        </p>
+
+
+                        {{-- File Input --}}
+                        <div class="mt-5">
+
+                            <label
+                                class="inline-flex cursor-pointer items-center gap-2
                                    rounded-lg bg-primary px-5 py-2.5
                                    text-sm font-semibold text-white
                                    shadow-sm transition
                                    hover:bg-primary/90">
 
-                            <i class="bi bi-upload"></i>
+                                <i class="bi bi-upload"></i>
 
-                            Choose CSV File
+                                <span id="csvFileName">Choose CSV File</span>
+                                <input type="file" name="file" id="csvFileInput" accept=".csv, .xlsx, .xls"
+                                    class="hidden" required>
 
-                            <input type="file" name="csv_file" accept=".csv" class="hidden">
+                            </label>
 
-                        </label>
+                            <button type="button" id="clearFileBtn"
+                                class="hidden rounded-lg border border-slate-200 bg-white p-2.5 text-slate-500 hover:bg-slate-50 hover:text-red-500 transition"
+                                title="Clear selected file">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+
+                        </div>
+
+
+                        <p class="mt-3 text-[11px] text-slate-400">
+                            Supported format: .csv, .xlsx, .xls
+                        </p>
 
                     </div>
 
 
-                    <p class="mt-3 text-[11px] text-slate-400">
-                        Supported format: .csv
-                    </p>
-
-                </div>
+                    {{-- CSV Information --}}
+                    <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
 
 
-                {{-- CSV Information --}}
-                <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-
-
-                    {{-- Template --}}
-                    <div class="rounded-lg border border-slate-200
+                        {{-- Template --}}
+                        <div class="rounded-lg border border-slate-200
                                 bg-white p-4">
 
-                        <div class="flex items-start gap-3">
+                            <div class="flex items-start gap-3">
 
-                            <div
-                                class="flex h-9 w-9 shrink-0 items-center
+                                <div
+                                    class="flex h-9 w-9 shrink-0 items-center
                                         justify-center rounded-lg
                                         bg-primary/10 text-primary">
 
-                                <i class="bi bi-file-earmark-arrow-down"></i>
+                                    <i class="bi bi-file-earmark-arrow-down"></i>
 
-                            </div>
+                                </div>
 
-                            <div>
+                                <div>
 
-                                <h3 class="text-sm font-semibold text-slate-700">
-                                    CSV Template
-                                </h3>
+                                    <h3 class="text-sm font-semibold text-slate-700">
+                                        CSV Template
+                                    </h3>
 
-                                <p class="mt-1 text-xs leading-5 text-slate-400">
-                                    Download the sample CSV template before
-                                    importing your questions.
-                                </p>
+                                    <p class="mt-1 text-xs leading-5 text-slate-400">
+                                        Download the sample CSV template before
+                                        importing your questions.
+                                    </p>
 
-                                <button type="button"
-                                    class="mt-3 inline-flex items-center gap-1.5
-                                           text-xs font-semibold text-primary
-                                           hover:underline">
+                                    <a href="{{ route('questions.export-template') }}"
+                                        class="mt-3 inline-flex items-center gap-1.5
+           rounded-lg text-xs font-semibold text-primary
+           hover:underline">
 
-                                    <i class="bi bi-download"></i>
+                                        <i class="bi bi-download"></i>
 
-                                    Download Template
+                                        Download Template
+                                    </a>
 
-                                </button>
+                                </div>
 
                             </div>
 
                         </div>
 
-                    </div>
 
-
-                    {{-- CSV Format --}}
-                    <div class="rounded-lg border border-slate-200
+                        {{-- CSV Format --}}
+                        <div class="rounded-lg border border-slate-200
                                 bg-white p-4">
 
-                        <div class="flex items-start gap-3">
+                            <div class="flex items-start gap-3">
 
-                            <div
-                                class="flex h-9 w-9 shrink-0 items-center
+                                <div
+                                    class="flex h-9 w-9 shrink-0 items-center
                                         justify-center rounded-lg
                                         bg-slate-100 text-slate-500">
 
-                                <i class="bi bi-info-circle"></i>
+                                    <i class="bi bi-info-circle"></i>
 
-                            </div>
+                                </div>
 
-                            <div>
+                                <div>
 
-                                <h3 class="text-sm font-semibold text-slate-700">
-                                    CSV Format
-                                </h3>
+                                    <h3 class="text-sm font-semibold text-slate-700">
+                                        CSV Format
+                                    </h3>
 
-                                <p class="mt-1 text-xs leading-5 text-slate-400">
-                                    Make sure your CSV file follows the required
-                                    column structure.
-                                </p>
+                                    <p class="mt-1 text-xs leading-5 text-slate-400">
+                                        Make sure your CSV file follows the required
+                                        column structure.
+                                    </p>
 
-                                <button type="button"
-                                    class="mt-3 inline-flex items-center gap-1.5
+                                    <button type="button"
+                                        class="mt-3 inline-flex items-center gap-1.5
                                            text-xs font-semibold text-primary
                                            hover:underline">
 
-                                    View Format
+                                        View Format
 
-                                    <i class="bi bi-arrow-right"></i>
+                                        <i class="bi bi-arrow-right"></i>
 
-                                </button>
+                                    </button>
+
+                                </div>
 
                             </div>
 
@@ -282,25 +337,25 @@
 
                     </div>
 
-                </div>
 
+                    {{-- CSV Action --}}
+                    <div class="mt-6 flex justify-end border-t border-slate-100 pt-5">
 
-                {{-- CSV Action --}}
-                <div class="mt-6 flex justify-end border-t border-slate-100 pt-5">
-
-                    <button type="button"
-                        class="inline-flex items-center gap-2 rounded-lg
+                        <button type="submit"
+                            class="inline-flex items-center gap-2 rounded-lg
                                bg-primary px-5 py-2.5 text-sm font-semibold
                                text-white shadow-sm transition
                                hover:bg-primary/90 cursor-pointer">
 
-                        <i class="bi bi-cloud-upload"></i>
+                            <i class="bi bi-cloud-upload"></i>
 
-                        Import Questions
+                            Import Questions
 
-                    </button>
+                        </button>
 
-                </div>
+                    </div>
+
+                </form>
 
             </div>
 
@@ -342,7 +397,7 @@
 
 
                 {{-- Form --}}
-                <form action="#" method="POST">
+                <form action="{{ route('questions.store') }}" method="POST">
 
                     @csrf
 

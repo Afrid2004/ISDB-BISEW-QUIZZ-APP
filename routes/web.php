@@ -14,6 +14,7 @@ use App\Http\Controllers\ExamSetCompetencyUnitController;
 use App\Http\Controllers\ExamSetController;
 use App\Http\Controllers\ExamSetQuestionController;
 use App\Http\Controllers\ExamSlotController;
+use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -153,7 +154,9 @@ Route::resource('exam-slots', ExamSlotController::class);
 
 Route::get('/download-template', [QuestionController::class, 'exportTemplate'])->name('questions.export-template');
 Route::post('/questions/import', [QuestionController::class, 'import'])->name('questions.import');
-
+Route::post('/students/import', [StudentController::class, 'import'])->name('students.import');
+Route::get('/students/export-template', [StudentController::class, 'exportTemplate'])->name('students.export-template');
+Route::resource('/students', StudentController::class)->names('students');
 /*
 |--------------------------------------------------------------------------
 | Application Dashboard Route

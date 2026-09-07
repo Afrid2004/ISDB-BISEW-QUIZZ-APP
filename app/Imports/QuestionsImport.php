@@ -20,105 +20,228 @@ class QuestionsImport implements ToCollection, WithHeadingRow, WithValidation, S
     use SkipsFailures;
 
     /**
-     * Define validation rules for each row.
+     * Define validation rules for each Excel row.
      */
     public function rules(): array
     {
         return [
-            'course_code'   => 'required|exists:courses,code', // এটি আবার চালু করুন
-            'question_text' => 'required',
-            'question_type' => 'required',
-            'marks'         => 'required|numeric',
-            'option_1'      => 'required',
-            'option_2'      => 'required',
+            'course_code' => [
+                'required',
+                'exists:courses,code',
+            ],
+
+            'module_name' => [
+                'required',
+                'string',
+            ],
+
+            'unit_name' => [
+                'required',
+                'string',
+            ],
+
+            'element_name' => [
+                'required',
+                'string',
+            ],
+
+            'question_text' => [
+                'required',
+                'string',
+            ],
+
+            'question_type' => [
+                'required',
+                'in:single_choice,multiple_choice',
+            ],
+
+            'marks' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
+
+            'difficulty' => [
+                'nullable',
+                'in:easy,medium,hard',
+            ],
+
+            'option_1' => [
+                'required',
+            ],
+
+            'option_2' => [
+                'required',
+            ],
+
+            'option_3' => [
+                'nullable',
+            ],
+
+            'option_4' => [
+                'nullable',
+            ],
         ];
     }
 
     /**
-     * Process the collection of rows after validation passes.
+     * Process the Excel rows.
      */
     public function collection(Collection $rows)
     {
         foreach ($rows as $row) {
-            $course = Course::where('code', trim($row['course_code']))->first();
-            $module = null;
-            if (!empty($row['module_name'])) {
-                $module = Module::firstOrCreate(
-                    [
-                        'name' => trim($row['module_name']),
-                        'course_id' => $course->id,
-                    ],
-                    [
-                        'module_number' => $row['module_number'] ?? 1,
-                        'is_active'    => 1,
-                    ]
-                );
+
+            /*
+            |--------------------------------------------------------------------------
+            | 1. Find Course
+            |--------------------------------------------------------------------------
+            */
+
+            $course = Course::where(
+                'code',
+                trim($row['course_code'])
+            )->first();
+
+            if (!$course) {
+                continue;
             }
 
-            // Find or create Competency Unit
-            $unit = null;
-            if (!empty($row['unit_name']) && $module) {
-                $unit = CompetencyUnit::firstOrCreate(
-                    [
-                        'module_id' => $module->id,
-                        'course_id' =>  $course->id,
-                        'code' => $row['unit_name']
+            /*
+            |--------------------------------------------------------------------------
+            | 2. Find or Create Module
+            |--------------------------------------------------------------------------
+            */
 
-                    ],
-
-                    [
-                        'is_active' => 1
-                    ]
-                );
-            }
-
-            // Find or create Element
-            $element = null;
-            if (!empty($row['element_name']) && $unit) {
-                $element = Element::firstOrCreate(
-                    [
-                        'competency_unit_id' => $unit->id,
-                        'name' => trim($row['element_name'])
-                    ],
-                    ['is_active' => 1]
-                );
-            }
-
-            // Create or fetch Question
-            $question = Question::firstOrCreate(
+            $module = Module::firstOrCreate(
                 [
-                    'question_text' => trim($row['question_text']),
-                    'course_code'           => $course->id,
-                    'module_code'           => $module?->id,
-                    'unit_code'             => $unit?->id,
-                    'element_id'            => $element?->id,
-
+                    'course_id' => $course->id,
+                    'module_number' => $row['module_number'] ?? 1,
                 ],
                 [
-                    'question_type'      => $row['question_type'] ?? 'mcq',
-                    'marks'              => $row['marks'] ?? 1.00,
-                    'difficulty'         => $row['difficulty'] ?? 'medium',
-                    'explanation'        => $row['explanation'] ?? null,
-                    'is_active'          => 1,
-                    'created_by'         => auth()->id() ?? 1,
+                    'name' => trim($row['module_name']),
+                    'is_active' => true,
                 ]
             );
 
-            // Insert options (1 to 4)
-            for ($i = 1; $i <= 4; $i++) {
-                if (!empty($row["option_{$i}"])) {
-                    Option::updateOrCreate(
-                        [
-                            'question_id' => $question->id
-                        ],
+            /*
+            |--------------------------------------------------------------------------
+            | 3. Find or Create Competency Unit
+            |--------------------------------------------------------------------------
+            */
 
-                        [
-                            'option' => trim($row["option_{$i}"]),
-                            'is_correct' => (bool)($row["is_correct_{$i}"] ?? 0)
-                        ]
-                    );
+            // 3. Find or Create Competency Unit
+
+            $unitName = trim($row['unit_name']);
+
+            // UNIT-01 → 1
+            $unitSerial = (int) preg_replace('/[^0-9]/', '', $unitName);
+
+            // STC + PWAD + 1 + 01
+            $unitCode = 'STC'
+                . $course->code
+                . $module->module_number
+                . str_pad($unitSerial, 2, '0', STR_PAD_LEFT);
+
+            $unit = CompetencyUnit::firstOrCreate(
+                [
+                    'code' => $unitCode,
+                ],
+                [
+                    'module_id' => $module->id,
+                    'prefix' => 'STC',
+                    'serial' => $unitSerial,
+                    'is_active' => true,
+                ]
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | 4. Find or Create Element
+            |--------------------------------------------------------------------------
+            */
+
+            $element = Element::firstOrCreate(
+                [
+                    'competency_unit_id' => $unit->id,
+                    'name' => trim($row['element_name']),
+                ],
+                [
+                    'is_active' => true,
+                ]
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | 5. Create or Get Question
+            |--------------------------------------------------------------------------
+            */
+
+            $question = Question::firstOrCreate(
+                [
+                    'question_text' => trim($row['question_text']),
+                    'course_id' => $course->id,
+                    'module_id' => $module->id,
+                    'competency_unit_id' => $unit->id,
+                    'element_id' => $element->id,
+                ],
+                [
+                    'question_type' => $row['question_type'] ?? 'single_choice',
+
+                    'marks' => $row['marks'] ?? 2.00,
+
+                    'difficulty_level' => $row['difficulty'] ?? 'medium',
+
+                    'is_active' => true,
+
+                    'created_by' => auth()->id(),
+                ]
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | 6. Insert Options
+            |--------------------------------------------------------------------------
+            */
+
+            for ($i = 1; $i <= 4; $i++) {
+
+                $optionText = $row["option_{$i}"] ?? null;
+
+                if (empty($optionText)) {
+                    continue;
                 }
+
+                Option::updateOrCreate(
+                    [
+                        'question_id' => $question->id,
+                        'option' => trim($optionText),
+                    ],
+                    [
+                        'is_correct' => $this->convertToBoolean(
+                            $row["is_correct_{$i}"] ?? false
+                        ),
+                    ]
+                );
             }
         }
+    }
+
+    /**
+     * Convert Excel boolean values to true/false.
+     */
+    private function convertToBoolean($value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        $value = strtolower(trim((string) $value));
+
+        return in_array($value, [
+            '1',
+            'true',
+            'yes',
+            'y',
+        ]);
     }
 }

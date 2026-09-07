@@ -7,71 +7,126 @@ use App\Models\Option;
 use App\Models\Course;
 use App\Models\Module;
 use App\Models\CompetencyUnit;
+use App\Models\Element;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use App\Imports\QuestionsImport;
 use App\Exports\QuestionTemplateExport;
 use Maatwebsite\Excel\Facades\Excel;
+
 class QuestionController extends Controller
 {
-
     /**
      * Download sample CSV template.
      */
     public function exportTemplate()
     {
-        return Excel::download(new QuestionTemplateExport, 'questions_template.csv');
+        return Excel::download(
+            new QuestionTemplateExport,
+            'questions_template.csv'
+        );
     }
 
     /**
-     * Import questions with atomic database transaction.
-     * Downloads an error report if any validation fails.
+     * Import questions from CSV/Excel.
      */
     public function import(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,txt,xlsx,xls|max:5120',
+            'file' => [
+                'required',
+                'file',
+                'mimes:csv,txt,xlsx,xls',
+                'max:5120',
+            ],
         ]);
 
-        $import = new QuestionsImport;
+        $import = new QuestionsImport();
 
-        // Start database transaction
         DB::beginTransaction();
 
         try {
-            Excel::import($import, $request->file('file'));
+            Excel::import(
+                $import,
+                $request->file('file')
+            );
 
-            // Check if any row failed validation
+            /*
+            |--------------------------------------------------------------------------
+            | Check Validation Failures
+            |--------------------------------------------------------------------------
+            */
+
             if ($import->failures()->isNotEmpty()) {
-                // Roll back all changes so no invalid data enters the database
+
                 DB::rollBack();
 
                 $fileName = 'error_report_' . time() . '.csv';
 
-                // Stream and download the CSV error file directly
-                return response()->streamDownload(function () use ($import) {
-                    $handle = fopen('php://output', 'w');
-                    fputcsv($handle, ['Row', 'Field', 'Error Message']); // Headers
+                return response()->streamDownload(
+                    function () use ($import) {
 
-                    foreach ($import->failures() as $failure) {
-                        fputcsv($handle, [
-                            $failure->row(),
-                            $failure->attribute(),
-                            implode(', ', $failure->errors())
-                        ]);
-                    }
-                    fclose($handle);
-                }, $fileName, ['Content-Type' => 'text/csv']);
+                        $handle = fopen(
+                            'php://output',
+                            'w'
+                        );
+
+                        fputcsv(
+                            $handle,
+                            [
+                                'Row',
+                                'Field',
+                                'Error Message'
+                            ]
+                        );
+
+                        foreach ($import->failures() as $failure) {
+
+                            fputcsv(
+                                $handle,
+                                [
+                                    $failure->row(),
+                                    $failure->attribute(),
+                                    implode(
+                                        ', ',
+                                        $failure->errors()
+                                    ),
+                                ]
+                            );
+                        }
+
+                        fclose($handle);
+                    },
+                    $fileName,
+                    [
+                        'Content-Type' => 'text/csv',
+                    ]
+                );
             }
 
-            // Commit transaction if all rows are valid
+            /*
+            |--------------------------------------------------------------------------
+            | Commit Import
+            |--------------------------------------------------------------------------
+            */
+
             DB::commit();
 
-            return back()->with('success', 'All questions imported successfully!');
-        } catch (\Exception $e) {
+            return back()->with(
+                'success',
+                'All questions imported successfully!'
+            );
+        } catch (\Throwable $e) {
+
             DB::rollBack();
-            return back()->with('error', 'Import Failed: ' . $e->getMessage());
+
+            return back()
+                ->withInput()
+                ->with(
+                    'error',
+                    'Import Failed: ' . $e->getMessage()
+                );
         }
     }
 
@@ -80,40 +135,169 @@ class QuestionController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        $search = trim($request->input('search', ''));
 
         $questions = Question::query()
-            ->with(['course', 'module', 'competencyUnit', 'options'])
+
+            // Course
+            ->leftJoin(
+                'courses',
+                'questions.course_id',
+                '=',
+                'courses.id'
+            )
+
+            // Module
+            ->leftJoin(
+                'modules',
+                function ($join) {
+                    $join->on(
+                        'questions.module_id',
+                        '=',
+                        'modules.id'
+                    )
+                        ->on(
+                            'questions.course_id',
+                            '=',
+                            'modules.course_id'
+                        );
+                }
+            )
+
+            // Competency Unit
+            ->leftJoin(
+                'competency_units',
+                function ($join) {
+                    $join->on(
+                        'questions.competency_unit_id',
+                        '=',
+                        'competency_units.id'
+                    )
+                        ->on(
+                            'questions.module_id',
+                            '=',
+                            'competency_units.module_id'
+                        );
+                }
+            )
+
+            // Element
+            ->leftJoin(
+                'elements',
+                function ($join) {
+                    $join->on(
+                        'questions.element_id',
+                        '=',
+                        'elements.id'
+                    )
+                        ->on(
+                            'questions.competency_unit_id',
+                            '=',
+                            'elements.competency_unit_id'
+                        );
+                }
+            )
+
+            ->select(
+                'questions.*',
+
+                // Course
+                'courses.name as course_name',
+                'courses.code as course_code',
+
+                // Module
+                'modules.name as module_name',
+                'modules.module_number as module_number',
+
+                // Competency Unit
+                'competency_units.code as competency_unit_code',
+                'competency_units.serial as competency_unit_serial',
+
+                // Element
+                'elements.name as element_name'
+            )
+
             ->when($search, function ($query, $search) {
 
                 $query->where(function ($q) use ($search) {
 
-                    $q->where('question', 'like', "%{$search}%");
+                    // Question
+                    $q->where(
+                        'questions.question_text',
+                        'like',
+                        "%{$search}%"
+                    );
 
+                    // Question ID
                     if (is_numeric($search)) {
-                        $q->orWhere('id', $search);
+                        $q->orWhere(
+                            'questions.id',
+                            $search
+                        );
                     }
 
-                    $q->orWhereHas('course', function ($courseQuery) use ($search) {
-                        $courseQuery->where('name', 'like', "%{$search}%")
-                            ->orWhere('code', 'like', "%{$search}%");
-                    });
+                    // Course
+                    $q->orWhere(
+                        'courses.name',
+                        'like',
+                        "%{$search}%"
+                    );
 
-                    $q->orWhereHas('module', function ($moduleQuery) use ($search) {
-                        $moduleQuery->where('name', 'like', "%{$search}%");
-                    });
+                    $q->orWhere(
+                        'courses.code',
+                        'like',
+                        "%{$search}%"
+                    );
 
-                    $q->orWhereHas('competencyUnit', function ($competencyQuery) use ($search) {
-                        $competencyQuery->where('name', 'like', "%{$search}%");
-                    });
+                    // Module
+                    $q->orWhere(
+                        'modules.name',
+                        'like',
+                        "%{$search}%"
+                    );
+
+                    if (is_numeric($search)) {
+                        $q->orWhere(
+                            'modules.module_number',
+                            $search
+                        );
+                    }
+
+                    // Competency Unit
+                    $q->orWhere(
+                        'competency_units.code',
+                        'like',
+                        "%{$search}%"
+                    );
+
+                    if (is_numeric($search)) {
+                        $q->orWhere(
+                            'competency_units.serial',
+                            $search
+                        );
+                    }
+
+                    // Element
+                    $q->orWhere(
+                        'elements.name',
+                        'like',
+                        "%{$search}%"
+                    );
                 });
             })
-            ->orderByDesc('id')
+
+            ->orderByDesc('questions.id')
+
             ->paginate(10)
+
             ->withQueryString();
 
-        return view('questions.index', compact('questions'));
+        return view(
+            'questions.index',
+            compact('questions')
+        );
     }
+
 
 
     /**
@@ -125,9 +309,12 @@ class QuestionController extends Controller
             ->whereNull('deleted_at')
             ->orderBy('name')
             ->get();
-        return view('questions.create', compact('courses'));
-    }
 
+        return view(
+            'questions.create',
+            compact('courses')
+        );
+    }
 
     /**
      * Store a newly created question.
@@ -136,58 +323,155 @@ class QuestionController extends Controller
     {
         $request->validate([
 
+            /*
+            |--------------------------------------------------------------------------
+            | Course
+            |--------------------------------------------------------------------------
+            */
+
             'course_id' => [
                 'required',
                 Rule::exists('courses', 'id')
                     ->where('is_active', true)
-                    ->whereNull('deleted_at')
+                    ->whereNull('deleted_at'),
             ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Module
+            |--------------------------------------------------------------------------
+            */
 
             'module_id' => [
                 'required',
                 Rule::exists('modules', 'id')
                     ->where('is_active', true)
-                    ->whereNull('deleted_at')
+                    ->whereNull('deleted_at'),
             ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Competency Unit
+            |--------------------------------------------------------------------------
+            */
 
             'competency_unit_id' => [
                 'required',
-                Rule::exists('competency_units', 'id')
+                Rule::exists(
+                    'competency_units',
+                    'id'
+                )
                     ->where('is_active', true)
-                    ->whereNull('deleted_at')
+                    ->whereNull('deleted_at'),
             ],
 
-            'marks' => ['required', 'integer', 'min:1'],
+            /*
+            |--------------------------------------------------------------------------
+            | Element
+            |--------------------------------------------------------------------------
+            */
 
-            'question' => ['required', 'string'],
+            'element_id' => [
+                'required',
+                Rule::exists('elements', 'id')
+                    ->where('is_active', true)
+                    ->whereNull('deleted_at'),
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Question
+            |--------------------------------------------------------------------------
+            */
+
+            'question_text' => [
+                'required',
+                'string',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Marks
+            |--------------------------------------------------------------------------
+            */
+
+            'marks' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Difficulty
+            |--------------------------------------------------------------------------
+            */
+
+            'difficulty_level' => [
+                'required',
+                Rule::in([
+                    'easy',
+                    'medium',
+                    'hard',
+                ]),
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Question Type
+            |--------------------------------------------------------------------------
+            */
 
             'question_type' => [
                 'required',
                 Rule::in([
                     'single_choice',
-                    'multiple_choice'
-                ])
+                    'multiple_choice',
+                ]),
             ],
 
-            'options' => ['required', 'array', 'min:2'],
+            /*
+            |--------------------------------------------------------------------------
+            | Options
+            |--------------------------------------------------------------------------
+            */
 
-            'options.*' => ['required', 'string', 'max:1000'],
+            'options' => [
+                'required',
+                'array',
+                'min:2',
+            ],
 
-            'correct_answer' => ['required'],
+            'options.*' => [
+                'required',
+                'string',
+                'max:1000',
+            ],
 
-            'is_active' => ['nullable', 'boolean']
+            /*
+            |--------------------------------------------------------------------------
+            | Correct Answer
+            |--------------------------------------------------------------------------
+            */
+
+            'correct_answer' => [
+                'required',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Status
+            |--------------------------------------------------------------------------
+            */
+
+            'is_active' => [
+                'nullable',
+                'boolean',
+            ],
         ]);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Correct Answer Validation
-        |--------------------------------------------------------------------------
-        */
 
         $options = $request->input('options');
         $correctAnswers = $request->input('correct_answer');
-
 
         /*
         |--------------------------------------------------------------------------
@@ -203,17 +487,20 @@ class QuestionController extends Controller
 
             foreach ($correctAnswers as $correctAnswer) {
 
-                if (!array_key_exists($correctAnswer, $options)) {
+                if (!array_key_exists(
+                    $correctAnswer,
+                    $options
+                )) {
 
                     return back()
                         ->withInput()
                         ->withErrors([
-                            'correct_answer' => 'Invalid correct answer selected.'
+                            'correct_answer' =>
+                            'Invalid correct answer selected.',
                         ]);
                 }
             }
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -223,19 +510,22 @@ class QuestionController extends Controller
 
             if (
                 !is_string($correctAnswers) ||
-                !array_key_exists($correctAnswers, $options)
+                !array_key_exists(
+                    $correctAnswers,
+                    $options
+                )
             ) {
 
                 return back()
                     ->withInput()
                     ->withErrors([
-                        'correct_answer' => 'Invalid correct answer selected.'
+                        'correct_answer' =>
+                        'Invalid correct answer selected.',
                     ]);
             }
 
             $correctAnswers = [$correctAnswers];
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -243,30 +533,55 @@ class QuestionController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        DB::transaction(function () use ($request, $options, $correctAnswers) {
+        DB::transaction(function () use (
+            $request,
+            $options,
+            $correctAnswers
+        ) {
 
             /*
             |--------------------------------------------------------------------------
-            | Question
+            | Create Question
             |--------------------------------------------------------------------------
             */
 
             $question = new Question();
 
-            $question->course_id = $request->course_id;
-            $question->module_id = $request->module_id;
-            $question->competency_unit_id = $request->competency_unit_id;
-            $question->question = trim($request->question);
-            $question->marks = $request->marks;
-            $question->question_type = $request->question_type;
-            $question->is_active = $request->boolean('is_active');
+            $question->course_id =
+                $request->course_id;
+
+            $question->module_id =
+                $request->module_id;
+
+            $question->competency_unit_id =
+                $request->competency_unit_id;
+
+            $question->element_id =
+                $request->element_id;
+
+            $question->question_text =
+                trim($request->question_text);
+
+            $question->marks =
+                $request->marks;
+
+            $question->difficulty_level =
+                $request->difficulty_level;
+
+            $question->question_type =
+                $request->question_type;
+
+            $question->is_active =
+                $request->boolean('is_active');
+
+            $question->created_by =
+                auth()->id();
 
             $question->save();
 
-
             /*
             |--------------------------------------------------------------------------
-            | Options
+            | Create Options
             |--------------------------------------------------------------------------
             */
 
@@ -274,41 +589,86 @@ class QuestionController extends Controller
 
                 Option::create([
                     'question_id' => $question->id,
-                    'option' => trim($optionText),
-                    'is_correct' => in_array($letter, $correctAnswers),
+
+                    'option' =>
+                    trim($optionText),
+
+                    'is_correct' =>
+                    in_array(
+                        $letter,
+                        $correctAnswers
+                    ),
                 ]);
             }
         });
 
-
         return redirect()
             ->route('questions.index')
-            ->with('success', 'Question created successfully.');
+            ->with(
+                'success',
+                'Question created successfully.'
+            );
     }
 
+    /**
+     * Get modules by course.
+     */
     public function getModules($courseId)
     {
-        $modules = Module::where('course_id', $courseId)
+        $modules = Module::where(
+            'course_id',
+            $courseId
+        )
             ->where('is_active', true)
             ->whereNull('deleted_at')
             ->orderBy('name')
-            ->get(['id', 'name']);
+            ->get([
+                'id',
+                'name',
+            ]);
 
         return response()->json($modules);
     }
 
-
+    /**
+     * Get competency units by module.
+     */
     public function getCompetencyUnits($moduleId)
     {
-        $competencyUnits = CompetencyUnit::where('module_id', $moduleId)
+        $competencyUnits = CompetencyUnit::where(
+            'module_id',
+            $moduleId
+        )
             ->where('is_active', true)
             ->whereNull('deleted_at')
             ->orderBy('name')
-            ->get(['id', 'name']);
+            ->get([
+                'id',
+                'name',
+            ]);
 
         return response()->json($competencyUnits);
     }
 
+    /**
+     * Get elements by competency unit.
+     */
+    public function getElements($competencyUnitId)
+    {
+        $elements = Element::where(
+            'competency_unit_id',
+            $competencyUnitId
+        )
+            ->where('is_active', true)
+            ->whereNull('deleted_at')
+            ->orderBy('name')
+            ->get([
+                'id',
+                'name',
+            ]);
+
+        return response()->json($elements);
+    }
 
     /**
      * Display the specified question.
@@ -319,117 +679,246 @@ class QuestionController extends Controller
             'course',
             'module',
             'competencyUnit',
-            'options'
+            'element',
+            'options',
         ]);
 
-        return view('questions.show', compact('question'));
+        return view(
+            'questions.show',
+            compact('question')
+        );
     }
-
 
     /**
      * Show the form for editing the specified question.
      */
     public function edit(Question $question)
     {
-        $question->load('options');
+        $question->load([
+            'options',
+            'element',
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Courses
+        |--------------------------------------------------------------------------
+        */
 
         $courses = Course::where('is_active', true)
             ->whereNull('deleted_at')
             ->orderBy('name')
             ->get();
 
+        /*
+        |--------------------------------------------------------------------------
+        | Modules
+        |--------------------------------------------------------------------------
+        */
+
         $modules = Module::where('is_active', true)
             ->whereNull('deleted_at')
             ->orderBy('name')
             ->get();
 
-        $competencyUnits = CompetencyUnit::where('is_active', true)
+        /*
+        |--------------------------------------------------------------------------
+        | Competency Units
+        |--------------------------------------------------------------------------
+        */
+
+        $competencyUnits = CompetencyUnit::where(
+            'is_active',
+            true
+        )
             ->whereNull('deleted_at')
             ->orderBy('name')
             ->get();
 
-        return view('questions.edit', compact(
-            'question',
-            'courses',
-            'modules',
-            'competencyUnits'
-        ));
-    }
+        /*
+        |--------------------------------------------------------------------------
+        | Elements
+        |--------------------------------------------------------------------------
+        */
 
+        $elements = Element::where(
+            'is_active',
+            true
+        )
+            ->whereNull('deleted_at')
+            ->orderBy('name')
+            ->get();
+
+        return view(
+            'questions.edit',
+            compact(
+                'question',
+                'courses',
+                'modules',
+                'competencyUnits',
+                'elements'
+            )
+        );
+    }
 
     /**
      * Update the specified question.
      */
-    public function update(Request $request, Question $question)
-    {
+    public function update(
+        Request $request,
+        Question $question
+    ) {
         $request->validate([
+
+            /*
+            |--------------------------------------------------------------------------
+            | Course
+            |--------------------------------------------------------------------------
+            */
 
             'course_id' => [
                 'required',
                 Rule::exists('courses', 'id')
                     ->where('is_active', true)
-                    ->whereNull('deleted_at')
+                    ->whereNull('deleted_at'),
             ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Module
+            |--------------------------------------------------------------------------
+            */
 
             'module_id' => [
                 'required',
                 Rule::exists('modules', 'id')
                     ->where('is_active', true)
-                    ->whereNull('deleted_at')
+                    ->whereNull('deleted_at'),
             ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Competency Unit
+            |--------------------------------------------------------------------------
+            */
 
             'competency_unit_id' => [
                 'required',
-                Rule::exists('competency_units', 'id')
+                Rule::exists(
+                    'competency_units',
+                    'id'
+                )
                     ->where('is_active', true)
-                    ->whereNull('deleted_at')
+                    ->whereNull('deleted_at'),
             ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Element
+            |--------------------------------------------------------------------------
+            */
+
+            'element_id' => [
+                'required',
+                Rule::exists('elements', 'id')
+                    ->where('is_active', true)
+                    ->whereNull('deleted_at'),
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Question
+            |--------------------------------------------------------------------------
+            */
+
+            'question_text' => [
+                'required',
+                'string',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Marks
+            |--------------------------------------------------------------------------
+            */
 
             'marks' => [
                 'required',
-                'integer',
-                'min:1'
+                'numeric',
+                'min:0',
             ],
 
-            'question' => [
+            /*
+            |--------------------------------------------------------------------------
+            | Difficulty
+            |--------------------------------------------------------------------------
+            */
+
+            'difficulty_level' => [
                 'required',
-                'string'
+                Rule::in([
+                    'easy',
+                    'medium',
+                    'hard',
+                ]),
             ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Question Type
+            |--------------------------------------------------------------------------
+            */
 
             'question_type' => [
                 'required',
                 Rule::in([
                     'single_choice',
-                    'multiple_choice'
-                ])
+                    'multiple_choice',
+                ]),
             ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Options
+            |--------------------------------------------------------------------------
+            */
 
             'options' => [
                 'required',
                 'array',
-                'min:2'
+                'min:2',
             ],
 
             'options.*' => [
                 'required',
                 'string',
-                'max:1000'
+                'max:1000',
             ],
 
+            /*
+            |--------------------------------------------------------------------------
+            | Correct Answer
+            |--------------------------------------------------------------------------
+            */
+
             'correct_answer' => [
-                'required'
+                'required',
             ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Status
+            |--------------------------------------------------------------------------
+            */
 
             'is_active' => [
                 'nullable',
-                'boolean'
-            ]
+                'boolean',
+            ],
         ]);
-
 
         $options = $request->input('options');
         $correctAnswers = $request->input('correct_answer');
-
 
         /*
         |--------------------------------------------------------------------------
@@ -445,17 +934,20 @@ class QuestionController extends Controller
 
             foreach ($correctAnswers as $correctAnswer) {
 
-                if (!array_key_exists($correctAnswer, $options)) {
+                if (!array_key_exists(
+                    $correctAnswer,
+                    $options
+                )) {
 
                     return back()
                         ->withInput()
                         ->withErrors([
-                            'correct_answer' => 'Invalid correct answer selected.'
+                            'correct_answer' =>
+                            'Invalid correct answer selected.',
                         ]);
                 }
             }
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -465,19 +957,22 @@ class QuestionController extends Controller
 
             if (
                 !is_string($correctAnswers) ||
-                !array_key_exists($correctAnswers, $options)
+                !array_key_exists(
+                    $correctAnswers,
+                    $options
+                )
             ) {
 
                 return back()
                     ->withInput()
                     ->withErrors([
-                        'correct_answer' => 'Invalid correct answer selected.'
+                        'correct_answer' =>
+                        'Invalid correct answer selected.',
                     ]);
             }
 
             $correctAnswers = [$correctAnswers];
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -498,16 +993,34 @@ class QuestionController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            $question->course_id = $request->course_id;
-            $question->module_id = $request->module_id;
-            $question->competency_unit_id = $request->competency_unit_id;
-            $question->question = trim($request->question);
-            $question->marks = $request->marks;
-            $question->question_type = $request->question_type;
-            $question->is_active = $request->boolean('is_active');
+            $question->course_id =
+                $request->course_id;
+
+            $question->module_id =
+                $request->module_id;
+
+            $question->competency_unit_id =
+                $request->competency_unit_id;
+
+            $question->element_id =
+                $request->element_id;
+
+            $question->question_text =
+                trim($request->question_text);
+
+            $question->marks =
+                $request->marks;
+
+            $question->difficulty_level =
+                $request->difficulty_level;
+
+            $question->question_type =
+                $request->question_type;
+
+            $question->is_active =
+                $request->boolean('is_active');
 
             $question->save();
-
 
             /*
             |--------------------------------------------------------------------------
@@ -516,7 +1029,6 @@ class QuestionController extends Controller
             */
 
             $question->options()->delete();
-
 
             /*
             |--------------------------------------------------------------------------
@@ -528,18 +1040,26 @@ class QuestionController extends Controller
 
                 Option::create([
                     'question_id' => $question->id,
-                    'option' => trim($optionText),
-                    'is_correct' => in_array($letter, $correctAnswers),
+
+                    'option' =>
+                    trim($optionText),
+
+                    'is_correct' =>
+                    in_array(
+                        $letter,
+                        $correctAnswers
+                    ),
                 ]);
             }
         });
 
-
         return redirect()
             ->route('questions.index')
-            ->with('success', 'Question updated successfully.');
+            ->with(
+                'success',
+                'Question updated successfully.'
+            );
     }
-
 
     /**
      * Remove the specified question.
@@ -550,9 +1070,11 @@ class QuestionController extends Controller
 
         return redirect()
             ->route('questions.index')
-            ->with('success', 'Question deleted successfully.');
+            ->with(
+                'success',
+                'Question deleted successfully.'
+            );
     }
-
 
     /**
      * Display all deleted questions.
@@ -562,29 +1084,116 @@ class QuestionController extends Controller
         $search = $request->input('search');
 
         $questions = Question::query()
-            ->with(['course', 'module', 'competencyUnit', 'options'])
+            ->with([
+                'course',
+                'module',
+                'competencyUnit',
+                'element',
+                'options',
+            ])
             ->when($search, function ($query, $search) {
 
                 $query->where(function ($q) use ($search) {
 
-                    $q->where('question', 'like', "%{$search}%");
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Search Question
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $q->where(
+                        'question_text',
+                        'like',
+                        "%{$search}%"
+                    );
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Search ID
+                    |--------------------------------------------------------------------------
+                    */
 
                     if (is_numeric($search)) {
                         $q->orWhere('id', $search);
                     }
 
-                    $q->orWhereHas('course', function ($courseQuery) use ($search) {
-                        $courseQuery->where('name', 'like', "%{$search}%")
-                            ->orWhere('code', 'like', "%{$search}%");
-                    });
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Search Course
+                    |--------------------------------------------------------------------------
+                    */
 
-                    $q->orWhereHas('module', function ($moduleQuery) use ($search) {
-                        $moduleQuery->where('name', 'like', "%{$search}%");
-                    });
+                    $q->orWhereHas(
+                        'course',
+                        function ($courseQuery) use ($search) {
 
-                    $q->orWhereHas('competencyUnit', function ($competencyQuery) use ($search) {
-                        $competencyQuery->where('name', 'like', "%{$search}%");
-                    });
+                            $courseQuery
+                                ->where(
+                                    'name',
+                                    'like',
+                                    "%{$search}%"
+                                )
+                                ->orWhere(
+                                    'code',
+                                    'like',
+                                    "%{$search}%"
+                                );
+                        }
+                    );
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Search Module
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $q->orWhereHas(
+                        'module',
+                        function ($moduleQuery) use ($search) {
+
+                            $moduleQuery->where(
+                                'name',
+                                'like',
+                                "%{$search}%"
+                            );
+                        }
+                    );
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Search Competency Unit
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $q->orWhereHas(
+                        'competencyUnit',
+                        function ($competencyQuery) use ($search) {
+
+                            $competencyQuery->where(
+                                'name',
+                                'like',
+                                "%{$search}%"
+                            );
+                        }
+                    );
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Search Element
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $q->orWhereHas(
+                        'element',
+                        function ($elementQuery) use ($search) {
+
+                            $elementQuery->where(
+                                'name',
+                                'like',
+                                "%{$search}%"
+                            );
+                        }
+                    );
                 });
             })
             ->onlyTrashed()
@@ -592,36 +1201,45 @@ class QuestionController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('questions.deleted', compact('questions'));
+        return view(
+            'questions.deleted',
+            compact('questions')
+        );
     }
-
 
     /**
      * Restore deleted question.
      */
     public function restoreQuestion(int $id)
     {
-        $question = Question::withTrashed()->findOrFail($id);
+        $question = Question::withTrashed()
+            ->findOrFail($id);
 
         $question->restore();
 
         return redirect()
             ->route('questions.deleted')
-            ->with('success', 'Question restored successfully.');
+            ->with(
+                'success',
+                'Question restored successfully.'
+            );
     }
-
 
     /**
      * Permanently delete question.
      */
     public function forceDelete(int $id)
     {
-        $question = Question::withTrashed()->findOrFail($id);
+        $question = Question::withTrashed()
+            ->findOrFail($id);
 
         $question->forceDelete();
 
         return redirect()
             ->route('questions.deleted')
-            ->with('success', 'Question permanently deleted.');
+            ->with(
+                'success',
+                'Question permanently deleted.'
+            );
     }
 }
