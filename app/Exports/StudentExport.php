@@ -25,15 +25,15 @@ class StudentExport implements WithHeadings, FromCollection
     {
         return collect([
             [
-                '71',                    // round_id
-                'PWAD/CCSL-M/71/01',     // batch_id
-                'Faisal Munna',          // name
-                'faisal@gmail.com',      // email
-                '01700000000',           // phone
-                '2000-01-15',             // dob
-                'student.jpg',           // photo
-                'active',                // status
-            ]
+                '71',
+                'PWAD/CCSL-M/71/01',
+                'Faisal Munna',
+                'faisal@gmail.com',
+                '01700000000',
+                '2000-01-15',
+                'student.jpg',
+                'active',
+            ],
         ]);
     }
 }

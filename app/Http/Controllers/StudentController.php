@@ -9,112 +9,91 @@ use App\Exports\StudentExport;
 use App\Imports\StudentImport;
 use App\Models\Batch;
 use App\Models\Round;
-use Maatwebsite\Excel\Validators\ValidationException;
 
 class StudentController extends Controller
 {
     public function import(Request $request)
     {
         $request->validate([
-            'file' => [
-                'required',
-                'file',
-                'mimes:csv,txt',
-            ],
+            'file' => ['required', 'file', 'mimes:csv,txt,xlsx,xls'],
         ]);
 
         try {
-            $import = new StudentImport;
+            $import = new StudentImport();
+
             Excel::import($import, $request->file('file'));
 
             $failures = $import->failures();
-            $skipped  = $import->skippedRows();
+            $skipped = $import->skippedRows();
 
+            // Download error CSV if errors exist
             if ($failures->isNotEmpty() || !empty($skipped)) {
-                return redirect()->back()
-                    ->with('failures', $failures)
-                    ->with('skipped', $skipped)
-                    ->with('error', 'Some student records could not be imported. See details below.');
+                $errorRows = [];
+
+                // Add validation errors
+                foreach ($failures as $failure) {
+                    $row = $failure['data'];
+                    $row['error'] = $failure['error'];
+                    $errorRows[] = $row;
+                }
+
+                // Add skipped rows
+                foreach ($skipped as $skippedRow) {
+                    $row = $skippedRow['data'];
+                    $row['error'] = $skippedRow['error'];
+                    $errorRows[] = $row;
+                }
+
+                // Generate error CSV
+                return response()->streamDownload(function () use ($errorRows) {
+                    $handle = fopen('php://output', 'w');
+
+                    if (!empty($errorRows)) {
+                        $headings = array_keys($errorRows[0]);
+                        fputcsv($handle, $headings);
+
+                        foreach ($errorRows as $row) {
+                            fputcsv($handle, array_map(
+                                fn($value) => is_array($value) ? json_encode($value) : $value,
+                                array_values($row)
+                            ));
+                        }
+                    }
+
+                    fclose($handle);
+                }, 'student_import_errors.csv');
             }
 
+            // Redirect after successful import
             return redirect()->back()->with('success', 'Students imported successfully.');
-        } catch (ValidationException $e) {
-            $failures = $e->failures();
-
-            return redirect()->back()
-                ->with('failures', $failures)
-                ->with('error', 'Some student records could not be imported.');
         } catch (\Throwable $e) {
             return redirect()->back()->with('error', 'Import failed: ' . $e->getMessage());
         }
     }
 
-    /**
-     * Download student CSV template
-     */
+    // Download student CSV template
     public function exportTemplate()
     {
         return Excel::download(new StudentExport, 'student_import_template.csv');
     }
 
+    public function index() {}
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $rounds = Round::all();
         $batches = Batch::all();
-        //all rounds to populate the dropdown in the form
 
         return view('students.create', compact('rounds', 'batches'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+    public function store(Request $request) {}
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Student $student)
-    {
-        //
-    }
+    public function show(Student $student) {}
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Student $student)
-    {
-        //
-    }
+    public function edit(Student $student) {}
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Student $student)
-    {
-        //
-    }
+    public function update(Request $request, Student $student) {}
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Student $student)
-    {
-        //
-    }
+    public function destroy(Student $student) {}
 }
